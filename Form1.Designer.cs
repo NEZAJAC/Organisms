@@ -53,6 +53,7 @@
             button2 = new Button();
             checkBox2 = new CheckBox();
             groupBox2 = new GroupBox();
+            label10 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             GrassBox.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -196,6 +197,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(label10);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Controls.Add(groupBox2);
             groupBox1.Controls.Add(GrassBox);
@@ -331,6 +333,15 @@
             groupBox2.TabIndex = 9;
             groupBox2.TabStop = false;
             // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(42, 305);
+            label10.Name = "label10";
+            label10.Size = new Size(44, 15);
+            label10.TabIndex = 11;
+            label10.Text = "label10";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -345,6 +356,7 @@
             GrassBox.ResumeLayout(false);
             GrassBox.PerformLayout();
             groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             ResumeLayout(false);
@@ -375,7 +387,6 @@
         private Label label9;
         private Button button2;
         private CheckBox checkBox2;
-
-        
+        private Label label10;
     }
 }
