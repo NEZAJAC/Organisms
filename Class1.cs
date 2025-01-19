@@ -30,12 +30,15 @@ namespace grass
         void NewRefresh()
         {
             pictureBox1.BackColor = Color.White;
+            pictureBox2.BackColor = Color.White;
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             bmp2 = bmpReserve;
+            //------------------------------
             MAXgrass = int.Parse(textBox1.Lines[0]);
             MAXorganis = int.Parse(textBox2.Lines[0]);
-            controller = new Controller(1);
-            controller.CreateLive(rand, pictureBox1, 100, 100);
+            //------------------------------
+            controller = new Controller(3);
+            controller.CreateLive(bmp,rand, pictureBox1, 100, 100);
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -57,9 +60,11 @@ namespace grass
         private void timer1_Tick(object sender, EventArgs e)
         {
             bmp = bmpReserve;
+            //bmp2 = bmp ;
             controller.Draw(bmp);
             pictureBox1.Image = bmp;
-
+            //pictureBox2.Image = bmp2;
+            
             if (checkBox1.Checked)
             {
                 foreach (Grass grass in controller.grassList)
@@ -70,7 +75,10 @@ namespace grass
                         {
                             if (grass.Duplicate(out Grass? grass1, out controller.grassNoresp, bmp, controller.grassNoresp))
                             {
-                                controller.grassListTEMP.Add(grass1);
+                                if (!controller.grassDictionary.ContainsKey(grass1.point))
+                                {
+                                    controller.grassListTEMP.Add(grass1);
+                                }
                             }
                         }
                         else 
@@ -81,16 +89,17 @@ namespace grass
                                 controller.grassListTEMP.Add(grass1);
                             }
                         }
-                        if (grass.age >= grass.maxage)
+                        if (grass.age >= grass.maxage || grass.food <= 0)
                         {
-                            grass.Clear(bmp);
                             controller.grassListTORemove.Add(grass);
                         }
-
+                        
                     }
 
 
                 }
+
+                
 
                 foreach (Grass grass in controller.grassListTEMP)
                 {
@@ -98,14 +107,31 @@ namespace grass
                 }
                 controller.grassListTEMP.Clear();
 
-                foreach (Grass grass in controller.grassListTORemove)
+                controller.grassDictionary.Clear();
+                foreach (Grass grass in controller.grassList)
                 {
+                    if (!controller.grassDictionary.ContainsKey(grass.point))
+                    {
+                        controller.grassDictionary.Add(grass.point, grass);
+                    }
+                    else
+                    {
+                        controller.grassListTORemove.Add(grass);
+                    }
+
+                }
+                foreach (Grass grass in controller.grassListTORemove)//---------------------Словарь расходится в значениях
+                {
+                    grass.Clear(bmp);
                     controller.grassList.Remove(grass);
                 }
-                controller.grassListTORemove.Clear();
+                controller.grassListTORemove.Clear();//-----------------------Не удаляются скушанные растения
+                
 
                 label1.Text = controller.grassList.Count.ToString();
                 label4.Text = controller.grassNoresp.ToString();
+                label11.Text = controller.grassList.Count.ToString();
+                label12.Text = controller.grassDictionary.Count.ToString();
                 
                 
                 
@@ -115,9 +141,15 @@ namespace grass
             {
                 foreach (Organism organism in controller.cellsList)
                 {
-                    organism.Dowork(bmp);
+                    organism.Dowork(bmp, controller.grassDictionary);
                 }
-                label10.Text = controller.cellsList[0].point.ToString();
+                var temp = (Universal)controller.cellsList[0].bodyTypes[0];
+                //label10.Text = temp.eatTarget.ToString();
+                if(temp.eatTarget.X != -1)
+                {
+                    label10.Text = controller.grassDictionary[temp.eatTarget].food.ToString();
+                }
+                
             }
             
 
@@ -132,6 +164,7 @@ namespace grass
             public List<Grass> grassList = new List<Grass>();
             public List<Grass> grassListTEMP = new List<Grass>();
             public List<Grass> grassListTORemove = new List<Grass>();
+            public Dictionary<Point,Grass> grassDictionary = new Dictionary<Point,Grass>();
             public List<Organism> cellsList = new List<Organism>();
             public List<Organism> cellsListTEMP = new List<Organism>();
             public List<Organism> cellsListTORemove = new List<Organism>();
@@ -145,12 +178,19 @@ namespace grass
                 sunLVL = sunlvl;
             }
 
-            public void CreateLive(Random rand, PictureBox pictureBox1, int grass, int cells)
+            public void CreateLive(Bitmap bmp,Random rand, PictureBox pictureBox1, int grass, int cells)
             {
 
                 for (int i = 0; i < grass; i++)
                 {
-                    grassList.Add(new Grass(new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height))));
+                    Point point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    Color color = bmp.GetPixel(point.X, point.Y);
+                    if (color.G == 0 && color.R == 0 && color.B == 0)
+                    {
+                        Grass? tempGrass = new Grass(point);
+                        grassList.Add(tempGrass);
+                        tempGrass = null;
+                    }
 
                 }
 
@@ -191,7 +231,6 @@ namespace grass
             public Random rand = new Random();
             public Pen pen = new Pen(Color.White);
             public Color pixelunder = Color.White;
-            bool alreadyDraw = false;
             public Object()
             {
 
@@ -209,11 +248,10 @@ namespace grass
             }
             public void Draw(Bitmap bmp)
             {
-                if (!alreadyDraw)
+                if (bmp.GetPixel(point.X, point.Y) != pen.Color)
                 {
                     pixelunder = GetPixelUnder(bmp, point);
                     bmp.SetPixel(point.X, point.Y, pen.Color);
-                    alreadyDraw = true;
                 }
             }
 
@@ -280,17 +318,19 @@ namespace grass
 
         class Organism : Object
         {
-            List<BodyPart> bodyTypes = new List<BodyPart>();
+            public List<BodyPart> bodyTypes = new List<BodyPart>();
             List<Genome> genList = new List<Genome>();
+
             Point lastPoint = new Point();
+            public Point eatTarget = new Point();
 
 
 
             public Organism(Point pointIN)
             {
-                food = 1000;
+                food = 100000;
                 point = pointIN;
-                genList.Add(new Genome { part = new Universal(), localplace = new Point(0,-1) });
+                genList.Add(new Genome { part = new Universal(), localplace = new Point(0,0) });
                 bodyTypes.Add(genList[0].part);
                 bodyTypes[0].localplace = genList[0].localplace;
             }
@@ -298,9 +338,9 @@ namespace grass
             public new void Draw(Bitmap bmp)
             {
                 Clear(bmp);
-                Point pp = new Point(point.X, point.Y);
-                pp = BorderChecker(pp, bmp);
-                bmp.SetPixel(pp.X, pp.Y, Color.Red);
+                //Point pp = new Point(point.X, point.Y);
+                //pp = BorderChecker(pp, bmp);
+                //bmp.SetPixel(pp.X, pp.Y, Color.Red);
                 foreach (var item in bodyTypes)
                 {
                     Point p = new Point(point.X + item.localplace.X, point.Y + item.localplace.Y);
@@ -312,9 +352,9 @@ namespace grass
 
             new void  Clear(Bitmap bmp)
             {
-                Point pp = new Point(lastPoint.X, lastPoint.Y);
-                pp = BorderChecker(pp, bmp);
-                bmp.SetPixel(pp.X, pp.Y, Color.Empty);
+                //Point pp = new Point(lastPoint.X, lastPoint.Y);
+                //pp = BorderChecker(pp, bmp);
+                //bmp.SetPixel(pp.X, pp.Y, Color.Empty);
                 foreach (var item in bodyTypes)
                 {
                     Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
@@ -323,7 +363,7 @@ namespace grass
                 }
             }
 
-            public void Dowork(Bitmap bmp)//берет движение от части тела, берет все другие действия от других частей тела
+            public void Dowork(Bitmap bmp, Dictionary<Point, Grass> readyEat)//берет движение от части тела, берет все другие действия от других частей тела
             {
                 lastPoint = point;
                 //point = BorderChecker(point.X + 1, point.Y + 1, bmp);
@@ -335,20 +375,34 @@ namespace grass
                     {
                         Universal? newPart = (Universal)part;
                         newPart.Dosomething(bmp);
-                        point = BorderChecker(new Point(point.X + newPart.moveResult.X, point.Y + newPart.moveResult.Y),bmp);
+                        point = BorderChecker(point.X + newPart.moveResult.X, point.Y + newPart.moveResult.Y,bmp);
+                        eatTarget = newPart.eatTarget.X != -1 && newPart.eatTarget.Y != -1 ? newPart.eatTarget : new Point(-1,-1);
+                        EatTarget(readyEat, newPart.EatStrength);
+                        newPart.globalplace = point;
                         food -= newPart.energyCost;
                         food += newPart.eatResult;
                     }
                 }
+
+                
             }
 
-
+            public void EatTarget(Dictionary<Point,Grass> readyEat, int toeatStrength)
+            {
+                if (eatTarget.X != -1 && eatTarget.Y != -1) 
+                {
+                    //------------------------------------------------------Доработать математику
+                    readyEat[eatTarget].food -= toeatStrength;
+                    food += toeatStrength;
+                }
+            }
         }
 
         class BodyPart
         {
             public Color color = Color.White;
             public Point localplace = new Point();
+            public Point globalplace = new Point();
             public int energyCost = 0;
             public string name = "";
             public BodyPart()
@@ -366,10 +420,11 @@ namespace grass
         {
 
             Random rand = new Random();
-            int EatStrength = 10;
+            public int EatStrength = 100;
             public int eatResult = 0;
             public Point moveResult = new Point(0,0);
             public bool duplicateResult = false; 
+            public Point eatTarget = new Point(0,0);
             public Universal()
             {
                 name = "Universal";
@@ -377,19 +432,32 @@ namespace grass
                 energyCost = 5;
             }
 
-            public bool Eat(Bitmap bmp) 
+            public bool Eat(out Point targetEat, Bitmap bmp) 
             {
+                List<Point> points = new List<Point>();
                 bool haveToEat = false;
                 for (int i = -1; i < 2; i++)
                 {
                     for (int j = -1; j < 2; j++)
                     {
-                      Point p = BorderChecker(new Point(localplace.X + i, localplace.Y + j),bmp);
-                      haveToEat = bmp.GetPixel(p.X,p.Y) == Color.Green ? true : false;
-                      if(haveToEat == true) { eatResult = EatStrength; break; } else { eatResult = 0; }
+                      Point p = BorderChecker(globalplace.X + localplace.X + i,globalplace.Y + localplace.Y + j,bmp);
+                        if(bmp.GetPixel(p.X, p.Y).G == Color.Green.G)
+                        {
+                            points.Add(new Point(globalplace.X + i, globalplace.Y + j));
+                        }
+                      //points.Add(bmp.GetPixel(p.X, p.Y).G == Color.Green.G ? new Point(globalplace.X + i, globalplace.Y + j) : eatTarget);
+                      //haveToEat = bmp.GetPixel(p.X,p.Y).G == Color.Green.G ? true : false;
+                      //if(haveToEat) { eatResult = EatStrength; return haveToEat; } else { eatResult = 0; }
                     }
+                    
                 }
-                return haveToEat; 
+                for (int i = points.Count - 1; i > -1; i--)
+                {
+                    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
+                }
+                targetEat = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(-1, -1);
+                return haveToEat = targetEat.X != -1 && targetEat.Y != -1 ? true : false;
+
             }
             public Point SenseMove(Bitmap bmp) 
             {
@@ -400,25 +468,32 @@ namespace grass
                 {
                     for (int j = -1; j < 2; j++)
                     {
-                        Point p = BorderChecker(new Point(localplace.X + i, localplace.Y + j), bmp);
-                        points.Add(bmp.GetPixel(p.X, p.Y) == Color.Empty ? new Point(p.X, p.Y) : new Point(0, 0));
+                        Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
+                        points.Add(bmp.GetPixel(p.X, p.Y).A == Color.Empty.A ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0));
+                        
                     }
                 }
-                for (int i = points.Count-1; i > 0; i--)
+                for (int i = points.Count-1; i > -1; i--)
                 {
-                    if (points[i] == new Point(0,0)) { points.Remove(points[i]); }
+                    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
                 }
-                targetPoint = points.Count > 0 ? points[rand.Next(0,points.Count-1)] : new Point(0,0);
+                targetPoint = points.Count > 0 ? points[rand.Next(0,points.Count)] : new Point(0,0);
                 return targetPoint;// = new Point(rand.Next(-1,2), rand.Next(-1,2));//---------------------Clean
             }
-            public bool Duplicate() { return false; }
+            public bool Duplicate() 
+            { 
+
+                return false; 
+            
+            }
 
             public override void Dosomething(Bitmap bmp)
             {
-                if (Eat(bmp) == false) { moveResult = SenseMove(bmp); }
+                
+                if (!Eat(out eatTarget,bmp)) { moveResult = SenseMove(bmp); } else { moveResult = new Point(0,0); }
                 
                 Duplicate();
-                
+
             }
         }
 

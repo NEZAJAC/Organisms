@@ -10,8 +10,8 @@ namespace grass
         {
             int x = point.X;
             int y = point.Y;
-            int newX = x > bmp.Width ? x - bmp.Width : x < 0 ? x + bmp.Width : x;
-            int newY = y > bmp.Height ? y - bmp.Height : y < 0 ? y + bmp.Height : y;
+            int newX = x >= bmp.Width ? x - bmp.Width + 1 : x < 1 ? x + bmp.Width -1 : x;
+            int newY = y >= bmp.Height ? y - bmp.Height + 1 : y < 1 ? y + bmp.Height - 1 : y;
             Point newpoint = new Point(newX, newY);
             return newpoint;
         }
@@ -20,8 +20,8 @@ namespace grass
         {
             int x = xx;
             int y = yy;
-            int newX = x > bmp.Width ? x - bmp.Width : x < 0 ? x + bmp.Width : x;
-            int newY = y > bmp.Height ? y - bmp.Height : y < 0 ? y + bmp.Height : y;
+            int newX = x >= bmp.Width ? x - bmp.Width + 1 : x < 1 ? x + bmp.Width - 1 : x;
+            int newY = y >= bmp.Height ? y - bmp.Height + 1 : y < 1 ? y + bmp.Height - 1 : y;
             Point newpoint = new Point(newX, newY);
             return newpoint;
         }

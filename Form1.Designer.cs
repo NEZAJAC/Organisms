@@ -42,6 +42,8 @@
             label2 = new Label();
             textBox1 = new TextBox();
             groupBox1 = new GroupBox();
+            pictureBox2 = new PictureBox();
+            label10 = new Label();
             groupBox3 = new GroupBox();
             label5 = new Label();
             textBox2 = new TextBox();
@@ -53,11 +55,14 @@
             button2 = new Button();
             checkBox2 = new CheckBox();
             groupBox2 = new GroupBox();
-            label10 = new Label();
+            label11 = new Label();
+            label12 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             GrassBox.SuspendLayout();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox3.SuspendLayout();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBox1
@@ -197,6 +202,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(pictureBox2);
             groupBox1.Controls.Add(label10);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Controls.Add(groupBox2);
@@ -206,6 +212,24 @@
             groupBox1.Size = new Size(228, 647);
             groupBox1.TabIndex = 9;
             groupBox1.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            pictureBox2.BackColor = SystemColors.Window;
+            pictureBox2.Location = new Point(6, 252);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(216, 283);
+            pictureBox2.TabIndex = 12;
+            pictureBox2.TabStop = false;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(6, 234);
+            label10.Name = "label10";
+            label10.Size = new Size(44, 15);
+            label10.TabIndex = 11;
+            label10.Text = "label10";
             // 
             // groupBox3
             // 
@@ -327,20 +351,31 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(label12);
+            groupBox2.Controls.Add(label11);
             groupBox2.Location = new Point(6, 541);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(216, 100);
             groupBox2.TabIndex = 9;
             groupBox2.TabStop = false;
             // 
-            // label10
+            // label11
             // 
-            label10.AutoSize = true;
-            label10.Location = new Point(42, 305);
-            label10.Name = "label10";
-            label10.Size = new Size(44, 15);
-            label10.TabIndex = 11;
-            label10.Text = "label10";
+            label11.AutoSize = true;
+            label11.Location = new Point(6, 19);
+            label11.Name = "label11";
+            label11.Size = new Size(44, 15);
+            label11.TabIndex = 0;
+            label11.Text = "label11";
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(78, 19);
+            label12.Name = "label12";
+            label12.Size = new Size(44, 15);
+            label12.TabIndex = 1;
+            label12.Text = "label12";
             // 
             // Form1
             // 
@@ -357,8 +392,11 @@
             GrassBox.PerformLayout();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -388,5 +426,8 @@
         private Button button2;
         private CheckBox checkBox2;
         private Label label10;
+        private PictureBox pictureBox2;
+        private Label label12;
+        private Label label11;
     }
 }
