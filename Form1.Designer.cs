@@ -42,7 +42,6 @@
             label2 = new Label();
             textBox1 = new TextBox();
             groupBox1 = new GroupBox();
-            trackBar1 = new TrackBar();
             pictureBox2 = new PictureBox();
             groupBox3 = new GroupBox();
             label5 = new Label();
@@ -56,15 +55,16 @@
             checkBox2 = new CheckBox();
             groupBox2 = new GroupBox();
             label12 = new Label();
-            label10 = new Label();
+            trackBar1 = new TrackBar();
             label11 = new Label();
+            label10 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             GrassBox.SuspendLayout();
             groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox3.SuspendLayout();
             groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -207,7 +207,6 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox1.Controls.Add(trackBar1);
             groupBox1.Controls.Add(pictureBox2);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Controls.Add(groupBox2);
@@ -218,25 +217,13 @@
             groupBox1.TabIndex = 9;
             groupBox1.TabStop = false;
             // 
-            // trackBar1
-            // 
-            trackBar1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            trackBar1.Location = new Point(6, 237);
-            trackBar1.Maximum = 100;
-            trackBar1.Minimum = 1;
-            trackBar1.Name = "trackBar1";
-            trackBar1.Size = new Size(210, 45);
-            trackBar1.SmallChange = 5;
-            trackBar1.TabIndex = 2;
-            trackBar1.Value = 100;
-            trackBar1.Scroll += trackBar1_Scroll;
-            // 
             // pictureBox2
             // 
             pictureBox2.BackColor = SystemColors.Window;
-            pictureBox2.Location = new Point(6, 288);
+            pictureBox2.Location = new Point(6, 343);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(216, 247);
+            pictureBox2.Size = new Size(216, 298);
+            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
             // 
@@ -361,40 +348,57 @@
             // groupBox2
             // 
             groupBox2.Controls.Add(label12);
-            groupBox2.Controls.Add(label10);
+            groupBox2.Controls.Add(trackBar1);
             groupBox2.Controls.Add(label11);
-            groupBox2.Location = new Point(6, 541);
+            groupBox2.Controls.Add(label10);
+            groupBox2.Location = new Point(6, 237);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(216, 100);
             groupBox2.TabIndex = 9;
             groupBox2.TabStop = false;
+            groupBox2.Text = "Tick interval";
             // 
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(78, 19);
+            label12.Location = new Point(6, 19);
             label12.Name = "label12";
-            label12.Size = new Size(44, 15);
+            label12.Size = new Size(31, 15);
             label12.TabIndex = 1;
-            label12.Text = "label12";
+            label12.Text = "1000";
             // 
-            // label10
+            // trackBar1
             // 
-            label10.AutoSize = true;
-            label10.Location = new Point(6, 47);
-            label10.Name = "label10";
-            label10.Size = new Size(44, 15);
-            label10.TabIndex = 11;
-            label10.Text = "label10";
+            trackBar1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            trackBar1.AutoSize = false;
+            trackBar1.Location = new Point(45, 12);
+            trackBar1.Maximum = 1000;
+            trackBar1.Minimum = 1;
+            trackBar1.MinimumSize = new Size(0, 15);
+            trackBar1.Name = "trackBar1";
+            trackBar1.Size = new Size(165, 23);
+            trackBar1.SmallChange = 5;
+            trackBar1.TabIndex = 2;
+            trackBar1.Value = 1000;
+            trackBar1.Scroll += trackBar1_Scroll;
             // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(6, 19);
+            label11.Location = new Point(6, 64);
             label11.Name = "label11";
             label11.Size = new Size(44, 15);
             label11.TabIndex = 0;
             label11.Text = "label11";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(6, 79);
+            label10.Name = "label10";
+            label10.Size = new Size(44, 15);
+            label10.TabIndex = 11;
+            label10.Text = "label10";
             // 
             // Form1
             // 
@@ -410,13 +414,12 @@
             GrassBox.ResumeLayout(false);
             GrassBox.PerformLayout();
             groupBox1.ResumeLayout(false);
-            groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ResumeLayout(false);
         }
 

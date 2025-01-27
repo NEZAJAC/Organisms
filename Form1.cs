@@ -33,12 +33,14 @@ namespace grass
             {
                 timer1.Interval = trackBar1.Value;
             }
+            label12.Text = timer1.Interval.ToString();
         }
 
         private void pictureBox1_SizeChanged(object sender, EventArgs e)
         {
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
         }
+
     }
 
 }

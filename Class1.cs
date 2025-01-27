@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -19,7 +20,7 @@ namespace grass
         {
             InitializeComponent();
             NewRefresh();
-            
+            timer1.Interval = trackBar1.Value;
 
         }
 
@@ -28,7 +29,7 @@ namespace grass
         {
             bmpReserve = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             pictureBox1.BackColor = Color.White;
-            pictureBox2.BackColor = Color.White;
+            //pictureBox2.BackColor = Color.White;
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             bmp2 = bmpReserve;
             //------------------------------
@@ -61,8 +62,8 @@ namespace grass
             //bmp2 = bmp ;
             controller.Draw(bmp);
             pictureBox1.Image = bmp;
-            //pictureBox2.Image = bmp2;
-            
+            pictureBox2.Image = bmp;
+            //pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             if (checkBox1.Checked)
             {
                 foreach (Grass grass in controller.grassList)
@@ -73,24 +74,24 @@ namespace grass
                         {
                             if (grass.Duplicate(out Grass? grass1, out controller.grassNoresp, bmp, controller.grassNoresp))
                             {
-                                if(grass1 != null)
-                                controller.grassListTEMP.Add(grass1);
+                                if (grass1 != null)
+                                    controller.grassListTEMP.Add(grass1);
                             }
                         }
-                        else 
+                        else
                         if (GrassLimit_CB.Checked)
                         {
                             if (grass.Duplicate(out Grass? grass1, out controller.grassNoresp, bmp, controller.grassNoresp))
                             {
                                 if (grass1 != null)
-                                controller.grassListTEMP.Add(grass1);
+                                    controller.grassListTEMP.Add(grass1);
                             }
                         }
-                        
-                        
+
+
                     }
 
-                    if (grass.age >= grass.maxage)
+                    if (/*grass.age >= grass.maxage || */grass.food <= controller.sunLVL)
                     {
                         controller.grassListTORemove.Add(grass);
                     }
@@ -129,8 +130,7 @@ namespace grass
             controller.grassListTORemove.Clear();
             label1.Text = controller.grassList.Count.ToString();
             label4.Text = controller.grassNoresp.ToString();
-            label11.Text = trackBar1.Value.ToString();
-            label12.Text = timer1.Interval.ToString();
+            
             //-----------------------------------------------------------------------------------------
             if (checkBox2.Checked)
             {
@@ -180,6 +180,10 @@ namespace grass
             }
             
             label8.Text = controller.cellsList.Count.ToString();
+            if (controller.grassDictionary.Count > 1 && controller.grassDictionary.ContainsKey(controller.cellsList[0].eatTarget))
+            { 
+                label11.Text = controller.grassDictionary[controller.cellsList[0].eatTarget].food.ToString(); 
+            }
         }
 
 
@@ -342,15 +346,17 @@ namespace grass
 
         }
 
-        class Genome
+        struct Genome
         {
-            public BodyPart part;
+            public BodyPart? part;
             public Point localplace;
             
         }
 
         class Organism : Object
         {
+
+
             public List<BodyPart> bodyTypes = new List<BodyPart>();
             public List<Genome> genList = new List<Genome>();
 
@@ -374,6 +380,8 @@ namespace grass
             public Organism(Point pointIN, List<Genome> genomes)
             {
                 point = pointIN;
+                genList.Clear();
+                
                 GenApplys(genomes);
                 food = genList.Count * 5000/2;
             }
@@ -396,19 +404,36 @@ namespace grass
                 //bodyTypes[2].localplace = genList[2].localplace;
                 duplicate = genList.Count * 5000;
             }
-            void GenApplys(List<Genome> genotype)
+            void GenApplys(List<Genome> genomes)
             {
+                for (int i = 0; i < genomes.Count; i++)
+                {
+                    BodyPart newPart = new BodyPart();
+                    if (genomes[i].part.name == "Universal") { newPart = new Universal(); }
+                    if (genomes[i].part.name == "Mouth") { newPart = new Mouth(); }
+                    if (genomes[i].part.name == "Leg") { newPart = new Leg(); }
+                    if (genomes[i].part.name == "Eye") { newPart = new Eye(); }
+                    if (genomes[i].part.name == "Brain") { newPart = new Brain(); }
+                    if (genomes[i].part.name == "Fats") { newPart = new Fats(); }
+                    //if (genomes[i].part.name == "Universal") { newPart = new Universal(); }
+                    //if (genomes[i].part.name == "Universal") { newPart = new Universal(); }
+                    genList.Add(new Genome { part = newPart, localplace = genomes[i].localplace });
+                }
                 //если есть генеталии то ставить переменную hasGenitals = true
                 //если есть мозг то ставить переменную hasBrain = true
                 //genList = genotype;
                 //генотип копируется из родителя
-                genList = GenMutation(genotype);
-                for (int i = 0; i < genotype.Count; i++)
+                genList = GenMutation(genList);
+                for (int i = 0; i < genList.Count; i++)
                 {
-                    bodyTypes.Add(genotype[i].part);
-                    bodyTypes[i].localplace = genotype[i].localplace;
+                    bodyTypes.Add(genList[i].part);
+                    bodyTypes[i].localplace = genList[i].localplace;
+                    if (rand.Next(0, 101) < 20)
+                    {
+                        bodyTypes[i].color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
+                    }
                 }
-                duplicate = genotype.Count * 5000;
+                duplicate = genList.Count * 10000;
             }
 
             List<Genome> GenMutation(List<Genome> genotype)
@@ -445,8 +470,7 @@ namespace grass
                     int rnd = rand.Next(0, genotype.Count);
                     newGenome[rnd] = new Genome { localplace = new Point(genotype[rnd].localplace.X, genotype[rnd].localplace.Y + 1), part = genotype[rnd].part };
                 }
-
-
+                
 
 
 
@@ -461,7 +485,7 @@ namespace grass
                 {
                     foreach (var item in newGenome)
                     {//Contains
-                       if( newGenome[i].localplace.X == item.localplace.X && newGenome[i] != item)
+                       //if( newGenome[i].localplace.X == item.localplace.X && newGenome[i] != item)
                         {
 
                         }
@@ -501,7 +525,7 @@ namespace grass
 
             public void DoworkPrepare(Bitmap bmp, Controller controller)//берет движение от части тела, берет все другие действия от других частей тела
             {
-                Dictionary<Point, Grass> readyEat = controller.grassDictionary;
+                Dictionary<Point, Grass> dictionaryOfGrass = controller.grassDictionary;
                 lastPoint = point;
                 foreach (var part in bodyTypes)
                 {
@@ -512,7 +536,7 @@ namespace grass
                         newPart.Dosomething(bmp);
                         point = BorderChecker(point.X + newPart.moveResult.X, point.Y + newPart.moveResult.Y, bmp);//двигает тело
                         eatTarget = newPart.eatTarget.X != -1 && newPart.eatTarget.Y != -1 ? newPart.eatTarget : new Point(-1, -1);
-                        EatTarget(readyEat, newPart.EatStrength);
+                        EatTarget(dictionaryOfGrass, newPart.EatStrength);
                         //newPart.globalplace = point;
                     }
                     if (part.name == "Mouth")//только кушает, но больше
@@ -520,7 +544,7 @@ namespace grass
                         Mouth? newPart = (Mouth)part;
                         newPart.Dosomething(bmp);
                         eatTarget = newPart.eatTarget.X != -1 && newPart.eatTarget.Y != -1 ? newPart.eatTarget : new Point(-1, -1);
-                        EatTarget(readyEat, newPart.EatStrength);
+                        EatTarget(dictionaryOfGrass, newPart.EatStrength);
                         //newPart.globalplace = point;
                     }
                     if (part.name == "Leg")//двигает тело игнорирует все
@@ -536,7 +560,7 @@ namespace grass
                         part.Dosomething(bmp);
                         findingPoints = newPart.findingTargets;
                     }
-                    if (part.name == "Brain")//смотрит глазками
+                    if (part.name == "Brain")//решает за всех и смотрит глазками и ходит ножками
                     {
                         Brain? newPart = (Brain)part;
                         part.Dosomething(bmp);
@@ -561,14 +585,14 @@ namespace grass
                 Duplicate();
             }
 
-            public void EatTarget(Dictionary<Point,Grass> readyEat, int toeatStrength)
+            public void EatTarget(Dictionary<Point,Grass> dictionaryOfGrass, int toeatStrength)
             {
-                if (eatTarget.X != -1 && eatTarget.Y != -1 && readyEat.ContainsKey(eatTarget) )
+                if (eatTarget.X != -1 && eatTarget.Y != -1 && dictionaryOfGrass.ContainsKey(eatTarget) )
                 {
                     //------------------------------------------------------Доработать математику
-                    int difference = readyEat[eatTarget].food - toeatStrength;
-                    int amount = difference <= 0 ? readyEat[eatTarget].food : toeatStrength;
-                    readyEat[eatTarget].food -= amount;
+                    int difference = dictionaryOfGrass[eatTarget].food - toeatStrength;
+                    int amount = difference <= 0 ? dictionaryOfGrass[eatTarget].food : toeatStrength;
+                    dictionaryOfGrass[eatTarget].food -= amount;
                     food += amount;
                 }
             }
@@ -597,10 +621,10 @@ namespace grass
                 //делать тут потребление питательных веществ из организма
             }
         }
-        class Universal : BodyPart
+        class Universal : BodyPart//---------------------------------------------------------------------------------------------------Universal
         {
             Random rand = new Random();
-            public int EatStrength = 50;
+            public int EatStrength = 25;
             public int eatResult = 0;
             int transferStrength = 15;
             public Point moveResult = new Point(0,0);
@@ -609,7 +633,7 @@ namespace grass
             public Universal()
             {
                 name = "Universal";
-                color = Color.Black;
+                color = Color.DarkRed;
                 energyCost = 5;
             }
 
@@ -624,7 +648,7 @@ namespace grass
                         Point p = BorderChecker(globalplace.X + localplace.X + i,globalplace.Y + localplace.Y + j,bmp);
                         if(bmp.GetPixel(p.X, p.Y).G == Color.Green.G)
                         {
-                            points.Add(new Point(globalplace.X + i, globalplace.Y + j));
+                            points.Add(new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j));
                         }
                     }
                 }
