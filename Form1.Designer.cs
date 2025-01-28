@@ -39,9 +39,13 @@
             label4 = new Label();
             GrassLimit_CB = new CheckBox();
             GrassBox = new GroupBox();
+            groupBox4 = new GroupBox();
+            trackBar2 = new TrackBar();
+            label14 = new Label();
             label2 = new Label();
             textBox1 = new TextBox();
             groupBox1 = new GroupBox();
+            trackBar3 = new TrackBar();
             pictureBox2 = new PictureBox();
             groupBox3 = new GroupBox();
             label5 = new Label();
@@ -54,29 +58,35 @@
             button2 = new Button();
             checkBox2 = new CheckBox();
             groupBox2 = new GroupBox();
+            label13 = new Label();
             label12 = new Label();
             trackBar1 = new TrackBar();
             label11 = new Label();
             label10 = new Label();
+            groupBox5 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             GrassBox.SuspendLayout();
+            groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox3.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            groupBox5.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBox1
             // 
-            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            pictureBox1.BackColor = SystemColors.ControlLightLight;
-            pictureBox1.Location = new Point(12, 9);
+            pictureBox1.Anchor = AnchorStyles.None;
+            pictureBox1.BackColor = Color.Black;
+            pictureBox1.Location = new Point(6, 10);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1090, 640);
+            pictureBox1.Size = new Size(1078, 631);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
-            pictureBox1.SizeChanged += pictureBox1_SizeChanged;
             // 
             // timer1
             // 
@@ -87,7 +97,7 @@
             // button1
             // 
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button1.Location = new Point(160, 76);
+            button1.Location = new Point(82, 76);
             button1.Name = "button1";
             button1.Size = new Size(50, 23);
             button1.TabIndex = 1;
@@ -102,9 +112,9 @@
             checkBox1.AutoSize = true;
             checkBox1.Location = new Point(6, 17);
             checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(78, 19);
+            checkBox1.Size = new Size(50, 19);
             checkBox1.TabIndex = 2;
-            checkBox1.Text = "StartGrow";
+            checkBox1.Text = "Start";
             checkBox1.UseVisualStyleBackColor = true;
             // 
             // label1
@@ -123,9 +133,9 @@
             label3.AutoSize = true;
             label3.Location = new Point(45, 65);
             label3.Name = "label3";
-            label3.Size = new Size(53, 15);
+            label3.Size = new Size(25, 15);
             label3.TabIndex = 4;
-            label3.Text = "GrassList";
+            label3.Text = "List";
             // 
             // GrassNoresp
             // 
@@ -151,7 +161,7 @@
             // 
             GrassLimit_CB.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             GrassLimit_CB.AutoSize = true;
-            GrassLimit_CB.Location = new Point(141, 12);
+            GrassLimit_CB.Location = new Point(62, 17);
             GrassLimit_CB.Name = "GrassLimit_CB";
             GrassLimit_CB.Size = new Size(69, 19);
             GrassLimit_CB.TabIndex = 7;
@@ -161,6 +171,7 @@
             // GrassBox
             // 
             GrassBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            GrassBox.Controls.Add(groupBox4);
             GrassBox.Controls.Add(button1);
             GrassBox.Controls.Add(checkBox1);
             GrassBox.Controls.Add(label2);
@@ -177,15 +188,52 @@
             GrassBox.TabStop = false;
             GrassBox.Text = "Grass";
             // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(trackBar2);
+            groupBox4.Controls.Add(label14);
+            groupBox4.Location = new Point(150, 12);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(60, 89);
+            groupBox4.TabIndex = 10;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "SunLVL";
+            // 
+            // trackBar2
+            // 
+            trackBar2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            trackBar2.AutoSize = false;
+            trackBar2.Location = new Point(29, 13);
+            trackBar2.Maximum = 50;
+            trackBar2.Minimum = 1;
+            trackBar2.Name = "trackBar2";
+            trackBar2.Orientation = Orientation.Vertical;
+            trackBar2.Size = new Size(25, 74);
+            trackBar2.TabIndex = 11;
+            trackBar2.TickFrequency = 3;
+            trackBar2.TickStyle = TickStyle.TopLeft;
+            trackBar2.Value = 10;
+            trackBar2.Scroll += trackBar2_Scroll;
+            // 
+            // label14
+            // 
+            label14.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            label14.AutoSize = true;
+            label14.Location = new Point(6, 19);
+            label14.Name = "label14";
+            label14.Size = new Size(25, 15);
+            label14.TabIndex = 13;
+            label14.Text = "100";
+            // 
             // label2
             // 
             label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label2.AutoSize = true;
             label2.Location = new Point(45, 42);
             label2.Name = "label2";
-            label2.Size = new Size(62, 15);
+            label2.Size = new Size(34, 15);
             label2.TabIndex = 10;
-            label2.Text = "GrassLimit";
+            label2.Text = "Limit";
             // 
             // textBox1
             // 
@@ -207,6 +255,7 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(trackBar3);
             groupBox1.Controls.Add(pictureBox2);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Controls.Add(groupBox2);
@@ -217,15 +266,29 @@
             groupBox1.TabIndex = 9;
             groupBox1.TabStop = false;
             // 
+            // trackBar3
+            // 
+            trackBar3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            trackBar3.AutoSize = false;
+            trackBar3.Location = new Point(6, 619);
+            trackBar3.Maximum = 3;
+            trackBar3.Minimum = 1;
+            trackBar3.Name = "trackBar3";
+            trackBar3.Size = new Size(70, 22);
+            trackBar3.TabIndex = 1;
+            trackBar3.Value = 1;
+            trackBar3.Scroll += trackBar3_Scroll;
+            // 
             // pictureBox2
             // 
-            pictureBox2.BackColor = SystemColors.Window;
+            pictureBox2.BackColor = Color.Black;
             pictureBox2.Location = new Point(6, 343);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(216, 298);
+            pictureBox2.Size = new Size(216, 270);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
+            pictureBox2.MouseMove += pictureBox2_MouseMove;
             // 
             // groupBox3
             // 
@@ -251,9 +314,9 @@
             label5.AutoSize = true;
             label5.Location = new Point(45, 36);
             label5.Name = "label5";
-            label5.Size = new Size(86, 15);
+            label5.Size = new Size(34, 15);
             label5.TabIndex = 17;
-            label5.Text = "OrganismLimit";
+            label5.Text = "Limit";
             // 
             // textBox2
             // 
@@ -276,7 +339,7 @@
             // 
             OrgLimit_CB.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             OrgLimit_CB.AutoSize = true;
-            OrgLimit_CB.Location = new Point(141, 14);
+            OrgLimit_CB.Location = new Point(62, 14);
             OrgLimit_CB.Name = "OrgLimit_CB";
             OrgLimit_CB.Size = new Size(69, 19);
             OrgLimit_CB.TabIndex = 15;
@@ -299,9 +362,9 @@
             label7.AutoSize = true;
             label7.Location = new Point(45, 59);
             label7.Name = "label7";
-            label7.Size = new Size(77, 15);
+            label7.Size = new Size(25, 15);
             label7.TabIndex = 12;
-            label7.Text = "OrganismList";
+            label7.Text = "List";
             // 
             // label8
             // 
@@ -326,13 +389,13 @@
             // button2
             // 
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button2.Location = new Point(160, 76);
+            button2.Location = new Point(82, 32);
             button2.Name = "button2";
-            button2.Size = new Size(50, 23);
+            button2.Size = new Size(57, 20);
             button2.TabIndex = 3;
-            button2.Text = "Reset";
+            button2.Text = "Kill Half";
             button2.UseVisualStyleBackColor = true;
-            button2.Visible = false;
+            button2.Click += button2_Click;
             // 
             // checkBox2
             // 
@@ -340,13 +403,14 @@
             checkBox2.AutoSize = true;
             checkBox2.Location = new Point(6, 14);
             checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(96, 19);
+            checkBox2.Size = new Size(50, 19);
             checkBox2.TabIndex = 4;
-            checkBox2.Text = "StartSimulate";
+            checkBox2.Text = "Start";
             checkBox2.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(label13);
             groupBox2.Controls.Add(label12);
             groupBox2.Controls.Add(trackBar1);
             groupBox2.Controls.Add(label11);
@@ -357,6 +421,15 @@
             groupBox2.TabIndex = 9;
             groupBox2.TabStop = false;
             groupBox2.Text = "Tick interval";
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Location = new Point(6, 49);
+            label13.Name = "label13";
+            label13.Size = new Size(44, 15);
+            label13.TabIndex = 12;
+            label13.Text = "label13";
             // 
             // label12
             // 
@@ -376,9 +449,12 @@
             trackBar1.Minimum = 1;
             trackBar1.MinimumSize = new Size(0, 15);
             trackBar1.Name = "trackBar1";
-            trackBar1.Size = new Size(165, 23);
+            trackBar1.RightToLeft = RightToLeft.Yes;
+            trackBar1.RightToLeftLayout = true;
+            trackBar1.Size = new Size(165, 22);
             trackBar1.SmallChange = 5;
             trackBar1.TabIndex = 2;
+            trackBar1.TickFrequency = 30;
             trackBar1.Value = 1000;
             trackBar1.Scroll += trackBar1_Scroll;
             // 
@@ -400,26 +476,42 @@
             label10.TabIndex = 11;
             label10.Text = "label10";
             // 
+            // groupBox5
+            // 
+            groupBox5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox5.BackgroundImageLayout = ImageLayout.None;
+            groupBox5.Controls.Add(pictureBox1);
+            groupBox5.Location = new Point(12, 2);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(1090, 647);
+            groupBox5.TabIndex = 10;
+            groupBox5.TabStop = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.ControlDark;
+            BackColor = Color.Gray;
             ClientSize = new Size(1342, 661);
+            Controls.Add(groupBox5);
             Controls.Add(groupBox1);
-            Controls.Add(pictureBox1);
             Name = "Form1";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             GrassBox.ResumeLayout(false);
             GrassBox.PerformLayout();
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
             groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)trackBar3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            groupBox5.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -453,5 +545,11 @@
         private Label label12;
         private Label label11;
         private TrackBar trackBar1;
+        private TrackBar trackBar2;
+        private Label label14;
+        private GroupBox groupBox4;
+        private Label label13;
+        private TrackBar trackBar3;
+        private GroupBox groupBox5;
     }
 }

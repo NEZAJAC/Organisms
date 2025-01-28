@@ -36,11 +36,59 @@ namespace grass
             label12.Text = timer1.Interval.ToString();
         }
 
-        private void pictureBox1_SizeChanged(object sender, EventArgs e)
+        private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            if ((trackBar2.Value != 0))
+            {
+                controller.sunLVL = trackBar2.Value;
+            }
+            label14.Text = controller.sunLVL.ToString();
         }
 
+        private void trackBar3_Scroll(object sender, EventArgs e)
+        {
+            pictureBox1.Size = size * trackBar3.Value;
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox1.TextLength > 0)
+            {
+                MAXgrass = int.Parse(textBox1.Lines[0]);
+            }
+
+        }
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox2.TextLength > 0)
+            {
+                MAXorganis = int.Parse(textBox2.Lines[0]);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Boolean boo = false;
+            foreach (var item in controller.cellsList)
+            {
+                if (boo) { controller.cellsListTORemove.Add(item); }
+                boo = !boo;
+            }
+            foreach (var item in controller.cellsListTORemove)
+            {
+                item.Cleary(bmp);
+                controller.cellsList.Remove(item);
+            }
+            controller.cellsListTORemove.Clear();
+        }
+        private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                pictureBox1.Location = new System.Drawing.Point(-e.X * pictureBox1.Width/pictureBox2.Width + pictureBox1.Width/4, -e.Y * pictureBox1.Height/pictureBox2.Height + pictureBox1.Height/4);
+                label11.Text = pictureBox1.Location.ToString();
+            }
+        }
     }
 
 }
