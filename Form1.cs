@@ -85,9 +85,28 @@ namespace grass
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                pictureBox1.Location = new System.Drawing.Point(-e.X * pictureBox1.Width/pictureBox2.Width + pictureBox1.Width/4, -e.Y * pictureBox1.Height/pictureBox2.Height + pictureBox1.Height/4);
+                pictureBox1.Location = new System.Drawing.Point(-e.X * pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4, -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4);
                 label11.Text = pictureBox1.Location.ToString();
             }
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //controller.grassList.Clear();
+            //bmp.Dispose();
+            //bmp = new Bitmap(pictureBox1.Height, pictureBox1.Width);
+            //NewRefresh();
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            //Point p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
+            controller.SelectTarget(e.Location);
         }
     }
 

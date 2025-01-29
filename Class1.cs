@@ -57,7 +57,7 @@ namespace grass
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            
+            controller.DrawSelectedTargetFrame(bmp);
             label13.Text = sw.ElapsedMilliseconds.ToString(); 
             sw.Restart();
             sw.Start();
@@ -138,29 +138,39 @@ namespace grass
             //-----------------------------------------------------------------------------------------
             if (checkBox2.Checked)
             {
+                
                 foreach (Organism organism in controller.cellsList)
                 {
                     organism.DoworkPrepare(bmp, controller);
-                    if (organism.food >= organism.duplicate && !OrgLimit_CB.Checked && controller.cellsList.Count < MAXorganis)
+                    if (organism.food >= organism.dublicateFood && !OrgLimit_CB.Checked && controller.cellsList.Count < MAXorganis)
                     {
                         organism.food = organism.food / 2;
                         controller.cellsListTEMP.Add(new Organism(organism.point, organism.genList));
                     }
                     else
-                    if (organism.food >= organism.duplicate && OrgLimit_CB.Checked)
+                    if (organism.food >= organism.dublicateFood && OrgLimit_CB.Checked)
                     {
                         organism.food = organism.food / 2;
                         controller.cellsListTEMP.Add(new Organism(organism.point, organism.genList));
                     }
                     else
-                    if (organism.food >= organism.duplicate)
+                    if (organism.food >= organism.dublicateFood)
                     {
                         organism.food = organism.food / 2;
                     }
-                    if (organism.food <= 0)
+                    if (organism.food <= 0 || organism.age >= organism.maxage)
                     {
                         controller.cellsListTORemove.Add(organism);
                     }
+                }
+                controller.cellDictionary.Clear();
+                foreach (Organism organism in controller.cellsList)
+                {
+                    if (!controller.cellDictionary.ContainsKey(organism.point))
+                    {
+                        controller.cellDictionary.Add(organism.point, organism);
+                    }
+
                 }
                 foreach (var item in controller.cellsListTEMP)
                 {
@@ -175,19 +185,16 @@ namespace grass
                 }
                 controller.cellsListTORemove.Clear();
 
-                if (controller.cellsList.Count > 0)
-                {
-                    var temp = controller.cellsList[0];
-                    label10.Text = temp.food.ToString() + "/" + temp.duplicate.ToString();
-                }
-                else label10.Text = "NoNe";
             }
             
             label8.Text = controller.cellsList.Count.ToString();
-            if (controller.grassDictionary.Count > 1 && controller.grassDictionary.ContainsKey(controller.cellsList[0].eatTarget))
-            { 
-                label11.Text = controller.grassDictionary[controller.cellsList[0].eatTarget].food.ToString(); 
+            if (controller.selectedObject != null)
+            {
+                label11.Text = controller.selectedObject.age.ToString() + "/" + controller.cellsList[0].maxage;
+                label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
             }
+            else { label10.Text = "NoNe"; label11.Text = "NoNe"; }
+            
             sw.Stop();
         }
 
@@ -201,9 +208,10 @@ namespace grass
             public List<Organism> cellsList = new List<Organism>();
             public List<Organism> cellsListTEMP = new List<Organism>();
             public List<Organism> cellsListTORemove = new List<Organism>();
+            public Dictionary<Point,Organism> cellDictionary = new Dictionary<Point,Organism>();
             public int sunLVL;
             //-------------------------------------------------------------
-            ZoneType activeType;
+            ZoneType? activeType;
             Point mousePoint;
             //-------------------------------------------------------------
             public Controller(int sunlvl)
@@ -253,11 +261,60 @@ namespace grass
                 //создавать зону типа activeType в точке курсора mousePoint
             }
 
+            public Organism? selectedObject = null;
+            List<Point> coloredPoints = new List<Point>();
+            public void SelectTarget(Point selectedPoint)
+            {
+                for (int i = -3; i < 4; i++)
+                {
+                    for (int j = -3; j < 4; j++)
+                    {
+                        Point p = new Point(selectedPoint.X + i, selectedPoint.Y + j);
+                        if (cellDictionary.ContainsKey(p))
+                        {
+                            selectedObject = cellDictionary[p];
+                            selectedPoint = new Point(p.X, p.Y);
+                            break;
+                        }
+                        else { selectedObject = null; }
+                    }
+                    if (selectedObject != null) { break; }
+                }
+                if (!cellDictionary.ContainsKey(selectedPoint))
+                {
+                    selectedObject = null;
+                    selectedPoint = new Point(-1, -1);
+                }
+            }
+
+            public void DrawSelectedTargetFrame(Bitmap bmp)
+            {
+                foreach (var item in coloredPoints)
+                {
+                    bmp.SetPixel(item.X, item.Y, Color.Empty);
+                }
+                if (selectedObject != null && cellsList.Contains(selectedObject))
+                {
+                    for (int x = -3; x < 5; x++)
+                    {
+                        for (int y = -3; y < 5; y++)
+                        {
+                            if ((x == -3 || x == 4) || (y == -3 || y == 4))
+                            {
+                                bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
+                                coloredPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         class Object
         {
             public int food;
+            public int maxfood = 100;
             public int age;
             public int maxage;
             public Point point;
@@ -304,15 +361,16 @@ namespace grass
 
         class Grass : Object
         {
-            public int maxfood = 100;
+            
 
             public Grass()
             {
-
+                
             }
 
             public Grass(Point pointIN)
             {
+                maxfood = 100;
                 food = rand.Next(maxfood / 10);
                 maxfood = rand.Next(500, 1000);
                 maxage = maxfood * 2;
@@ -324,10 +382,10 @@ namespace grass
             public bool GrassUpdate(int sunIN)
             {
                 
-                    age++;
-                    food = food >= maxfood ? food - maxfood : food;
-                    food = sunIN > 0 ? food + sunIN : food--;
-                    return food >= maxfood ? true : false;
+                 age++;
+                 food = food >= maxfood ? food - maxfood : food;
+                 food = sunIN > 0 ? food + sunIN : food--;
+                 return food >= maxfood ? true : false;
                 
             }
 
@@ -335,11 +393,7 @@ namespace grass
             {
                 int x = point.X + rand.Next(-10, 11);
                 int y = point.Y + rand.Next(-10, 11);
-                //int newX = x >= bmp.Width ? x - bmp.Width : x <= 0 ? x + bmp.Width - 1 : x;
-                //int newY = y >= bmp.Height ? y - bmp.Height : y <= 0 ? y + bmp.Height - 1 : y;
-                //Point newpoint = new Point(newX, newY);
                 Point newpoint = BorderChecker(x, y, bmp);
-                //Color color = bmp.GetPixel(newX, newY);
                 Color color = bmp.GetPixel(newpoint.X, newpoint.Y);
                 grass = color.G == 0 && color.R == 0 && color.B == 0 ? new Grass(newpoint) : null;//РАЗОБРАТЬСЯ
                 grassnoresp1 = grass != null ? grassnoresp : grassnoresp + 1;
@@ -350,10 +404,21 @@ namespace grass
 
         struct Genome
         {
-            public String part;
-            public Point localplace;
-            public Color color;
-            
+            //для частай
+            public String part;            //название органа
+            public Point localplace;       //локальное положение органа в организме
+            public Color color;            //цвет органа(от цвета зависит могут ли его скушать)(для глаза определяет какие цвета он видит)
+            //--------------------
+
+            //для организма
+            public int dublicateDelay;    //задержка перед повторным делением
+            public int dublicateFood;     //требуемое количество насыщения для деления
+            public int childs;            //количество детей на одно деление
+            public int dublicateAgeMin;   //минимальный возраст деления
+            public int dublicateAgeMax;   //максимальный
+            public int ageMax;            //долгожительство
+            //---------------------
+
         }
 
         class Organism : Object
@@ -366,9 +431,11 @@ namespace grass
             public Point lastPoint = new Point();
             public Point eatTarget = new Point();
 
-            public List<Point> findingPoints = new List<Point>();
+            public List<Point> findingPoints = new List<Point>();//объекты которые нашли глазки, обновляется каждый тик?
 
-            public int duplicate;
+            public int dublicateFood;
+
+
             public int scale = 10000;
             public bool hasGenitals = false;
             public bool hasBrain = false;
@@ -377,16 +444,23 @@ namespace grass
             {
                 point = pointIN;
                 GenGeneration();
-                food = 5000;
 
+                food = 5000;
+                maxfood = scale;
                 
+                maxage = scale / 5;
+                age = rand.Next(0,maxage);
             }
             public Organism(Point pointIN, List<Genome> genomes)
             {
                 point = pointIN;
-                genList.Clear();
+                //genList.Clear();
                 GenApplys(genomes);
-                food = genList.Count * scale / 2;
+
+                maxfood = scale;
+
+                maxage = scale / 5;
+                age = 0;
             }
             void GenGeneration()
             {
@@ -403,22 +477,23 @@ namespace grass
                 bodyTypes[1].localplace = genList[1].localplace;
                 bodyTypes[1].color = genList[1].color;
                 //----------------------------
-                genList.Add(new Genome { part = "Eye", localplace = new Point(-1, 0), color = Color.AliceBlue });
-                bodyTypes.Add(new Eye());
-                bodyTypes[2].localplace = genList[2].localplace;
-                bodyTypes[2].color = genList[2].color;
+                //genList.Add(new Genome { part = "Eye", localplace = new Point(-1, 0), color = Color.AliceBlue });
+                //bodyTypes.Add(new Eye());
+                //bodyTypes[2].localplace = genList[2].localplace;
+                //bodyTypes[2].color = genList[2].color;
                 //----------------------------
 
                 //
                 //
-                duplicate = genList.Count * scale;
+                dublicateFood = scale;
             }
             void GenApplys(List<Genome> genomes)
             {
                 
                 genList = GenCopyes(genomes);
                 genList = GenMutation(genList);
-                duplicate = genList.Count * scale;
+                dublicateFood = scale-scale/5;
+                food = scale / 2;
             }
             List<Genome> GenCopyes(List<Genome> genomes)
             {
@@ -589,7 +664,9 @@ namespace grass
                 }
                 
                 DoWorkComplete();
-                
+
+                age++;//старение
+
             }
             public void DoWorkComplete()
             {
@@ -603,7 +680,7 @@ namespace grass
 
             public void EatTarget(Dictionary<Point,Grass> dictionaryOfGrass, int toeatStrength)
             {
-                if (eatTarget.X != -1 && eatTarget.Y != -1 && dictionaryOfGrass.ContainsKey(eatTarget) )
+                if (eatTarget.X != -1 && eatTarget.Y != -1 && dictionaryOfGrass.ContainsKey(eatTarget) && food < maxfood)
                 {
                     //------------------------------------------------------Доработать математику
                     int difference = dictionaryOfGrass[eatTarget].food - toeatStrength;
@@ -615,7 +692,7 @@ namespace grass
 
             public bool Duplicate()
             {
-                if (food >= duplicate) return true; else return false;
+                if (food >= dublicateFood && age > maxage/5 && age < maxage - maxage/5) return true; else return false;
             }
         }
 
@@ -844,8 +921,9 @@ namespace grass
 
         class Stomach : BodyPart//желудок сохраняет часть скушанного и переводит в еду с увечиченной скоростью
         {
-            int capacity = 500;
-            int transferStrength = 50;
+            int capacity = 1000;
+            int transferStrength = 100;
+            int transferScale = 2;
             public Stomach()
             {
                 name = "Stomach";
@@ -893,9 +971,7 @@ namespace grass
                         Point p = BorderChecker(new Point(body.point.X + localplace.X + i + sdvigX / 2, body.point.Y + localplace.Y + j + sdvigY / 2),bmp);
                         if (bmp.GetPixel(p.X, p.Y).G > 100) { points.Add(p); }
                     }
-                    
                 }
-                
                 return points;
             }
 
@@ -906,23 +982,55 @@ namespace grass
             }
         }
 
-        class Fats : BodyPart//сохраняет часть съеденного, но не переваренного в свой запас и при дифиците еды высвобождает запасы не давая организму умереть
-        {//жиры не используются для определения возможности размножиться, что дает организму дольше жить без еды после деления
-            public Fats()
+        class Sensors : BodyPart
+        {
+            public Sensors()
             {
-                name = "Fats";
-                color = Color.LightGray;
+                name = "Sensors";
+                color = Color.DarkOliveGreen;
             }
 
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                
+
             }
         }
 
-        class Jabres : BodyPart//жарбы для жизни под водой, как только зоны будут добавлены//так же будут и легкие
+        class Fats : BodyPart//сохраняет часть съеденного, но не переваренного в свой запас и при дифиците еды высвобождает запасы не давая организму умереть
+        {//жиры не используются для определения возможности размножиться, что дает организму дольше жить без еды после деления
+            int fats = 0;
+            int maxFats = 5000;
+            int exchangeStrength = 3;
+
+            public Fats()
+            {
+                name = "Fats";
+                color = Color.LightGray;
+                energyCost = 1;
+            }
+
+            void FoodExchange(Organism body)
+            {
+                if(body.food >= body.maxfood/2 && fats < maxFats - exchangeStrength)
+                {
+                    body.food -= exchangeStrength;
+                    fats += exchangeStrength;
+                }
+                else if(fats - exchangeStrength >= 0)
+                {
+                    fats -= exchangeStrength;
+                    body.food += exchangeStrength;
+                }
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                FoodExchange(body);
+            }
+        }
+
+        class Gills : BodyPart//жарбы для жизни под водой, как только зоны будут добавлены//так же будут и легкие
         {
-            public Jabres()
+            public Gills()
             {
                 name = "Jabres";
                 color = Color.DeepPink;
@@ -934,12 +1042,26 @@ namespace grass
             }
         }
 
-        class Genitals : BodyPart
+        class Genitals : BodyPart //определяют схему размножения
         {
             public Genitals()
             {
                 name = "Genitals";
                 color = Color.LavenderBlush;
+            }
+
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+
+            }
+        }
+
+        class Filter : BodyPart //позволяет поедать(фильтровать) зараженные органикой территории
+        {
+            public Filter()
+            {
+                name = "Filter";
+                color = Color.DimGray;
             }
 
             public override void Dosomething(Organism body, Bitmap bmp)
@@ -964,13 +1086,6 @@ namespace grass
 
         
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            controller.grassList.Clear();
-            bmp.Dispose();
-            bmp = new Bitmap(pictureBox1.Height, pictureBox1.Width);
-            NewRefresh();
-            
-        }
+        
     }
 }

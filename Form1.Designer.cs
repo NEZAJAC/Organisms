@@ -64,6 +64,7 @@
             label11 = new Label();
             label10 = new Label();
             groupBox5 = new GroupBox();
+            label15 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             GrassBox.SuspendLayout();
             groupBox4.SuspendLayout();
@@ -87,6 +88,8 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
+            pictureBox1.MouseClick += pictureBox1_MouseClick;
             // 
             // timer1
             // 
@@ -255,6 +258,7 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(label15);
             groupBox1.Controls.Add(trackBar3);
             groupBox1.Controls.Add(pictureBox2);
             groupBox1.Controls.Add(groupBox3);
@@ -324,7 +328,7 @@
             textBox2.AutoCompleteCustomSource.AddRange(new string[] { "10000" });
             textBox2.BorderStyle = BorderStyle.None;
             textBox2.Location = new Point(6, 36);
-            textBox2.MaxLength = 3;
+            textBox2.MaxLength = 4;
             textBox2.Name = "textBox2";
             textBox2.PlaceholderText = "MaxGrass";
             textBox2.Size = new Size(33, 16);
@@ -487,6 +491,15 @@
             groupBox5.TabIndex = 10;
             groupBox5.TabStop = false;
             // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(82, 619);
+            label15.Name = "label15";
+            label15.Size = new Size(19, 15);
+            label15.TabIndex = 13;
+            label15.Text = "x1";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -504,6 +517,7 @@
             groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
             groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
@@ -551,5 +565,6 @@
         private Label label13;
         private TrackBar trackBar3;
         private GroupBox groupBox5;
+        private Label label15;
     }
 }
