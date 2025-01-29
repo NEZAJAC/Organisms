@@ -190,7 +190,7 @@ namespace grass
             label8.Text = controller.cellsList.Count.ToString();
             if (controller.selectedObject != null)
             {
-                label11.Text = controller.selectedObject.age.ToString() + "/" + controller.cellsList[0].maxage;
+                label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.maxage;
                 label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
             }
             else { label10.Text = "NoNe"; label11.Text = "NoNe"; }
@@ -301,8 +301,11 @@ namespace grass
                         {
                             if ((x == -3 || x == 4) || (y == -3 || y == 4))
                             {
-                                bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
-                                coloredPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
+                                if ((selectedObject.point.X + x > 1) && (selectedObject.point.X + x < bmp.Width) && (selectedObject.point.Y + y > 1) && (selectedObject.point.Y + y < bmp.Height))
+                                { 
+                                    bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
+                                    coloredPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
+                                }
                             }
                         }
                     }
