@@ -48,6 +48,7 @@ namespace grass
         private void trackBar3_Scroll(object sender, EventArgs e)
         {
             pictureBox1.Size = size * trackBar3.Value;
+            pictureBox1.Location = PictureBorders(pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4, pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4);
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -85,9 +86,32 @@ namespace grass
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                pictureBox1.Location = new System.Drawing.Point(-e.X * pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4, -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4);
+                int x = -e.X * pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4;
+                int y = -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4;
+                
+                pictureBox1.Location = PictureBorders(x, y);
                 label11.Text = pictureBox1.Location.ToString();
             }
+        }
+
+        Point PictureBorders(int x,int y)
+        {
+            if (trackBar3.Value == 1)
+            {
+                x = x < 5 ? 5 : x > 5 ? 5 : x;
+                y = y < 12 ? 12 : y > 12 ? 12 : y;
+            }
+            if (trackBar3.Value == 2)
+            {
+                x = x < -1070 ? -1070 : x > 5 ? 5 : x;
+                y = y < -620 ? -620 : y > 12 ? 12 : y;
+            }
+            if (trackBar3.Value == 3)
+            {
+                x = x < -2148 ? -2148 : x > 5 ? 5 : x;
+                y = y < -1251 ? -1251 : y > 12 ? 12 : y;
+            }
+            return new Point(x, y); 
         }
         private void button1_Click(object sender, EventArgs e)
         {
