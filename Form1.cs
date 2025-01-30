@@ -140,8 +140,9 @@ namespace grass
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            //Point p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
-            controller.SelectTarget(e.Location);
+            Point p = new Point(e.Location.X / trackBar3.Value , e.Location.Y / trackBar3.Value);
+            controller.SelectTarget(p);
+            label20.Text = p.ToString();// new Point(e.Location.X, e.Location.Y).ToString();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -161,8 +162,17 @@ namespace grass
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-           // comboBox1.SelectedItem.ToString();
-           controller.DrawOrganColor(controller.bmpOrganColor);
+            // comboBox1.SelectedItem.ToString();
+            controller.DrawOrganColor(controller.bmpOrganColor);
+        }
+
+        private void trackBar5_Scroll(object sender, EventArgs e)
+        {
+            if ((trackBar5.Value != 0))
+            {
+                controller.radiationLVL = trackBar5.Value;
+            }
+            label17.Text = controller.radiationLVL.ToString();
         }
     }
 

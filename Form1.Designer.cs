@@ -72,6 +72,7 @@
             panel1 = new Panel();
             button3 = new Button();
             groupBox6 = new GroupBox();
+            listBox1 = new ListBox();
             pictureBox4 = new PictureBox();
             comboBox1 = new ComboBox();
             panel3 = new Panel();
@@ -82,6 +83,7 @@
             groupBox7 = new GroupBox();
             panel2 = new Panel();
             pictureBox1 = new PictureBox();
+            label20 = new Label();
             GrassBox.SuspendLayout();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
@@ -99,6 +101,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
+            groupBox7.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -362,16 +365,19 @@
             // 
             trackBar5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar5.AutoSize = false;
+            trackBar5.LargeChange = 10;
             trackBar5.Location = new Point(29, 15);
-            trackBar5.Maximum = 100;
-            trackBar5.Minimum = 1;
+            trackBar5.Maximum = 900;
+            trackBar5.Minimum = 10;
             trackBar5.Name = "trackBar5";
             trackBar5.Orientation = Orientation.Vertical;
             trackBar5.Size = new Size(25, 77);
+            trackBar5.SmallChange = 10;
             trackBar5.TabIndex = 14;
             trackBar5.TickFrequency = 3;
             trackBar5.TickStyle = TickStyle.TopLeft;
-            trackBar5.Value = 1;
+            trackBar5.Value = 10;
+            trackBar5.Scroll += trackBar5_Scroll;
             // 
             // trackBar4
             // 
@@ -586,6 +592,7 @@
             // 
             // groupBox6
             // 
+            groupBox6.Controls.Add(listBox1);
             groupBox6.Controls.Add(pictureBox4);
             groupBox6.Controls.Add(comboBox1);
             groupBox6.Controls.Add(panel3);
@@ -599,6 +606,18 @@
             groupBox6.TabIndex = 1;
             groupBox6.TabStop = false;
             groupBox6.Text = "Organism Status";
+            // 
+            // listBox1
+            // 
+            listBox1.BackColor = Color.Gray;
+            listBox1.FormattingEnabled = true;
+            listBox1.ImeMode = ImeMode.On;
+            listBox1.ItemHeight = 15;
+            listBox1.Items.AddRange(new object[] { "" });
+            listBox1.Location = new Point(8, 299);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new Size(210, 304);
+            listBox1.TabIndex = 17;
             // 
             // pictureBox4
             // 
@@ -666,6 +685,7 @@
             // 
             // groupBox7
             // 
+            groupBox7.Controls.Add(label20);
             groupBox7.Location = new Point(1110, 514);
             groupBox7.Name = "groupBox7";
             groupBox7.Size = new Size(228, 106);
@@ -692,6 +712,15 @@
             pictureBox1.TabStop = false;
             pictureBox1.Click += pictureBox1_Click;
             pictureBox1.MouseClick += pictureBox1_MouseClick;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(6, 19);
+            label20.Name = "label20";
+            label20.Size = new Size(44, 15);
+            label20.TabIndex = 0;
+            label20.Text = "label20";
             // 
             // Form1
             // 
@@ -733,6 +762,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
+            groupBox7.ResumeLayout(false);
+            groupBox7.PerformLayout();
             panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
@@ -791,5 +822,7 @@
         private Panel panel3;
         private PictureBox pictureBox4;
         private ComboBox comboBox1;
+        private ListBox listBox1;
+        private Label label20;
     }
 }
