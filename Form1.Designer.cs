@@ -81,9 +81,9 @@
             label18 = new Label();
             button4 = new Button();
             groupBox7 = new GroupBox();
+            label20 = new Label();
             panel2 = new Panel();
             pictureBox1 = new PictureBox();
-            label20 = new Label();
             GrassBox.SuspendLayout();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
@@ -151,9 +151,9 @@
             label3.AutoSize = true;
             label3.Location = new Point(45, 65);
             label3.Name = "label3";
-            label3.Size = new Size(25, 15);
+            label3.Size = new Size(80, 15);
             label3.TabIndex = 4;
-            label3.Text = "List";
+            label3.Text = "Grass amount";
             // 
             // GrassNoresp
             // 
@@ -315,7 +315,7 @@
             trackBar3.Size = new Size(70, 22);
             trackBar3.TabIndex = 1;
             trackBar3.Value = 1;
-            trackBar3.Scroll += trackBar3_Scroll;
+            trackBar3.ValueChanged += TrackBar3_ValueChanged;
             // 
             // pictureBox2
             // 
@@ -459,9 +459,9 @@
             label7.AutoSize = true;
             label7.Location = new Point(45, 59);
             label7.Name = "label7";
-            label7.Size = new Size(25, 15);
+            label7.Size = new Size(65, 15);
             label7.TabIndex = 12;
-            label7.Text = "List";
+            label7.Text = "Population";
             // 
             // label8
             // 
@@ -692,6 +692,15 @@
             groupBox7.TabIndex = 15;
             groupBox7.TabStop = false;
             // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(6, 19);
+            label20.Name = "label20";
+            label20.Size = new Size(44, 15);
+            label20.TabIndex = 0;
+            label20.Text = "label20";
+            // 
             // panel2
             // 
             panel2.Controls.Add(pictureBox1);
@@ -710,17 +719,8 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
-            pictureBox1.Click += pictureBox1_Click;
             pictureBox1.MouseClick += pictureBox1_MouseClick;
-            // 
-            // label20
-            // 
-            label20.AutoSize = true;
-            label20.Location = new Point(6, 19);
-            label20.Name = "label20";
-            label20.Size = new Size(44, 15);
-            label20.TabIndex = 0;
-            label20.Text = "label20";
+            pictureBox1.MouseWheel += pictureBox1_MouseWheel;
             // 
             // Form1
             // 
@@ -768,6 +768,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }
+
 
         #endregion
         public System.Windows.Forms.Timer timer1;

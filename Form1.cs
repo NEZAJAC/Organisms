@@ -45,13 +45,17 @@ namespace grass
             label14.Text = controller.sunLVL.ToString();
         }
 
-        private void trackBar3_Scroll(object sender, EventArgs e)
+        private void TrackBar3_ValueChanged(object sender, EventArgs e)
         {
             pictureBox1.Size = size * trackBar3.Value;
             pictureBox1.Location = PictureBorders(pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4, pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4);
             label15.Text = "x" + trackBar3.Value.ToString() + "  Zoom";
         }
-
+        private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0 && trackBar3.Value < 3) { trackBar3.Value++; }
+            else if (e.Delta < 0 && trackBar3.Value > 1) { trackBar3.Value--; }
+        }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (textBox1.TextLength > 0)
@@ -132,17 +136,12 @@ namespace grass
             //NewRefresh();
 
         }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            Point p = new Point(e.Location.X / trackBar3.Value , e.Location.Y / trackBar3.Value);
+            Point p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
             controller.SelectTarget(p);
-            label20.Text = p.ToString();// new Point(e.Location.X, e.Location.Y).ToString();
+            label20.Text = bmp.GetPixel(p.X,p.Y).ToString();// new Point(e.Location.X, e.Location.Y).ToString();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -153,11 +152,6 @@ namespace grass
         private void button4_Click(object sender, EventArgs e)
         {
             panel1.Show();
-        }
-
-        private void comboBox1_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -174,6 +168,8 @@ namespace grass
             }
             label17.Text = controller.radiationLVL.ToString();
         }
+
+        
     }
 
 }
