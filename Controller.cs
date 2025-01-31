@@ -185,7 +185,7 @@ namespace grass
             public void ListBoxUpdate(Organism? selected)
             {
                 listBox.Items.Clear();
-                
+                DrawOrganColor(bmpOrganColor);
                 if (selected != null)
                 {
                     selected.bodyTypes[comboBox.SelectedIndex].UpdateMyData();

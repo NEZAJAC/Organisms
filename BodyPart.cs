@@ -575,7 +575,7 @@ namespace grass
                     {
                         Point p = BorderChecker(new Point(mybody.point.X + localplace.X + i, mybody.point.Y + localplace.Y + j), bmp);
                         Color color = bmp.GetPixel(p.X, p.Y);
-                        if ((color.R > 0 || color.B > 0) && cellDictionary.ContainsKey(p) && cellDictionary[p] != mybody)
+                        if ((color.R > 0 || color.B > 0) && cellDictionary.ContainsKey(p) && cellDictionary[p].point != mybody.point)
                         {
                             target = cellDictionary[p];
                         }
@@ -600,7 +600,10 @@ namespace grass
 
             void BiteTarget(Organism targetOrganism,Organism myOrganism)
             {
-                if (targetOrganism != myOrganism)
+                if (targetOrganism.age != myOrganism.age &&
+                    targetOrganism.genList.Count != myOrganism.genList.Count &&
+                    targetOrganism.genList[0].part != myOrganism.genList[0].part &&
+                    targetOrganism.genList[0].localplace != myOrganism.genList[0].localplace)
                 {
                     targetOrganism.food -= bloodIntake;
                     myOrganism.food += bloodIntake;
