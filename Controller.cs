@@ -1,12 +1,11 @@
 ﻿using static System.ComponentModel.Design.ObjectSelectorEditor;
 
-namespace grass
+namespace MicroLife_Simulator
 {
     public partial class Form1
     {
         class Controller
         {
-            public int grassNoresp = 0;
             public List<Grass> grassList = new List<Grass>();
             public List<Grass> grassListTEMP = new List<Grass>();
             public List<Grass> grassListTORemove = new List<Grass>();
@@ -85,7 +84,7 @@ namespace grass
                 }
             }
             //----------------------------------------------------------------------------------цвет органа организма в информационной таблице
-            public void DrawOrganColor(Bitmap bmp)
+            public void DrawOrganColor(Bitmap? bmp)
             {
                 if (selectedObject != null)
                 {
@@ -113,7 +112,6 @@ namespace grass
             }
             //----------------------------------------------------------------------------------выбор организма по щелчку ЛКМ
             public Organism? selectedObject = null;
-            List<Point> coloredPoints = new List<Point>();
             public void SelectTarget(Point selectedPoint)
             {
                 for (int i = -3; i < 4; i++)
@@ -141,12 +139,14 @@ namespace grass
             }
             //--------------------------------------------------------------------------отрисовка рамки вокруг организма
             int frameSize = 7;
+            List<Point> coloredPoints = new List<Point>();
             public void DrawSelectedTargetFrame(Bitmap bmp)
             {
                 foreach (var item in coloredPoints)
                 {
                     bmp.SetPixel(item.X, item.Y, Color.Empty);
                 }
+                coloredPoints.Clear();
                 if (selectedObject != null && cellsList.Contains(selectedObject))
                 {
                     for (int x = -frameSize; x <= frameSize; x++)
@@ -185,7 +185,6 @@ namespace grass
             public void ListBoxUpdate(Organism? selected)
             {
                 listBox.Items.Clear();
-                DrawOrganColor(bmpOrganColor);
                 if (selected != null)
                 {
                     selected.bodyTypes[comboBox.SelectedIndex].UpdateMyData();
@@ -206,6 +205,28 @@ namespace grass
             public void CreateZones_manual(Point mousePoint, ZoneType activeType)//ручное создание зоны
             {
                 //создавать зону типа activeType в точке курсора mousePoint
+            }
+
+            public string GetGenotype(Organism? selected)
+            {
+                string result = "";
+                result += selected.genList.Count + "|";
+                foreach (var item in selected.genList)
+                {
+                    result += item.part + "|" 
+                        + item.localplace.X.ToString() + "|" 
+                        + item.localplace.Y.ToString() + "|" 
+                        + item.color.R.ToString()  + "|" 
+                        + item.color.G.ToString() + "|" 
+                        + item.color.B.ToString() + "|";
+                }
+                result += selected.dublicateAgeMax.ToString() + "|" 
+                    + selected.dublicateAgeMin.ToString() + "|" 
+                    + selected.dublicateDelayMax.ToString() + "|" 
+                    + selected.dublicateFoodPrice.ToString() + "|"
+                    + selected.maxage.ToString() + "|" 
+                    + selected.maxfood.ToString() + "|";
+                return result;
             }
         }
     }

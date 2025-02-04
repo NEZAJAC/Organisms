@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-namespace grass
+namespace MicroLife_Simulator
 {
     public partial class Form1 : Form
     {
@@ -31,7 +31,8 @@ namespace grass
         void NewRefresh()
         {
             size = pictureBox1.Size;
-
+            panel1.AutoScroll = true;
+            
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             bmpObservePicture = new Bitmap(pictureBox3.Width, pictureBox3.Height);
             bmpOrgansColor = new Bitmap(pictureBox4.Width, pictureBox4.Height);
@@ -71,33 +72,41 @@ namespace grass
             label14.Text = controller.sunLVL.ToString();
             //------------------------------
             panel1.Hide();
+            //List<List<Grass>> chunkGrassList = controller.grassList.Chunk(10000);
+            
 
+        }
+        public void UpdateInfo()
+        {
             
-            
+            if (panel1.Visible && bmpObservePicture != null)
+                {
+                if (checkBox1.Checked)
+                {
+                    controller.ListBoxUpdate(controller.selectedObject);
+                    controller.DrawOrganColor(controller.bmpOrganColor);
+                }
+                    controller.DrawObservePicture(bmpObservePicture);
+                    pictureBox3.Image = bmpObservePicture;
+                    if (controller.selectedObject != null)
+                    {
+                        label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.maxage;
+                        label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
+                        label6.Text = controller.selectedObject.canDuplicate.ToString();
+                        label9.Text = controller.selectedObject.point.ToString();
+                    pictureBox4.Image = bmpOrgansColor;
+                }
+                    else { label10.Text = "NoNe"; label11.Text = "NoNe"; }
+                }
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
             label13.Text = sw.ElapsedMilliseconds.ToString(); 
             sw.Restart();
             sw.Start();
-
             controller.DrawSelectedTargetFrame(bmp);
             controller.Draw(bmp);
-            if(panel1.Visible && bmpObservePicture != null)
-            {
-                controller.DrawObservePicture(bmpObservePicture);
-                pictureBox3.Image = bmpObservePicture;
-                if (controller.selectedObject != null)
-                {
-                    label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.maxage;
-                    label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
-                }
-                else { label10.Text = "NoNe"; label11.Text = "NoNe"; }
-
-                controller.ListBoxUpdate(controller.selectedObject);//------------------------------------------------Подсосался сюда
-                pictureBox4.Image = bmpOrgansColor;
-            }
-
+            UpdateInfo();
             pictureBox1.Image = bmp;
             pictureBox2.Image = bmp;//----------------------------------------Minimap
             if (checkBox1.Checked)
@@ -158,32 +167,33 @@ namespace grass
             }
             controller.grassListTORemove.Clear();
             label1.Text = controller.grassList.Count.ToString();
-            label4.Text = controller.grassNoresp.ToString();
+            //label4.Text = controller.grassNoresp.ToString();
             //-----------------------------------------------------------------------------------------
-            if (checkBox2.Checked)
+            if (checkBox1.Checked)
             {
                 foreach (Organism organism in controller.cellsList)
                 {
-                    organism.DoworkPrepare(bmp, controller);
+                    organism.DoworkPrepare(bmp, controller);//----------------------------------------------------------------------------------------------каждый делает свою работу
+
                     if (organism.food >= organism.dublicateFood && !OrgLimit_CB.Checked && controller.cellsList.Count < MAXorganis && organism.canDuplicate)
                     {
-                        organism.food = organism.food / 2;
-                        controller.cellsListTEMP.Add(new Organism(organism.point, organism.genList));
+                        organism.food -= organism.dublicateFoodPrice;
+                        controller.cellsListTEMP.Add(new Organism(organism.point, organism));
                         organism.canDuplicate = false;
                         organism.dublicateDelay = 0;
                     }
                     else
                     if (organism.food >= organism.dublicateFood && OrgLimit_CB.Checked && organism.canDuplicate)
                     {
-                        organism.food = organism.food / 2;
-                        controller.cellsListTEMP.Add(new Organism(organism.point, organism.genList));
+                        organism.food -= organism.dublicateFoodPrice;
+                        controller.cellsListTEMP.Add(new Organism(organism.point, organism));
                         organism.canDuplicate = false;
                         organism.dublicateDelay = 0;
                     }
                     else
                     if (organism.food >= organism.dublicateFood)
                     {
-                        organism.food = organism.food / 2;
+                        organism.food -= organism.dublicateFoodPrice;
                         organism.canDuplicate = false;
                         organism.dublicateDelay = 0;
                     }
@@ -223,33 +233,13 @@ namespace grass
             sw.Stop();
         }
 
-        struct Genome
-        {
-            //для частай
-            public String part { get; set; }            //название органа
-            public void partSet(String str)
-            {
-                part = str;
-            }
-            public Point localplace { get; set; }      //локальное положение органа в организме
-            public void localplaceSet(Point point)
-            {
-                localplace = point;
-            }
-            public Color color { get; set; }          //цвет органа(от цвета зависит могут ли его скушать)(для глаза определяет какие цвета он видит)
-            public void colorSet(Color colorIN)
-            {
-                color = colorIN;
-            }
-            //--------------------
-
-        }
+        
 
         class ZoneType
         {
-            Pen pen;
+            Pen pen = new Pen(Color.Red);
             Rectangle radius;
-            Effect effect;
+            Effect? effect;
             public virtual void CreateZone() { }
 
         }

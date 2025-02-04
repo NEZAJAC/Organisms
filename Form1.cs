@@ -2,11 +2,12 @@ using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace grass
+namespace MicroLife_Simulator
 {
 
     public partial class Form1 : Form
     {
+        Point p = new Point(0,0);
         public static Point BorderChecker(Point point, Bitmap bmp)
         {
             int x = point.X;
@@ -35,7 +36,6 @@ namespace grass
             }
             label12.Text = timer1.Interval.ToString();
         }
-
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
             if ((trackBar2.Value != 0))
@@ -44,7 +44,14 @@ namespace grass
             }
             label14.Text = controller.sunLVL.ToString();
         }
-
+        private void trackBar5_Scroll(object sender, EventArgs e)
+        {
+            if ((trackBar5.Value != 0))
+            {
+                controller.radiationLVL = trackBar5.Value;
+            }
+            label17.Text = controller.radiationLVL.ToString();
+        }
         private void TrackBar3_ValueChanged(object sender, EventArgs e)
         {
             pictureBox1.Size = size * trackBar3.Value;
@@ -58,6 +65,7 @@ namespace grass
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
+
             if (textBox1.TextLength > 0)
             {
                 MAXgrass = int.Parse(textBox1.Lines[0]);
@@ -71,7 +79,14 @@ namespace grass
                 MAXorganis = int.Parse(textBox2.Lines[0]);
             }
         }
-
+        private void textBoxNumeric_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char number = e.KeyChar;
+            if (!Char.IsDigit(number) && number != 8) // цифры и клавиша BackSpace
+            {
+                e.Handled = true;
+            }
+        }
         private void button2_Click(object sender, EventArgs e)
         {
             Boolean boo = false;
@@ -95,10 +110,10 @@ namespace grass
                 int y = -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4;
 
                 pictureBox1.Location = PictureBorders(x, y);
-                label11.Text = pictureBox1.Location.ToString();
+                //label11.Text = pictureBox1.Location.ToString();
             }
         }
-        private void pictureBox2_MouseClick(object sender, MouseEventArgs e)
+        private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
@@ -106,7 +121,7 @@ namespace grass
                 int y = -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4;
 
                 pictureBox1.Location = PictureBorders(x, y);
-                label11.Text = pictureBox1.Location.ToString();
+                //label11.Text = pictureBox1.Location.ToString();
             }
         }
         Point PictureBorders(int x, int y)
@@ -136,12 +151,18 @@ namespace grass
             //NewRefresh();
 
         }
-        
+
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            Point p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
+            p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
             controller.SelectTarget(p);
-            label20.Text = bmp.GetPixel(p.X,p.Y).ToString();// new Point(e.Location.X, e.Location.Y).ToString();
+            if (panel1.Visible)
+            {
+                controller.ListBoxUpdate(controller.selectedObject);
+                controller.ComboBoxUpdate(controller.selectedObject);
+                controller.DrawOrganColor(controller.bmpOrganColor);
+            }
+            label20.Text = bmp.GetPixel(p.X, p.Y).ToString();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -158,18 +179,40 @@ namespace grass
         {
             // comboBox1.SelectedItem.ToString();
             controller.DrawOrganColor(controller.bmpOrganColor);
+            controller.ListBoxUpdate(controller.selectedObject);
+            //controller.ComboBoxUpdate(controller.selectedObject);
+            //controller.DrawOrganColor(controller.bmpOrganColor);
         }
 
-        private void trackBar5_Scroll(object sender, EventArgs e)
+        private void GrassLimit_CB_CheckedChanged(object sender, EventArgs e)
         {
-            if ((trackBar5.Value != 0))
-            {
-                controller.radiationLVL = trackBar5.Value;
-            }
-            label17.Text = controller.radiationLVL.ToString();
+            textBox1.Enabled = !textBox1.Enabled;
         }
 
-        
+        private void OrgLimit_CB_CheckedChanged(object sender, EventArgs e)
+        {
+            textBox2.Enabled = !textBox2.Enabled;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (controller.selectedObject != null)
+            {
+                textBox3.Text = controller.GetGenotype(controller.selectedObject);
+            }
+            panel4.Visible = true;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            panel4.Visible = false;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            var pp = p == new Point(0, 0) ? new Point(bmp.Width / 2, bmp.Height / 2) : p;
+            controller.cellsList.Add(new Organism(pp, textBox3.Text));
+        }
     }
 
 }

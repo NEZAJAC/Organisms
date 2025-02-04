@@ -1,4 +1,4 @@
-namespace grass
+namespace MicroLife_Simulator
 {
     internal static class Program
     {

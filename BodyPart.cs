@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Xml.Linq;
 
-namespace grass
+namespace MicroLife_Simulator
 {
     public partial class Form1
     {
@@ -40,6 +40,8 @@ namespace grass
             {
                 //делать тут потребление питательных веществ из организма
             }
+
+
         }
 
 
@@ -106,9 +108,9 @@ namespace grass
             {
                 if (!Eat(out eatTarget, bmp)) { moveResult = SenseMove(bmp); } else { moveResult = new Point(0, 0); }
 
-                body.point = BorderChecker(body.point.X + this.moveResult.X, body.point.Y + this.moveResult.Y, bmp);//двигает тело
-                body.eatTarget = this.eatTarget.X != -1 && this.eatTarget.Y != -1 ? this.eatTarget : new Point(-1, -1);
-                body.EatTarget(body.dictionaryOfGrass, this.EatStrength);
+                //body.point = BorderChecker(body.point.X + this.moveResult.X, body.point.Y + this.moveResult.Y, bmp);//двигает тело
+                //body.ToMouthSignal = this.eatTarget.X != -1 && this.eatTarget.Y != -1 ? this.eatTarget : new Point(-1, -1);
+                //body.EatTarget(body.controller.grassDictionary, this.EatStrength);
             }
         }
         /// <summary>
@@ -116,13 +118,13 @@ namespace grass
         /// </summary>
         class Mouth : BodyPart
         {
-            public int EatStrength = 100;
+            public int EatStrength = 50;
+            public bool predator = false;
+
             public int eatResult = 0;
-            int transferStrength = 25;
             public Point eatTarget = new Point(0, 0);
             public List<Point> ignorePoints = new List<Point>();
-            bool predator = false;
-
+            
             public Mouth()
             {
                 name = "Mouth";
@@ -141,13 +143,6 @@ namespace grass
                 }
 
                 return "";
-            }
-            public void CheckMyBody(List<BodyPart> parts)//----------------при создании смотрим где можно кушать, главное не кушать себя
-            {//-------------------------------------------------------рот кушает все в отличии от клеточного всасывания, те могут только Green
-                foreach (var item in parts)
-                {
-                    ignorePoints.Add(new Point(item.localplace.X - localplace.X, item.localplace.Y - localplace.Y));
-                }
             }
 
             public bool Eat(out Point targetEat, Bitmap bmp)
@@ -178,7 +173,7 @@ namespace grass
                             {
                                 Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
                                 var temp = bmp.GetPixel(p.X, p.Y);
-                                if (bmp.GetPixel(p.X, p.Y).G > 0 || bmp.GetPixel(p.X, p.Y).R > 0 || bmp.GetPixel(p.X, p.Y).B > 0)
+                                if (bmp.GetPixel(p.X, p.Y).G > 0 || bmp.GetPixel(p.X, p.Y).R > 0 || bmp.GetPixel(p.X, p.Y).B > 0 || bmp.GetPixel(p.X, p.Y).G != Color.Green.G)
                                 {
                                     points.Add(new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j));
                                 }
@@ -190,12 +185,57 @@ namespace grass
                 return targetEat.X != -1 && targetEat.Y != -1 ? true : false;
             }
 
+            public void EatTarget(Organism body)
+            {
+                if (eatTarget.X != -1 && eatTarget.Y != -1 && body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+                {
+                    //------------------------------------------------------Доработать математику
+                    int difference = body.controller.grassDictionary[eatTarget].food - EatStrength;
+                    int amount = difference <= 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;
+                    body.controller.grassDictionary[eatTarget].food -= amount;
+                    body.food += amount;
+                }
+            }
+            public void ToStomach(Organism body)
+            {
+                int overEating = 0;
+                if (eatTarget.X != -1 && eatTarget.Y != -1 && body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+                {
+                    int stomaches = 0;
+                    foreach (var item in body.bodyTypes)
+                    {
+                        if (item.name == "Stomach")
+                        { 
+                            stomaches++;
+                        }
+                    }
+                    foreach (var item in body.bodyTypes)
+                    {
+                        if (item.name == "Stomach")
+                        {
+                            Stomach stomach = (Stomach)item;
+                            int difference = body.controller.grassDictionary[eatTarget].food - EatStrength;
+                            int amount = difference <= 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;//----сколько может откусить
+                            body.controller.grassDictionary[eatTarget].food -= amount/stomaches;
+                            var overFood = stomach.currentCapacity + amount / stomaches > stomach.capacity ? stomach.currentCapacity + amount / stomaches - stomach.capacity : 0;   
+                            stomach.currentCapacity = overFood > 0 ? stomach.capacity : stomach.currentCapacity + amount / stomaches;
+                            overEating += overFood;
+                        }
+                    }
+                    
+                }
+                if(overEating >= 100)
+                {
+
+                }
+                //------------------------------------------------------------сделать выбрасывание излишков и создание мусора(отравление почвы)
+            }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
                 if (!Eat(out eatTarget, bmp)) { body.move = true; } else { body.move = false; }// рот решает что делать организму??? НЕТ!!!//только пока нет мозга
-                //Eat(out eatTarget, bmp);
-                body.eatTarget = eatTarget;
-                body.EatTarget(body.dictionaryOfGrass, EatStrength);
+                if(!body.hasStomach){ EatTarget(body); }{ ToStomach(body); }
+                //body.ToMouthSignal = eatTarget;
+                //body.EatTarget(body.controller.grassDictionary, EatStrength);
             }
         }
         /// <summary>
@@ -203,18 +243,28 @@ namespace grass
         /// </summary>
         class Brain : BodyPart
         {
-            int amountFoodSignal = 0;
-            Dictionary<Point, Color> pointsEyeSignal = new Dictionary<Point, Color>();//Глаза дают мозгу сигнал в виде точек с цветами
-            int pheromoniusStrengthSignal = 0;
-            Point sidePointMoveSignal = new Point();
-            int foodSignal = 0;
-            //--------------------------
-            Point brainWantMoveToSignalOut = new Point();//мозг решает куда он хочет идти сейчас, дает указ ногам, ноги проверяют доступные места куда могут пойти, если есть совпаения то идут туда
+            enum Tasks {Move,Eat,Duplicate }
+            //мозг решает куда он хочет идти сейчас, дает указ ногам, ноги проверяют доступные места куда могут пойти, если есть совпаения то идут туда
             //входным параметром может быть стадия голода организма
             //сигналы от "глаз"
             //сигналы от "ферамонов"
             //разработать систему корректировки движия
-            List<BodyPart> myParts = new List<BodyPart>();
+            //{Skip}{DO}{Take}{Give}
+            //{ничего не делать, пропуск частью тела своей задачи}
+            //{выполнять свою задачу, если задача требует данных то применяется следущее}
+            //{мозг передает необходимую информацию части тела для выполнения задачи}
+            //{мазг получает информацию от части тела для обработки}
+            //   от органов чувств(глаза, сенсоры) получает словарь точек с цветами(для глаз) или уровень заражения почвы(для сенсоров),
+            //   через Analize разделяется набор точек на группы с явными типами {Еда}{Свой}{Чужой}{Свободный путь}{Заражение}
+            //   части тела (рты, ноги, жабры, гениталии, фильтры, рожки, зацепки) возвращают результат выполнения операции {success}{fault}{half}
+            //   берет свою информацию о потребностях (голод, размножение, температура тела)
+            //   разность действия(результата) и ожидания(результата) дает обратную ошибку,
+            //   которая меняет множитель в нужную сторону (если совпала то в +, если нет то в -) после N числа несовпадений или совпадений,
+            //   где N это жесткость правил. удачная N будет тренеровать сеть лучше
+            //   point.X
+            //Сначала мы выбираем ближайшие объекты. Для глаз ближайшую пищу, для ног ближайший шаг до этой пиши. В целом определяем цель и как до нее дойти
+            //Это не требует работы нейросети?
+            List<Point> points = new List<Point>();
             public Brain()
             {
                 name = "Brain";
@@ -226,24 +276,19 @@ namespace grass
                 base.UpdateMyData();
                 return "";
             }
-            void Thinking(List<BodyPart> myParts, out int FoodSignal, out List<Point> EyeSignal, out int pheromoniusSignal)
+            void NeuroWork()
             {
-                foreach (var item in myParts)
-                {
-                    if (item.name == "")
-                    {
-
-                    }
-                }
-
-                FoodSignal = 0;
-                EyeSignal = new List<Point>();
-                pheromoniusSignal = 0;
+                //от 0 до 8(0-24)(0-48) входных точек - координаты куда можно пойти
+                // точка состоит в диапазоне -1, 1 можно представить как х = -1 , у = 1
+                
             }
-
             public override void Dosomething(Organism body, Bitmap bmp)
             {
+               points.Clear();
+                points = body.closestPoiints;
 
+                //нихуя не понятно как делать
+                //понятно как думать но не понятно как делать
             }
         }
         /// <summary>
@@ -253,6 +298,7 @@ namespace grass
         {
             Random rand = new Random();
             public Point moveResult = new Point(0, 0);
+            public int speed = 1;
             public Leg()
             {
                 name = "Leg";
@@ -267,7 +313,7 @@ namespace grass
                 partsData.Add("Speed Y\t" + moveResult.Y.ToString());
                 return "";
             }
-            public Point MoveResult(Bitmap bmp) //-------------------------------------------Добавить точки игнорирования
+            public Point MoveResult(Bitmap bmp) //-------------------------------------------Добавить точки игнорирования//Оставить эту фукнцию для движения без органов осязания
             {
                 List<Point> points = new List<Point>();
                 for (int i = -1; i <= 1; i++)
@@ -293,7 +339,7 @@ namespace grass
                     moveResult = MoveResult(bmp);
                     
 
-                    body.point = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
+                    body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
                 }
             }
         }
@@ -302,25 +348,46 @@ namespace grass
         /// </summary>
         class Stomach : BodyPart//желудок сохраняет часть скушанного и переводит в еду с увечиченной скоростью
         {
-            int capacity = 2000;
-            int transferStrength = 100;
-            int transferScale = 2;
+            public int capacity = 5000;
+            public int currentCapacity = 0;
+            int transferStrength = 25;
+            int transferPlus = 10;
+            int transferDelay { get; }
+            int transferDelayNow = 0;
             public Stomach()
             {
                 name = "Stomach";
                 color = Color.RosyBrown;
                 energyCost = 1;
+
+                transferDelay = 5;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
-                partsData.Add("Capacity\t" + capacity.ToString());
+                partsData.Add("Capacity\t" + currentCapacity.ToString() + "/" +capacity.ToString());
                 partsData.Add("Transfer\t" + transferStrength.ToString());
+                partsData.Add("transferPlus\t" + transferPlus.ToString());
+                partsData.Add("transferDelayNow\t" + transferDelayNow.ToString());
                 return "";
+            }
+            void DigestFood(Organism body)
+            {
+                int amount = currentCapacity - transferStrength >= 0 ? transferStrength : currentCapacity;
+                if (body.food + amount <= body.maxfood)
+                {
+                    currentCapacity -= amount;
+                    body.food += amount + transferPlus;
+                }
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-
+                if (transferDelayNow < transferDelay){ transferDelayNow++; }
+                if (currentCapacity > 0 && transferDelayNow == transferDelay)
+                {
+                    transferDelayNow = 0;
+                    DigestFood(body);
+                }
             }
         }
         /// <summary>
@@ -328,19 +395,19 @@ namespace grass
         /// </summary>
         class Eye : BodyPart//проверяет бОльшую область чем сенсоры других органов, отличает цвет, имеет выход нервного окончания для влияния на действия
         {
-            List<Point> points = new List<Point>();
-            List<Point> ignorePoints = new List<Point>();
-            public Dictionary<Point, Color> findingTargets = new Dictionary<Point, Color>();
+            
             //--------------------------
-            public int eyeRange = 5;
+            public int eyeRange = 3;
             //--------------------------
             public int redColor = 0;
             public int greenColor = 130;
             public int blueColor = 0;
+
+
             public Eye()
             {
                 name = "Eye";
-                color = Color.Yellow;
+                color = Color.White;
                 energyCost = 1;
             }
             
@@ -351,48 +418,43 @@ namespace grass
                 partsData.Add("redColor     \t" + redColor.ToString());
                 partsData.Add("greenColor   \t" + greenColor.ToString());
                 partsData.Add("blueColor    \t" + blueColor.ToString());
-                foreach (Point p in points)
-                {
-                partsData.Add("SeeingAt     \t" + "x" + p.X.ToString() + " \ty" + p.Y.ToString());
-                }
+                //partsData.Add("blueColor    \t" + blueColor.ToString());
                 return "";
             }
-            public void CheckMyBody(Organism organism)
+            void SenseEye(Organism body, Bitmap bmp)
             {
-                ignorePoints.Clear();
-                foreach (var item in organism.bodyTypes)
-                {
-                    ignorePoints.Add(new Point(item.globalplace.X + item.localplace.X,item.globalplace.Y + item.localplace.Y));
-                }
-            }
-            List<Point> SenseEye(Organism body, Bitmap bmp)
-            {
-                points.Clear();
-                CheckMyBody(body);
                 for (int i = -eyeRange; i < eyeRange; i++)
                 {
                     for (int j = -eyeRange; j < eyeRange; j++)
                     {
                         Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
-                        if (!ignorePoints.Contains(new Point(p.X, p.Y)))
+                        if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.EyeSignal.ContainsKey(p))
                         {
                              Color color = bmp.GetPixel(p.X, p.Y);
-                             if (color.G <= greenColor && color.G > 0 ) { points.Add(p); }
-                             else
-                             if (color.A <= redColor && color.A > 0 ) { points.Add(p); }
-                             else
-                             if (color.B <= blueColor && color.B > 0 ) { points.Add(p); }
+                             if (color.G <= greenColor && color.G > 0 || color.A <= redColor && color.A > 0 || color.B <= blueColor && color.B > 0) 
+                            { 
+                                body.EyeSignal.Add(p, color);
+                            }
                         }
                         
                     }
                 }
-                return points;
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
+                        Color color = bmp.GetPixel(p.X, p.Y);
+                        if (body.ignorePoints.Contains(new Point(p.X, p.Y)) || color.A == 255)
+                        {
+                            body.closestPoiints.Add(p);
+                        }
+                    }
+                }
             }
 
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                //body.findingPoints.Clear(); 
-                //body.findingPoints = SenseEye(body,bmp);
                 SenseEye(body, bmp);
             }
         }
@@ -441,7 +503,7 @@ namespace grass
             }
             void FoodExchange(Organism body)
             {
-                if (body.food >= body.maxfood / 2 && fats < maxFats - exchangeStrength && !body.canDuplicate)
+                if (body.food >= body.maxfood / 2 && fats < maxFats - exchangeStrength)
                 {
                     fats += exchangeStrength;
                     body.food -= exchangeStrength;
@@ -538,7 +600,7 @@ namespace grass
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
             }
         }
         /// <summary>
@@ -547,73 +609,103 @@ namespace grass
         class MiteHorns : BodyPart
         {
             int amountDrinking = 0;
-            int bloodIntake = 10;
+            int bloodIntake = 15;
             int biteRange = 2;
-            public Point trackingRange = new Point(6, 6);
-            List<Point> ignorePoints = new List<Point>();
-            Organism? target = null;
-            public Dictionary<Point, Organism>? cellDictionary;
+            public Organism? target = null;
             public MiteHorns()
             {
                 name = "MiteHorns";
                 color = Color.DimGray;
-                energyCost = 1;
+                energyCost = 2;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
-                if(target != null )partsData.Add("target X\t" + target.point.X.ToString());
-                if (target != null) partsData.Add("target Y\t" + target.point.Y.ToString());
+                if (target != null)
+                {
+                    partsData.Add("target X\t" + target.point.X.ToString());
+                    partsData.Add("target Y\t" + target.point.Y.ToString());
+                }
                 partsData.Add("amountDrinking\t" + amountDrinking.ToString());
                 return "";
             }
-            void FindTargets(Organism mybody, Bitmap bmp)
+            void FindTargets(Organism myOrganism, Bitmap bmp)
             {
                 for (int i = -biteRange; i <= biteRange; i++)
                 {
                     for (int j = -biteRange; j <= biteRange; j++)
                     {
-                        Point p = BorderChecker(new Point(mybody.point.X + localplace.X + i, mybody.point.Y + localplace.Y + j), bmp);
-                        Color color = bmp.GetPixel(p.X, p.Y);
-                        if ((color.R > 0 || color.B > 0) && cellDictionary.ContainsKey(p) && cellDictionary[p].point != mybody.point)
+                        Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
+                        if (myOrganism.controller.cellDictionary.ContainsKey(p) &&
+                            myOrganism.controller.cellDictionary[p].point != myOrganism.point &&
+                            myOrganism.controller.cellDictionary[p].genList[0].localplace != myOrganism.genList[0].localplace &&
+                            myOrganism.controller.cellDictionary[p].genList[1].localplace != myOrganism.genList[1].localplace)
                         {
-                            target = cellDictionary[p];
+                            target = myOrganism.controller.cellDictionary[p];
+                            break;
                         }
                     }
+                    if (target != null) break; 
                 }
             }
-            void Tracking(Organism myOrganism)
+            void BiteTarget(Organism myOrganism)
             {
-                if(target != null)
+                if (Math.Abs(target.point.X - (globalplace.X + localplace.X)) > biteRange && Math.Abs(target.point.Y - (globalplace.Y + localplace.Y)) > biteRange)
                 {
-                    if(Math.Abs(target.point.X - (globalplace.X + localplace.X)) <= biteRange && Math.Abs(target.point.Y - (globalplace.Y + localplace.Y)) <= biteRange)
-                    {
-                        BiteTarget(target, myOrganism);
-                    }
-                    else
-                    {
-                        target = null;
-
-                    }
+                    target = null;
                 }
-            }
-
-            void BiteTarget(Organism targetOrganism,Organism myOrganism)
-            {
-                if (targetOrganism.age != myOrganism.age &&
-                    targetOrganism.genList.Count != myOrganism.genList.Count &&
-                    targetOrganism.genList[0].part != myOrganism.genList[0].part &&
-                    targetOrganism.genList[0].localplace != myOrganism.genList[0].localplace)
+                else
                 {
-                    targetOrganism.food -= bloodIntake;
+                    target.food -= bloodIntake;
                     myOrganism.food += bloodIntake;
                     amountDrinking += bloodIntake;
                 }
-                else { target = null; }
             }
             public override void Dosomething(Organism myOrganism, Bitmap bmp)
             {
-                if (target == null) { cellDictionary = myOrganism.cellDictionary; FindTargets(myOrganism, bmp); } else { Tracking(myOrganism); }
+                if (target == null) {FindTargets(myOrganism, bmp); } else { BiteTarget(myOrganism); }
+            }
+        }
+        /// <summary>
+        /// зацепки для прикрепления к другим организмам
+        /// </summary>
+        class Clues : BodyPart
+        {
+            public Clues()
+            {
+                name = "Clues";
+                color = Color.LavenderBlush;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                return "";
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
+            }
+        }
+        /// <summary>
+        /// позволяют получать питание от солнца
+        /// </summary>
+        class Chlorophylls : BodyPart
+        {
+            public Chlorophylls()
+            {
+                name = "Chlorophylls";
+                color = Color.LightGreen;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                return "";
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
             }
         }
     }
