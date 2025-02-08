@@ -1,14 +1,8 @@
-﻿using System.Drawing;
-using System.Drawing.Drawing2D;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
-
-namespace MicroLife_Simulator
+﻿namespace MicroLife_Simulator
 {
     public partial class Form1
     {
-        class Object
+        abstract class Object
         {
             public int food;
             public int maxfood = 100;
@@ -28,7 +22,7 @@ namespace MicroLife_Simulator
                 this.point = point;
             }
 
-            public Color GetPixelUnder(Bitmap bmp,Point point)
+            public Color GetPixelUnder(Bitmap bmp, Point point)
             {
                 return bmp.GetPixel(point.X, point.Y);
             }
@@ -80,11 +74,11 @@ namespace MicroLife_Simulator
 
             public bool Duplicate(Bitmap bmp, out Point pointt)
             {
-                int x = point.X + rand.Next(-10, 11);
-                int y = point.Y + rand.Next(-10, 11);
+                int x = point.X + rand.Next(-20, 21);
+                int y = point.Y + rand.Next(-20, 21);
                 Point newpoint = BorderChecker(x, y, bmp);
                 Color color = bmp.GetPixel(newpoint.X, newpoint.Y);
-                if (color.G == 0 && color.B == 0 && color.R == 0) { pointt = newpoint; return true; } else pointt = new Point(-1,-1);  return false;
+                if (color.G == 0 && color.B == 0 && color.R == 0) { pointt = newpoint; return true; } else pointt = new Point(-1, -1); return false;
             }
 
         }
@@ -95,26 +89,43 @@ namespace MicroLife_Simulator
             public Point localplace { get; set; }      //локальное положение органа в организме
             public Color color { get; set; }          //цвет органа(от цвета зависит увидят ли его глаза )
         }
+
+        struct OrganismParameters
+        {
+            public int bodyTemperatureMax;
+            public int bodyTemperatureMin;
+
+            public int dublicateDelay;    //--------------------------------------задержка перед повторным делением(текущая)
+            public int dublicateDelayMax; //-----------------------------задержка перед повторным делением(верхнее значение)
+            public int dublicateFood;     //--------------------------------------требуемое количество насыщения для деления
+            public int dublicateFoodPrice;//--------------------------------------------------------------------цена деления
+            public int hungryFoodLVL;     //-------------------------------------значение на котором организм захочет кушать
+            public int dublicateAgeMin;   //-----------------------------------------------------минимальный возраст деления
+            public int dublicateAgeMax;   //----------------------------------------------------максимальный возраст деления
+            public int childs;
+        }
         class Organism : Object
         {
+            OrganismParameters parameters;
             public Controller? controller = null;
             int radiation = 10;
             //для организма
             public Point newPoint = new Point();
             public Point lastPoint = new Point();
-            
+
             //---------------------------
             public int bodyTemperatureMax;
             public int bodyTemperatureMin;
             //---------------------------размножение
-            public bool canDuplicate = true;  
+            public bool canDuplicate = true;
             public int dublicateDelay;    //--------------------------------------задержка перед повторным делением(текущая)
             public int dublicateDelayMax; //-----------------------------задержка перед повторным делением(верхнее значение)
             public int dublicateFood;     //--------------------------------------требуемое количество насыщения для деления
             public int dublicateFoodPrice;//--------------------------------------------------------------------цена деления
+            public int hungryFoodLVL;     //-------------------------------------значение на котором организм захочет кушать
             public int dublicateAgeMin;   //-----------------------------------------------------минимальный возраст деления
             public int dublicateAgeMax;   //----------------------------------------------------максимальный возраст деления
-            //public int childs;          //------------------------------------------------количество детей на одно деление
+            public int childs;          //--------------------------------------------------количество детей на одно деление
             /// <summary>
             /// Сигналы мозгу для обработки входящие
             /// </summary>
@@ -141,22 +152,29 @@ namespace MicroLife_Simulator
             public bool hasFats = false;
             public bool hasStomach = false;
             public bool hasMiteHorns = false;
+            public bool hasFilter = false;
             //------------------------------
             public bool move = true;
             public Organism(Point pointIN)//используется для первого запуска или дополнительной генерации организмов.
             {
                 point = pointIN;
                 food = 9000;
-                maxfood = 10000;
-                dublicateFood = 10000;
                 maxage = 2000;
                 age = 0;
-                dublicateDelayMax = 250;
-                dublicateDelay = dublicateDelayMax;
-                dublicateFoodPrice = dublicateFood/2;
-                dublicateAgeMin = maxage/8;
-                dublicateAgeMax = maxage - maxage/8;
+
+                //parameters.childs = 1;
+                //parameters.dublicateAgeMin = maxage / 8;
+
+
+                dublicateAgeMin = maxage / 8;
+                dublicateAgeMax = maxage - maxage / 8;
                 GenGeneration();
+                dublicateDelayMax = 150 * genList.Count;
+                dublicateDelay = dublicateDelayMax;
+                dublicateFood = 2000 * genList.Count;
+                dublicateFoodPrice = 2000 * genList.Count;
+                maxfood = 2600 * genList.Count;
+                hungryFoodLVL = maxfood / 2;
             }
             public Organism(Point pointIN, Organism parent)
             {
@@ -172,7 +190,11 @@ namespace MicroLife_Simulator
                 dublicateAgeMin = parent.dublicateAgeMin;
                 dublicateAgeMax = parent.dublicateAgeMax;
                 genList = GenCopyes(parent.genList);
-                genList = GenMutation(genList);
+                GenMutation(genList);
+                BodyAddRandomPart(genList);
+                BodyChengeRandomPart(genList);
+                BodyRemoveRandomPart(genList);
+                BodyCreate(genList);
             }
             public Organism(Point pointIN, Organism organismX, Organism organismY) //--------------------------------------------------------Доделать половое размножение
             {
@@ -191,15 +213,15 @@ namespace MicroLife_Simulator
                     int colorG;
                     int colorB;
                     int j = 1;
-                    for (int i = 1; i <= int.Parse(words[0]); )
+                    for (int i = 1; i <= int.Parse(words[0]);)
                     {
                         partt = words[j];
                         localplaceX = int.TryParse((words[j + 1]), out int iid) ? int.Parse(words[j + 1]) : 0;
                         localplaceY = int.TryParse(words[j + 2], out _) ? int.Parse(words[j + 2]) : 0;
-                        colorR = int.TryParse(words[j + 3], out _) ? int.Parse(words[j+3]) : 255;
-                        colorG = int.TryParse(words[j + 4], out _) ? int.Parse(words[j+4]) : 255;
-                        colorB = int.TryParse(words[j + 5], out _) ? int.Parse(words[j+5]) : 255;
-                        genList.Add(new Genome { part = partt, localplace = new Point(localplaceX,localplaceY), color = Color.FromArgb(255, colorR, colorG, colorB) });
+                        colorR = int.TryParse(words[j + 3], out _) ? int.Parse(words[j + 3]) : 255;
+                        colorG = int.TryParse(words[j + 4], out _) ? int.Parse(words[j + 4]) : 255;
+                        colorB = int.TryParse(words[j + 5], out _) ? int.Parse(words[j + 5]) : 255;
+                        genList.Add(new Genome { part = partt, localplace = new Point(localplaceX, localplaceY), color = Color.FromArgb(255, colorR, colorG, colorB) });
                         j = i * 6 + 1;
                         i++;
                     }
@@ -210,7 +232,7 @@ namespace MicroLife_Simulator
                     maxage = int.Parse(words[j + 4]);
                     maxfood = int.Parse(words[j + 5]);
                 }
-                
+
                 point = pointIN;
                 food = 9000;
                 dublicateFood = maxfood;
@@ -220,7 +242,7 @@ namespace MicroLife_Simulator
                 BodyCreate(genList);
 
             }
-            void FingIgnorePoints()
+            void FindIgnorePoints()
             {
                 ignorePoints.Clear();
                 foreach (var item in bodyTypes)
@@ -228,15 +250,29 @@ namespace MicroLife_Simulator
                     ignorePoints.Add(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y));
                 }
             }
-            Point Normalizator()
+            Point Normalizator2()
             {
                 List<Point> ignorePoints = new List<Point>();
+                List<Point> accessPoints = new List<Point>();
                 foreach (var item in genList)
                 {
                     ignorePoints.Add(new Point(item.localplace.X, item.localplace.Y));//находим точки которые уже заняты
                 }
+                foreach (var item in genList)
+                {
+                    for (int i = -1; i < 1; i++)//обходим диапазон доступный для органа
+                    {
+                        for (int j = -1; j < 1; j++)
+                        {
+                            if (!accessPoints.Contains(new Point(item.localplace.X + i, item.localplace.Y + j)))//пропускаем занятые точки
+                            {
+                                accessPoints.Add(new Point(item.localplace.X + i, item.localplace.Y + j));//добавляем все доступные места в список
+                            }
+                        }
+                    }
+                }
                 List<Point> points = new List<Point>();
-                for (int i = -genList.Count/2; i <= genList.Count/2; i++)//обходим диапазон доступный для органа
+                for (int i = -genList.Count / 2; i <= genList.Count / 2; i++)//обходим диапазон доступный для органа
                 {
                     for (int j = -genList.Count / 2; j <= genList.Count / 2; j++)
                     {
@@ -250,11 +286,30 @@ namespace MicroLife_Simulator
                 Point newP = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(0, 0);
                 return newP;//выбираем случайное место для нового органа
             }
-            
+
+            Point Normalizator()
+            {
+                List<Point> accessPoints = new List<Point>();
+                foreach (var item in genList)
+                {
+                    for (int i = -1; i < 1; i++)//обходим диапазон доступный для органа
+                    {
+                        for (int j = -1; j < 1; j++)
+                        {
+                            if (!accessPoints.Contains(new Point(item.localplace.X + i, item.localplace.Y + j)))//пропускаем занятые точки
+                            {
+                                accessPoints.Add(new Point(item.localplace.X + i, item.localplace.Y + j));//добавляем все доступные места в список
+                            }
+                        }
+                    }
+                }
+                Point newP = accessPoints.Count > 0 ? accessPoints[rand.Next(0, accessPoints.Count)] : new Point(0, 0);
+                return newP;//выбираем случайное место для нового органа
+            }
             void GenGeneration()
             {
                 List<Point> points = new List<Point>();
-                int times = rand.Next(2, 4);
+                int times = rand.Next(5, 8);
                 while (points.Count != times)
                 {
                     Point point = new Point(rand.Next(-times / 2, times / 2), rand.Next(-times / 2, times / 2));
@@ -267,7 +322,7 @@ namespace MicroLife_Simulator
                 for (int i = 0; i < points.Count; i++)
                 {
                     Color color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
-                    switch (rand.Next(1, 8))
+                    switch (rand.Next(1, 10))
                     {
                         case 1: { genList.Add(new Genome { part = "Mouth", localplace = points[i], color = color }); bodyTypes.Add(new Mouth()); hasMouth = true; } break;
                         case 2: { genList.Add(new Genome { part = "Leg", localplace = points[i], color = color }); bodyTypes.Add(new Leg()); hasLeg = true; } break;
@@ -276,6 +331,8 @@ namespace MicroLife_Simulator
                         case 5: { genList.Add(new Genome { part = "Fats", localplace = points[i], color = color }); bodyTypes.Add(new Fats()); hasFats = true; } break;
                         case 6: { genList.Add(new Genome { part = "Genitals", localplace = points[i], color = color }); bodyTypes.Add(new Genitals()); hasGenitals = true; } break;
                         case 7: { genList.Add(new Genome { part = "Stomach", localplace = points[i], color = color }); bodyTypes.Add(new Stomach()); hasStomach = true; } break;
+                        case 8: { genList.Add(new Genome { part = "MiteHorns", localplace = points[i], color = color }); bodyTypes.Add(new MiteHorns()); hasMiteHorns = true; } break;
+                        case 9: { genList.Add(new Genome { part = "Filter", localplace = points[i], color = color }); bodyTypes.Add(new Filter()); hasFilter = true; } break;
 
                     }
                     bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
@@ -283,85 +340,80 @@ namespace MicroLife_Simulator
                 }
                 points.Clear();
                 //-----------------Для теста
-                genList.Add(new Genome { part = "Stomach", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); hasStomach = true; bodyTypes.Add(new Stomach());
-                bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
-                bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
+                //genList.Add(new Genome { part = "Filter", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); hasStomach = true; bodyTypes.Add(new Filter());
+                //bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
+                //bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
                 //genList.Add(new Genome { part = "Eye", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); bodyTypes.Add(new Eye());
                 //bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
                 //bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
                 //-----------------
-                
+
             }
-            
+
             List<Genome> GenCopyes(List<Genome> genomes)
             {
                 List<Genome> copy = new List<Genome>();
                 for (int i = 0; i < genomes.Count; i++)
                 {
-                    if (genomes[i].part == "Brain") { hasBrain = true; }
-                    if (genomes[i].part == "Genitals") { hasGenitals = true; }
                     copy.Add(new Genome { part = genomes[i].part, localplace = genomes[i].localplace, color = genomes[i].color });
                 }
                 return copy;
             }
-            List<Genome> GenMutation(List<Genome> genotype)
+            void GenMutation(List<Genome> genotype)
             {
                 //любое число для сравнения обязано быть меньше 100 иначе при уровне радиации 900 результат никогда не будет положительным
                 //Stage 1 some chenges
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation/100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = Normalizator(), part = genotype[rnd].part, color = genotype[rnd].color };
                 }
-                if (rand.Next(0, 1011 - radiation) < 5 + radiation / 100) //цвет
+                if (rand.Next(0, 1011 - radiation) < 5 + radiation / 50) //цвет
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = genotype[rnd].localplace, part = genotype[rnd].part, color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) };
                 }
-                if (rand.Next(0, 1011 - radiation) <3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = dublicateDelayMax + rand.Next(-radiation / 10, radiation / 10);
                     dublicateDelayMax = rnd < 50 ? rnd : 50;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = dublicateFood + rand.Next(-300, 300);
                     dublicateFood = rnd < maxfood && rnd > maxfood / 10 ? rnd : dublicateFood;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = maxage + rand.Next(-300, 300);
                     maxage = rnd > 0 ? rnd : maxage;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = maxfood + rand.Next(-300, 300);
-                    maxfood = rnd > 300 ? rnd : 300;
+                    maxfood = rnd > dublicateFood ? rnd : 300;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = dublicateFoodPrice + rand.Next(-300, 300);
                     dublicateFoodPrice = rnd > 0 ? rnd : 100;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
                 {
                     int rnd = dublicateAgeMin + rand.Next(-300, 300);
                     dublicateAgeMin = rnd > 0 ? rnd : 100;
                 }
 
-                BodyAddRandomPart(genotype);
-                //Stage 3 Расшифровка генотипа и создания частей тела
-                BodyCreate(genotype);
-                //Stage 4 Mutate parts
 
-                return genotype;
+                //Stage 3 Расшифровка генотипа и создания частей тела
+
             }
             void BodyAddRandomPart(List<Genome> genotype)
             {
                 //Stage 2 new parts
                 if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
                 {
-                    switch (rand.Next(1, 9))
+                    switch (rand.Next(1, 10))
                     {
                         case 1: genotype.Add(new Genome { localplace = Normalizator(), part = "Mouth", color = genotype[0].color }); hasMouth = true; break;
                         case 2: genotype.Add(new Genome { localplace = Normalizator(), part = "Leg", color = genotype[0].color }); hasLeg = true; break;
@@ -371,7 +423,38 @@ namespace MicroLife_Simulator
                         case 6: genotype.Add(new Genome { localplace = Normalizator(), part = "Genitals", color = genotype[0].color }); hasGenitals = true; break;
                         case 7: genotype.Add(new Genome { localplace = Normalizator(), part = "Stomach", color = genotype[0].color }); hasStomach = true; break;
                         case 8: genotype.Add(new Genome { localplace = Normalizator(), part = "MiteHorns", color = genotype[0].color }); hasMiteHorns = true; break;
+                        case 9: genotype.Add(new Genome { localplace = Normalizator(), part = "Filter", color = genotype[0].color }); hasFilter = true; break;
                     }
+                }
+            }
+            void BodyChengeRandomPart(List<Genome> genotype)
+            {
+                //Stage 2 new parts
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                {
+                    int place = rand.Next(0, genList.Count);
+                    switch (rand.Next(1, 10))
+                    {
+                        case 1: genotype[place] = new Genome { localplace = Normalizator(), part = "Mouth", color = genotype[0].color }; hasMouth = true; break;
+                        case 2: genotype[place] = new Genome { localplace = Normalizator(), part = "Leg", color = genotype[0].color }; hasLeg = true; break;
+                        case 3: genotype[place] = new Genome { localplace = Normalizator(), part = "Eye", color = genotype[0].color }; hasEye = true; break;
+                        case 4: genotype[place] = new Genome { localplace = Normalizator(), part = "Brain", color = genotype[0].color }; hasBrain = true; break;
+                        case 5: genotype[place] = new Genome { localplace = Normalizator(), part = "Fats", color = genotype[0].color }; hasFats = true; break;
+                        case 6: genotype[place] = new Genome { localplace = Normalizator(), part = "Genitals", color = genotype[0].color }; hasGenitals = true; break;
+                        case 7: genotype[place] = new Genome { localplace = Normalizator(), part = "Stomach", color = genotype[0].color }; hasStomach = true; break;
+                        case 8: genotype[place] = new Genome { localplace = Normalizator(), part = "MiteHorns", color = genotype[0].color }; hasMiteHorns = true; break;
+                        case 9: genotype[place] = new Genome { localplace = Normalizator(), part = "Filter", color = genotype[0].color }; hasFilter = true; break;
+                    }
+                }
+            }
+            void BodyRemoveRandomPart(List<Genome> genotype)
+            {
+                //Stage 2 new parts
+                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                {
+                    int place = rand.Next(0, genList.Count);
+                    genotype.Remove(genotype[place]);
+
                 }
             }
             void BodyCreate(List<Genome> genList)
@@ -428,6 +511,12 @@ namespace MicroLife_Simulator
                             globalplace = point,
                             color = genList[i].color
                         },
+                        "Filter" => new Filter
+                        {
+                            localplace = genList[i].localplace,
+                            globalplace = point,
+                            color = genList[i].color
+                        },
                         _ => new Fats
                         {
                             localplace = genList[i].localplace,
@@ -459,14 +548,14 @@ namespace MicroLife_Simulator
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                 }
             }
-            
+
             public void DoworkPrepare(Bitmap bmp, Controller controllerIN)//берет движение от части тела, берет все другие действия от других частей тела
             {
                 controller ??= controllerIN;
                 radiation = controller.radiationLVL;
                 lastPoint = point;
                 EyeSignal.Clear();
-                FingIgnorePoints();
+                FindIgnorePoints();
                 foreach (var part in bodyTypes)
                 {
                     food -= part.energyCost;
@@ -482,7 +571,7 @@ namespace MicroLife_Simulator
             public bool Duplicate()
             {
                 dublicateDelay = dublicateDelay < dublicateDelayMax ? dublicateDelay + 1 : dublicateDelay;
-                return dublicateDelay == dublicateDelayMax && age < dublicateAgeMax && dublicateAgeMin < age? true : false;
+                return dublicateDelay == dublicateDelayMax && age < dublicateAgeMax && dublicateAgeMin < age ? true : false;
             }
         }
 

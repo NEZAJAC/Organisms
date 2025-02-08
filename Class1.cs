@@ -193,11 +193,11 @@ namespace MicroLife_Simulator
                     else
                     if (organism.food >= organism.dublicateFood)
                     {
-                        organism.food -= organism.dublicateFoodPrice;
-                        organism.canDuplicate = false;
-                        organism.dublicateDelay = 0;
+                        //organism.food -= organism.dublicateFoodPrice;
+                        //organism.canDuplicate = false;
+                        //organism.dublicateDelay = 0;
                     }
-                    if (organism.food <= 0 || organism.age >= organism.maxage)
+                    if (organism.food <= 0 || organism.age >= organism.maxage || organism.point.X < 0 || organism.point.X > bmp.Width || organism.point.Y < 0 || organism.point.Y > bmp.Height)
                     {
                         controller.cellsListTORemove.Add(organism);
                     }
@@ -224,6 +224,7 @@ namespace MicroLife_Simulator
                         controller.selectedObject = null;
                     }
                     item.Cleary(bmp);
+                    if (controller.infectionLVL.ContainsKey(item.point)) { controller.infectionLVL[item.point] += 500 * item.bodyTypes.Count + item.food/500; } else { controller.infectionLVL.Add(item.point, 500 * item.bodyTypes.Count + item.food / 500); }
                     controller.cellsList.Remove(item);
                 }
                 controller.cellsListTORemove.Clear();

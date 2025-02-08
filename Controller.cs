@@ -1,4 +1,5 @@
-﻿using static System.ComponentModel.Design.ObjectSelectorEditor;
+﻿using System.Collections.Generic;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace MicroLife_Simulator
 {
@@ -20,6 +21,7 @@ namespace MicroLife_Simulator
             public ComboBox? comboBox;
             public ListBox? listBox;
             //-------------------------------------------------------------
+            public Dictionary<Point,int> infectionLVL = new Dictionary<Point,int>();
             ZoneType? activeType;
             //-------------------------------------------------------------
             public Controller(int sun, int radiation)
@@ -50,13 +52,37 @@ namespace MicroLife_Simulator
 
                 }
 
-
+                for (int i = 0;i < 5000;i++)
+                {
+                    Point point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    if (!infectionLVL.ContainsKey(point)) { infectionLVL.Add(point, 2000); }
+                }
             }
 
             public void Draw(Bitmap bmp)
             {
+                DrawInfection(bmp);
                 foreach (var item in grassList) item.Draw(bmp);
                 foreach (var item in cellsList) item.Draw(bmp);
+                
+            }
+            void DrawInfection(Bitmap bmp)
+            {
+                List<Point> points = new List<Point>();
+                foreach (var item in infectionLVL)
+                {
+                    if (item.Value == 0) { bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty); points.Add(item.Key); }
+                    bmp.SetPixel(item.Key.X, item.Key.Y, Color.FromArgb(255, ColorNormalizator(item.Value), ColorNormalizator(item.Value), 0));
+                }
+                foreach (var item in points)
+                {
+                    infectionLVL.Remove(item);
+                }
+                points.Clear();
+            }
+            public int ColorNormalizator(int val)
+            {
+                return val < 65025 ? val/255 : 255 ;
             }
             //-----------------------------------------------------------------------------------отрисовка организма в обзорной картинке
             public void DrawObservePicture(Bitmap bmp)

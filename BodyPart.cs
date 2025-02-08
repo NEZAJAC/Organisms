@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Reflection;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MicroLife_Simulator
 {
@@ -12,7 +13,7 @@ namespace MicroLife_Simulator
         class BodyPart
         {
             public Random rand = new Random();
-            public int health = 200;
+            public int health = 500;
             public Color color = Color.White;
             public Point localplace = new Point();
             public Point globalplace = new Point();
@@ -21,7 +22,6 @@ namespace MicroLife_Simulator
             public int energyCost = 0;
             public string name = "";
             public List<string> partsData = new List<string>();//---------для вывода информации
-            Organism? myBody;
             public BodyPart()
             {
                 
@@ -224,9 +224,13 @@ namespace MicroLife_Simulator
                     }
                     
                 }
-                if(overEating >= 100)
+                if(overEating >= 20)
                 {
-
+                    if (!body.controller.infectionLVL.ContainsKey(eatTarget)) { body.controller.infectionLVL.Add(eatTarget, 0); } else
+                    { 
+                        body.controller.infectionLVL[eatTarget] += overEating; 
+                    }
+                    
                 }
                 //------------------------------------------------------------сделать выбрасывание излишков и создание мусора(отравление почвы)
             }
@@ -339,7 +343,8 @@ namespace MicroLife_Simulator
                     moveResult = MoveResult(bmp);
                     
 
-                    body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
+                    //body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
+                    body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);
                 }
             }
         }
@@ -348,10 +353,10 @@ namespace MicroLife_Simulator
         /// </summary>
         class Stomach : BodyPart//желудок сохраняет часть скушанного и переводит в еду с увечиченной скоростью
         {
-            public int capacity = 5000;
+            public int capacity = 3000;
             public int currentCapacity = 0;
             int transferStrength = 25;
-            int transferPlus = 10;
+            int transferPlus = 2;
             int transferDelay { get; }
             int transferDelayNow = 0;
             public Stomach()
@@ -360,7 +365,7 @@ namespace MicroLife_Simulator
                 color = Color.RosyBrown;
                 energyCost = 1;
 
-                transferDelay = 5;
+                transferDelay = 7;
             }
             public override string UpdateMyData()
             {
@@ -566,6 +571,11 @@ namespace MicroLife_Simulator
         /// </summary>
         class Filter : BodyPart //позволяет поедать(фильтровать) зараженные органикой территории
         {
+            public int cleanStrength = 100;
+            public int foodConvert = 500;
+            public int amountClean = 0;
+            List<Point> points = new List<Point>();
+            Point target = new Point();
             public Filter()
             {
                 name = "Filter";
@@ -575,11 +585,45 @@ namespace MicroLife_Simulator
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
+                partsData.Add("cleanStrength\t" + cleanStrength.ToString());
+                partsData.Add("foodConvert\t" + foodConvert.ToString());
+                partsData.Add("target\t" + target.ToString());
+                partsData.Add("amountClean\t" + amountClean.ToString());
                 return "";
+            }
+            void FindInfection(Bitmap bmp)
+            {
+                points.Clear();
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
+                        Color color = bmp.GetPixel(p.X, p.Y);
+                        Point point = color.A != 0 && color.R > 0 && color.G > 0 && color.B == 0 ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0);
+                        points.Add(point);
+                    }
+                }
+                for (int i = points.Count - 1; i > -1; i--)
+                {
+                    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
+                }
+                if(points.Count > 0) { target = points[rand.Next(0, points.Count)]; }
+            }
+            void CleanInfection(Organism body)
+            {
+                Point point = new Point(body.point.X + target.X, body.point.Y + target.Y);
+                if (body.controller.infectionLVL.ContainsKey(point))
+                {
+                    body.controller.infectionLVL[point] = body.controller.infectionLVL[point] - cleanStrength >= 0 ? body.controller.infectionLVL[point] - cleanStrength : 0;
+                    body.food += foodConvert;
+                    amountClean += foodConvert;
+                }
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-
+                FindInfection(bmp);
+                CleanInfection(body);
             }
         }
         /// <summary>
@@ -639,7 +683,7 @@ namespace MicroLife_Simulator
                         if (myOrganism.controller.cellDictionary.ContainsKey(p) &&
                             myOrganism.controller.cellDictionary[p].point != myOrganism.point &&
                             myOrganism.controller.cellDictionary[p].genList[0].localplace != myOrganism.genList[0].localplace &&
-                            myOrganism.controller.cellDictionary[p].genList[1].localplace != myOrganism.genList[1].localplace)
+                            myOrganism.controller.cellDictionary[p].genList[0].color.ToArgb != myOrganism.genList[0].color.ToArgb)
                         {
                             target = myOrganism.controller.cellDictionary[p];
                             break;
