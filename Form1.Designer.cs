@@ -34,18 +34,19 @@
             button1 = new Button();
             checkBox1 = new CheckBox();
             label1 = new Label();
-            label3 = new Label();
             GrassLimit_CB = new CheckBox();
             GrassBox = new GroupBox();
+            button8 = new Button();
+            groupBox5 = new GroupBox();
+            trackBar7 = new TrackBar();
+            trackBar6 = new TrackBar();
+            label24 = new Label();
             groupBox4 = new GroupBox();
             trackBar2 = new TrackBar();
             label14 = new Label();
-            label2 = new Label();
-            textBox1 = new TextBox();
             groupBox1 = new GroupBox();
             label16 = new Label();
             label15 = new Label();
-            trackBar3 = new TrackBar();
             pictureBox2 = new PictureBox();
             groupBox3 = new GroupBox();
             groupBox8 = new GroupBox();
@@ -59,6 +60,8 @@
             label8 = new Label();
             button2 = new Button();
             groupBox2 = new GroupBox();
+            label23 = new Label();
+            label22 = new Label();
             label13 = new Label();
             label12 = new Label();
             trackBar1 = new TrackBar();
@@ -67,31 +70,40 @@
             panel1 = new Panel();
             button3 = new Button();
             groupBox6 = new GroupBox();
-            button5 = new Button();
+            label25 = new Label();
+            progressBar1 = new ProgressBar();
+            label3 = new Label();
+            label2 = new Label();
             label6 = new Label();
-            comboBox1 = new ComboBox();
             label4 = new Label();
-            pictureBox4 = new PictureBox();
             listBox1 = new ListBox();
             panel3 = new Panel();
+            comboBox1 = new ComboBox();
+            pictureBox4 = new PictureBox();
             label9 = new Label();
             pictureBox3 = new PictureBox();
             label19 = new Label();
             label18 = new Label();
+            button7 = new Button();
+            button5 = new Button();
             button4 = new Button();
             groupBox7 = new GroupBox();
+            button10 = new Button();
+            button9 = new Button();
+            label21 = new Label();
             label20 = new Label();
             panel2 = new Panel();
             panel4 = new Panel();
             button6 = new Button();
             textBox3 = new TextBox();
             pictureBox1 = new PictureBox();
-            button7 = new Button();
             GrassBox.SuspendLayout();
+            groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar6).BeginInit();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
             groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)trackBar3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox3.SuspendLayout();
             groupBox8.SuspendLayout();
@@ -101,8 +113,8 @@
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             panel1.SuspendLayout();
             groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             groupBox7.SuspendLayout();
             panel2.SuspendLayout();
@@ -119,20 +131,20 @@
             // button1
             // 
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button1.Location = new Point(6, 79);
+            button1.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
+            button1.Location = new Point(6, 92);
             button1.Name = "button1";
             button1.Size = new Size(57, 22);
             button1.TabIndex = 1;
-            button1.Text = "Kill Half";
+            button1.Text = "Clean ";
             button1.UseVisualStyleBackColor = true;
-            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // checkBox1
             // 
             checkBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(8, 15);
+            checkBox1.Location = new Point(6, 12);
             checkBox1.Name = "checkBox1";
             checkBox1.Size = new Size(48, 19);
             checkBox1.TabIndex = 2;
@@ -143,27 +155,17 @@
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(6, 40);
+            label1.Location = new Point(6, 10);
             label1.Name = "label1";
             label1.Size = new Size(19, 15);
             label1.TabIndex = 3;
             label1.Text = "20";
             // 
-            // label3
-            // 
-            label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label3.AutoSize = true;
-            label3.Location = new Point(45, 40);
-            label3.Name = "label3";
-            label3.Size = new Size(80, 15);
-            label3.TabIndex = 4;
-            label3.Text = "Grass amount";
-            // 
             // GrassLimit_CB
             // 
             GrassLimit_CB.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             GrassLimit_CB.AutoSize = true;
-            GrassLimit_CB.Location = new Point(81, 18);
+            GrassLimit_CB.Location = new Point(56, 9);
             GrassLimit_CB.Name = "GrassLimit_CB";
             GrassLimit_CB.Size = new Size(69, 19);
             GrassLimit_CB.TabIndex = 7;
@@ -174,27 +176,91 @@
             // GrassBox
             // 
             GrassBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            GrassBox.Controls.Add(button8);
+            GrassBox.Controls.Add(groupBox5);
             GrassBox.Controls.Add(groupBox4);
             GrassBox.Controls.Add(button1);
-            GrassBox.Controls.Add(label2);
-            GrassBox.Controls.Add(textBox1);
-            GrassBox.Controls.Add(GrassLimit_CB);
-            GrassBox.Controls.Add(label3);
-            GrassBox.Controls.Add(label1);
             GrassBox.Location = new Point(6, 10);
             GrassBox.Name = "GrassBox";
-            GrassBox.Size = new Size(216, 107);
+            GrassBox.Size = new Size(216, 120);
             GrassBox.TabIndex = 8;
             GrassBox.TabStop = false;
-            GrassBox.Text = "Grass";
+            GrassBox.Text = "Food Control";
+            // 
+            // button8
+            // 
+            button8.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            button8.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
+            button8.Location = new Point(6, 64);
+            button8.Name = "button8";
+            button8.Size = new Size(57, 22);
+            button8.TabIndex = 15;
+            button8.Text = "Create";
+            button8.UseVisualStyleBackColor = true;
+            button8.Click += button8_Click;
+            // 
+            // groupBox5
+            // 
+            groupBox5.Controls.Add(GrassLimit_CB);
+            groupBox5.Controls.Add(trackBar7);
+            groupBox5.Controls.Add(trackBar6);
+            groupBox5.Controls.Add(label24);
+            groupBox5.Controls.Add(label1);
+            groupBox5.Location = new Point(6, 12);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(139, 50);
+            groupBox5.TabIndex = 14;
+            groupBox5.TabStop = false;
+            // 
+            // trackBar7
+            // 
+            trackBar7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            trackBar7.AutoSize = false;
+            trackBar7.LargeChange = 5000;
+            trackBar7.Location = new Point(39, 19);
+            trackBar7.Maximum = 50000;
+            trackBar7.Minimum = 1;
+            trackBar7.Name = "trackBar7";
+            trackBar7.Size = new Size(94, 25);
+            trackBar7.SmallChange = 1000;
+            trackBar7.TabIndex = 14;
+            trackBar7.TickFrequency = 0;
+            trackBar7.TickStyle = TickStyle.TopLeft;
+            trackBar7.Value = 7000;
+            trackBar7.Scroll += trackBar7_Scroll;
+            // 
+            // trackBar6
+            // 
+            trackBar6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            trackBar6.AutoSize = false;
+            trackBar6.Location = new Point(-32, 13);
+            trackBar6.Maximum = 30;
+            trackBar6.Minimum = 1;
+            trackBar6.Name = "trackBar6";
+            trackBar6.Orientation = Orientation.Vertical;
+            trackBar6.Size = new Size(25, 74);
+            trackBar6.TabIndex = 11;
+            trackBar6.TickFrequency = 3;
+            trackBar6.TickStyle = TickStyle.TopLeft;
+            trackBar6.Value = 10;
+            // 
+            // label24
+            // 
+            label24.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            label24.AutoSize = true;
+            label24.Location = new Point(6, 29);
+            label24.Name = "label24";
+            label24.Size = new Size(31, 15);
+            label24.TabIndex = 13;
+            label24.Text = "7000";
             // 
             // groupBox4
             // 
             groupBox4.Controls.Add(trackBar2);
             groupBox4.Controls.Add(label14);
-            groupBox4.Location = new Point(150, 12);
+            groupBox4.Location = new Point(151, 12);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(60, 89);
+            groupBox4.Size = new Size(59, 102);
             groupBox4.TabIndex = 10;
             groupBox4.TabStop = false;
             groupBox4.Text = "SunLVL";
@@ -203,12 +269,12 @@
             // 
             trackBar2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar2.AutoSize = false;
-            trackBar2.Location = new Point(29, 13);
+            trackBar2.Location = new Point(28, 13);
             trackBar2.Maximum = 30;
-            trackBar2.Minimum = 1;
+            trackBar2.Minimum = -1;
             trackBar2.Name = "trackBar2";
             trackBar2.Orientation = Orientation.Vertical;
-            trackBar2.Size = new Size(25, 74);
+            trackBar2.Size = new Size(25, 83);
             trackBar2.TabIndex = 11;
             trackBar2.TickFrequency = 3;
             trackBar2.TickStyle = TickStyle.TopLeft;
@@ -225,54 +291,25 @@
             label14.TabIndex = 13;
             label14.Text = "30";
             // 
-            // label2
-            // 
-            label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label2.AutoSize = true;
-            label2.Location = new Point(45, 19);
-            label2.Name = "label2";
-            label2.Size = new Size(34, 15);
-            label2.TabIndex = 10;
-            label2.Text = "Limit";
-            // 
-            // textBox1
-            // 
-            textBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBox1.AutoCompleteCustomSource.AddRange(new string[] { "10000" });
-            textBox1.BorderStyle = BorderStyle.None;
-            textBox1.Location = new Point(6, 19);
-            textBox1.MaxLength = 5;
-            textBox1.Name = "textBox1";
-            textBox1.PlaceholderText = "MaxGrass";
-            textBox1.Size = new Size(33, 16);
-            textBox1.TabIndex = 9;
-            textBox1.TabStop = false;
-            textBox1.Text = "15000";
-            textBox1.TextAlign = HorizontalAlignment.Center;
-            textBox1.WordWrap = false;
-            textBox1.TextChanged += textBox1_TextChanged;
-            textBox1.KeyPress += textBoxNumeric_KeyPress;
-            // 
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox1.Controls.Add(label16);
             groupBox1.Controls.Add(label15);
-            groupBox1.Controls.Add(trackBar3);
             groupBox1.Controls.Add(pictureBox2);
             groupBox1.Controls.Add(groupBox3);
             groupBox1.Controls.Add(groupBox2);
             groupBox1.Controls.Add(GrassBox);
             groupBox1.Location = new Point(1110, 2);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(228, 510);
+            groupBox1.Size = new Size(228, 527);
             groupBox1.TabIndex = 9;
             groupBox1.TabStop = false;
             // 
             // label16
             // 
             label16.AutoSize = true;
-            label16.Location = new Point(82, 297);
+            label16.Location = new Point(82, 313);
             label16.Name = "label16";
             label16.Size = new Size(55, 15);
             label16.TabIndex = 14;
@@ -281,36 +318,24 @@
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(82, 484);
+            label15.BackColor = Color.Black;
+            label15.ForeColor = SystemColors.ButtonFace;
+            label15.Location = new Point(6, 479);
             label15.Name = "label15";
             label15.Size = new Size(57, 15);
             label15.TabIndex = 13;
             label15.Text = "x1  Zoom";
             // 
-            // trackBar3
-            // 
-            trackBar3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            trackBar3.AutoSize = false;
-            trackBar3.Location = new Point(6, 484);
-            trackBar3.Maximum = 3;
-            trackBar3.Minimum = 1;
-            trackBar3.Name = "trackBar3";
-            trackBar3.Size = new Size(70, 22);
-            trackBar3.TabIndex = 1;
-            trackBar3.Value = 1;
-            trackBar3.ValueChanged += TrackBar3_ValueChanged;
-            // 
             // pictureBox2
             // 
             pictureBox2.BackColor = Color.Black;
-            pictureBox2.Location = new Point(6, 315);
+            pictureBox2.Location = new Point(6, 331);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(216, 163);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
-            pictureBox2.MouseDown += pictureBox2_MouseDown;
-            pictureBox2.MouseMove += pictureBox2_MouseMove;
+            pictureBox2.MouseMove += pictureBox2_MouseMoveAndDown;
             // 
             // groupBox3
             // 
@@ -321,12 +346,12 @@
             groupBox3.Controls.Add(label7);
             groupBox3.Controls.Add(label8);
             groupBox3.Controls.Add(button2);
-            groupBox3.Location = new Point(6, 117);
+            groupBox3.Location = new Point(6, 136);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(216, 114);
             groupBox3.TabIndex = 10;
             groupBox3.TabStop = false;
-            groupBox3.Text = "Organisms";
+            groupBox3.Text = "Organisms Control";
             // 
             // groupBox8
             // 
@@ -347,8 +372,8 @@
             trackBar5.AutoSize = false;
             trackBar5.LargeChange = 10;
             trackBar5.Location = new Point(29, 15);
-            trackBar5.Maximum = 900;
-            trackBar5.Minimum = 10;
+            trackBar5.Maximum = 200;
+            trackBar5.Minimum = 1;
             trackBar5.Name = "trackBar5";
             trackBar5.Orientation = Orientation.Vertical;
             trackBar5.Size = new Size(25, 77);
@@ -381,9 +406,9 @@
             label17.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
             label17.Location = new Point(6, 19);
             label17.Name = "label17";
-            label17.Size = new Size(25, 15);
+            label17.Size = new Size(19, 15);
             label17.TabIndex = 13;
-            label17.Text = "100";
+            label17.Text = "10";
             // 
             // label5
             // 
@@ -458,21 +483,42 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(label23);
+            groupBox2.Controls.Add(label22);
             groupBox2.Controls.Add(label13);
             groupBox2.Controls.Add(label12);
             groupBox2.Controls.Add(checkBox1);
             groupBox2.Controls.Add(trackBar1);
-            groupBox2.Location = new Point(6, 233);
+            groupBox2.Location = new Point(6, 252);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(216, 61);
             groupBox2.TabIndex = 9;
             groupBox2.TabStop = false;
-            groupBox2.Text = "Time managment";
+            groupBox2.Text = "Time Control";
+            // 
+            // label23
+            // 
+            label23.AutoSize = true;
+            label23.Location = new Point(91, 13);
+            label23.Name = "label23";
+            label23.Size = new Size(99, 15);
+            label23.TabIndex = 14;
+            label23.Text = "Simulation Speed";
+            // 
+            // label22
+            // 
+            label22.AutoSize = true;
+            label22.Location = new Point(6, 34);
+            label22.Name = "label22";
+            label22.Size = new Size(48, 15);
+            label22.TabIndex = 13;
+            label22.Text = "Latency";
             // 
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(108, 12);
+            label13.BackColor = Color.Black;
+            label13.Location = new Point(60, 34);
             label13.Name = "label13";
             label13.Size = new Size(25, 15);
             label13.TabIndex = 12;
@@ -481,7 +527,7 @@
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(179, 12);
+            label12.Location = new Point(179, 34);
             label12.Name = "label12";
             label12.Size = new Size(31, 15);
             label12.TabIndex = 1;
@@ -491,14 +537,14 @@
             // 
             trackBar1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar1.AutoSize = false;
-            trackBar1.Location = new Point(108, 30);
+            trackBar1.Location = new Point(91, 30);
             trackBar1.Maximum = 1000;
             trackBar1.Minimum = 1;
             trackBar1.MinimumSize = new Size(0, 15);
             trackBar1.Name = "trackBar1";
             trackBar1.RightToLeft = RightToLeft.Yes;
             trackBar1.RightToLeftLayout = true;
-            trackBar1.Size = new Size(105, 22);
+            trackBar1.Size = new Size(90, 22);
             trackBar1.SmallChange = 5;
             trackBar1.TabIndex = 2;
             trackBar1.TickFrequency = 30;
@@ -527,6 +573,8 @@
             // 
             panel1.Controls.Add(button3);
             panel1.Controls.Add(groupBox6);
+            panel1.Controls.Add(button7);
+            panel1.Controls.Add(button5);
             panel1.Location = new Point(855, 2);
             panel1.Name = "panel1";
             panel1.Size = new Size(249, 658);
@@ -544,12 +592,12 @@
             // 
             // groupBox6
             // 
-            groupBox6.Controls.Add(button7);
-            groupBox6.Controls.Add(button5);
+            groupBox6.Controls.Add(label25);
+            groupBox6.Controls.Add(progressBar1);
+            groupBox6.Controls.Add(label3);
+            groupBox6.Controls.Add(label2);
             groupBox6.Controls.Add(label6);
-            groupBox6.Controls.Add(comboBox1);
             groupBox6.Controls.Add(label4);
-            groupBox6.Controls.Add(pictureBox4);
             groupBox6.Controls.Add(listBox1);
             groupBox6.Controls.Add(panel3);
             groupBox6.Controls.Add(label19);
@@ -563,15 +611,42 @@
             groupBox6.TabStop = false;
             groupBox6.Text = "Organism Status";
             // 
-            // button5
+            // label25
             // 
-            button5.Location = new Point(133, 288);
-            button5.Name = "button5";
-            button5.Size = new Size(89, 23);
-            button5.TabIndex = 20;
-            button5.Text = "CopyGenome";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
+            label25.AutoSize = true;
+            label25.Location = new Point(6, 308);
+            label25.Name = "label25";
+            label25.Size = new Size(46, 15);
+            label25.TabIndex = 25;
+            label25.Text = "Fatigue";
+            // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(102, 308);
+            progressBar1.MarqueeAnimationSpeed = 1;
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(117, 15);
+            progressBar1.Step = 1;
+            progressBar1.Style = ProgressBarStyle.Continuous;
+            progressBar1.TabIndex = 24;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(101, 289);
+            label3.Name = "label3";
+            label3.Size = new Size(24, 15);
+            label3.TabIndex = 23;
+            label3.Text = "Yes";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(6, 289);
+            label2.Name = "label2";
+            label2.Size = new Size(47, 15);
+            label2.TabIndex = 22;
+            label2.Text = "Hungry";
             // 
             // label6
             // 
@@ -582,32 +657,14 @@
             label6.TabIndex = 19;
             label6.Text = "True";
             // 
-            // comboBox1
-            // 
-            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(38, 288);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(89, 23);
-            comboBox1.TabIndex = 15;
-            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
-            // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(8, 270);
+            label4.Location = new Point(6, 270);
             label4.Name = "label4";
             label4.Size = new Size(78, 15);
             label4.TabIndex = 18;
             label4.Text = "CanDublicate";
-            // 
-            // pictureBox4
-            // 
-            pictureBox4.Location = new Point(6, 288);
-            pictureBox4.Name = "pictureBox4";
-            pictureBox4.Size = new Size(26, 24);
-            pictureBox4.TabIndex = 16;
-            pictureBox4.TabStop = false;
             // 
             // listBox1
             // 
@@ -616,19 +673,39 @@
             listBox1.ImeMode = ImeMode.On;
             listBox1.ItemHeight = 15;
             listBox1.Items.AddRange(new object[] { "" });
-            listBox1.Location = new Point(0, 314);
+            listBox1.Location = new Point(0, 329);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(228, 304);
+            listBox1.Size = new Size(228, 289);
             listBox1.TabIndex = 17;
             // 
             // panel3
             // 
+            panel3.Controls.Add(comboBox1);
+            panel3.Controls.Add(pictureBox4);
             panel3.Controls.Add(label9);
             panel3.Controls.Add(pictureBox3);
             panel3.Location = new Point(6, 15);
             panel3.Name = "panel3";
             panel3.Size = new Size(216, 210);
             panel3.TabIndex = 14;
+            // 
+            // comboBox1
+            // 
+            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new Point(124, 181);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(89, 23);
+            comboBox1.TabIndex = 15;
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            // 
+            // pictureBox4
+            // 
+            pictureBox4.Location = new Point(96, 181);
+            pictureBox4.Name = "pictureBox4";
+            pictureBox4.Size = new Size(22, 23);
+            pictureBox4.TabIndex = 16;
+            pictureBox4.TabStop = false;
             // 
             // label9
             // 
@@ -663,11 +740,31 @@
             // label18
             // 
             label18.AutoSize = true;
-            label18.Location = new Point(6, 235);
+            label18.Location = new Point(6, 233);
             label18.Name = "label18";
             label18.Size = new Size(28, 15);
             label18.TabIndex = 12;
             label18.Text = "Age";
+            // 
+            // button7
+            // 
+            button7.Location = new Point(159, 624);
+            button7.Name = "button7";
+            button7.Size = new Size(83, 23);
+            button7.TabIndex = 21;
+            button7.Text = "PasteGenome";
+            button7.UseVisualStyleBackColor = true;
+            button7.Click += button7_Click;
+            // 
+            // button5
+            // 
+            button5.Location = new Point(69, 624);
+            button5.Name = "button5";
+            button5.Size = new Size(84, 23);
+            button5.TabIndex = 20;
+            button5.Text = "CopyGenome";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
             // 
             // button4
             // 
@@ -681,12 +778,44 @@
             // 
             // groupBox7
             // 
+            groupBox7.Controls.Add(button10);
+            groupBox7.Controls.Add(button9);
+            groupBox7.Controls.Add(label21);
             groupBox7.Controls.Add(label20);
-            groupBox7.Location = new Point(1110, 514);
+            groupBox7.Location = new Point(1110, 535);
             groupBox7.Name = "groupBox7";
-            groupBox7.Size = new Size(228, 106);
+            groupBox7.Size = new Size(228, 85);
             groupBox7.TabIndex = 15;
             groupBox7.TabStop = false;
+            // 
+            // button10
+            // 
+            button10.Location = new Point(198, 34);
+            button10.Name = "button10";
+            button10.Size = new Size(24, 23);
+            button10.TabIndex = 2;
+            button10.Text = "Y";
+            button10.UseVisualStyleBackColor = true;
+            button10.Click += button10_Click;
+            // 
+            // button9
+            // 
+            button9.Location = new Point(198, 11);
+            button9.Name = "button9";
+            button9.Size = new Size(24, 23);
+            button9.TabIndex = 2;
+            button9.Text = "X";
+            button9.UseVisualStyleBackColor = true;
+            button9.Click += button9_Click;
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(6, 34);
+            label21.Name = "label21";
+            label21.Size = new Size(44, 15);
+            label21.TabIndex = 1;
+            label21.Text = "label21";
             // 
             // label20
             // 
@@ -748,16 +877,6 @@
             pictureBox1.MouseClick += pictureBox1_MouseClick;
             pictureBox1.MouseWheel += pictureBox1_MouseWheel;
             // 
-            // button7
-            // 
-            button7.Location = new Point(133, 266);
-            button7.Name = "button7";
-            button7.Size = new Size(89, 23);
-            button7.TabIndex = 21;
-            button7.Text = "PasteGenome";
-            button7.UseVisualStyleBackColor = true;
-            button7.Click += button7_Click;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -775,13 +894,15 @@
             Name = "Form1";
             Text = "MicroLife simulator";
             GrassBox.ResumeLayout(false);
-            GrassBox.PerformLayout();
+            groupBox5.ResumeLayout(false);
+            groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar7).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar6).EndInit();
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)trackBar3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
@@ -795,9 +916,9 @@
             panel1.ResumeLayout(false);
             groupBox6.ResumeLayout(false);
             groupBox6.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             groupBox7.ResumeLayout(false);
             groupBox7.PerformLayout();
@@ -814,11 +935,8 @@
         private Button button1;
         private CheckBox checkBox1;
         private Label label1;
-        private Label label3;
         private CheckBox GrassLimit_CB;
         private GroupBox GrassBox;
-        private TextBox textBox1;
-        private Label label2;
         private GroupBox groupBox1;
         private GroupBox groupBox2;
         private GroupBox groupBox3;
@@ -837,7 +955,6 @@
         private Label label14;
         private GroupBox groupBox4;
         private Label label13;
-        private TrackBar trackBar3;
         private Label label15;
         private Panel panel1;
         private Button button3;
@@ -867,5 +984,19 @@
         private Button button6;
         private TextBox textBox3;
         private Button button7;
+        private Label label21;
+        private Label label22;
+        private Label label23;
+        private GroupBox groupBox5;
+        private TrackBar trackBar7;
+        private TrackBar trackBar6;
+        private Label label24;
+        private Button button8;
+        private Label label3;
+        private Label label2;
+        private Label label25;
+        private ProgressBar progressBar1;
+        private Button button10;
+        private Button button9;
     }
 }

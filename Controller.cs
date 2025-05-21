@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
+﻿using System.Drawing;
 
 namespace MicroLife_Simulator
 {
@@ -10,18 +9,23 @@ namespace MicroLife_Simulator
             public List<Grass> grassList = new List<Grass>();
             public List<Grass> grassListTEMP = new List<Grass>();
             public List<Grass> grassListTORemove = new List<Grass>();
-            public Dictionary<Point,Grass> grassDictionary = new Dictionary<Point,Grass>();
+            public Dictionary<Point, Grass> grassDictionary = new Dictionary<Point, Grass>();
             public List<Organism> cellsList = new List<Organism>();
             public List<Organism> cellsListTEMP = new List<Organism>();
             public List<Organism> cellsListTORemove = new List<Organism>();
-            public Dictionary<Point,Organism> cellDictionary = new Dictionary<Point,Organism>();
+            public Dictionary<Point, Organism> cellDictionary = new Dictionary<Point, Organism>();
+            public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
+            public List<Point> obstacles = new List<Point>();
             public int sunLVL;
             public int radiationLVL;
             public Bitmap? bmpOrganColor;
             public ComboBox? comboBox;
             public ListBox? listBox;
+            //------------------------------Drawing
+            int grassCurrent = 1;
+            int cellCurrent = 1;
             //-------------------------------------------------------------
-            public Dictionary<Point,int> infectionLVL = new Dictionary<Point,int>();
+            
             ZoneType? activeType;
             //-------------------------------------------------------------
             public Controller(int sun, int radiation)
@@ -30,45 +34,65 @@ namespace MicroLife_Simulator
                 radiationLVL = radiation;
             }
 
-            public void CreateLive(Bitmap bmp,Random rand, PictureBox pictureBox1, int grass, int cells)
+            public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells)
             {
-
-                for (int i = 0; i < grass; i++)
+                Point point;
+                while (grassList.Count < grass)
                 {
-                    Point point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
                     Color color = bmp.GetPixel(point.X, point.Y);
                     if (color.G == 0 && color.R == 0 && color.B == 0)
                     {
-                        Grass? tempGrass = new Grass(point);
-                        grassList.Add(tempGrass);
-                        tempGrass = null;
+                        grassList.Add(new Grass(point));
                     }
-
                 }
 
-                for (int i = 0; i < cells; i++)
+                while (cellsList.Count <= cells)
                 {
-                    cellsList.Add(new Organism(new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height))));  
-
+                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    cellsList.Add(new Organism(point));
                 }
 
-                for (int i = 0;i < 5000;i++)
+                for (int i = 0; i < 5000; i++)
                 {
-                    Point point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
                     if (!infectionLVL.ContainsKey(point)) { infectionLVL.Add(point, 2000); }
                 }
             }
-
+            public void CreateGrass(Bitmap bmp, Random rand, int grass)
+            {
+                Point point;
+                for (int i = 0; i < grass; i++)
+                {
+                    point = new Point(rand.Next(bmp.Width), rand.Next(bmp.Height));
+                    Color color = bmp.GetPixel(point.X, point.Y);
+                    if (color.G == 0 && color.R == 0 && color.B == 0)
+                    {
+                        grassList.Add(new Grass(point));
+                    }
+                }
+                
+            }
+            public void CreateOsticles(Bitmap bmp)
+            {
+                for (int i = bmp.Width / 2 - 30; i < bmp.Width / 2 + 30; i++)
+                {
+                    for (int j = 0; j < bmp.Height; j++)
+                    {
+                        obstacles.Add(new Point(i, j));
+                    }
+                }
+            }
             public void Draw(Bitmap bmp)
             {
                 DrawInfection(bmp);
-                foreach (var item in grassList) item.Draw(bmp);
-                foreach (var item in cellsList) item.Draw(bmp);
-                
+                foreach (Grass grass in grassList) { grass.Draw(bmp); }
+                foreach (Organism cell in cellsList) { cell.Draw(bmp); }
             }
+            List<Point> points = new List<Point>();
             void DrawInfection(Bitmap bmp)
             {
-                List<Point> points = new List<Point>();
+                points.Clear();
                 foreach (var item in infectionLVL)
                 {
                     if (item.Value == 0) { bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty); points.Add(item.Key); }
@@ -82,7 +106,7 @@ namespace MicroLife_Simulator
             }
             public int ColorNormalizator(int val)
             {
-                return val < 65025 ? val/255 : 255 ;
+                return val < 65025 ? val / 255 : 255;
             }
             //-----------------------------------------------------------------------------------отрисовка организма в обзорной картинке
             public void DrawObservePicture(Bitmap bmp)
@@ -97,12 +121,12 @@ namespace MicroLife_Simulator
                         }
                     }
                 }
-                if (selectedObject != null) 
+                if (selectedObject != null)
                 {
                     foreach (var item in selectedObject.bodyTypes)
                     {
                         Point point = new Point(bmp.Width / 2 + item.localplace.X, bmp.Height / 2 + item.localplace.Y);
-                        bmp.SetPixel(point.X,point.Y,item.color);
+                        bmp.SetPixel(point.X, point.Y, item.color);
                     }
                     Point pointPixel = new Point(selectedObject.bodyTypes[comboBox.SelectedIndex].localplace.X + bmp.Width / 2,
                                                  selectedObject.bodyTypes[comboBox.SelectedIndex].localplace.Y + bmp.Height / 2);
@@ -121,7 +145,7 @@ namespace MicroLife_Simulator
                             bmp.SetPixel(i, j, selectedObject.bodyTypes[comboBox.SelectedIndex].color);
                         }
                     }
-                    
+
                 }
                 else
                 {
@@ -132,11 +156,11 @@ namespace MicroLife_Simulator
                             bmp.SetPixel(i, j, Color.Empty);
                         }
                     }
-                   
+
                 }
 
             }
-            //----------------------------------------------------------------------------------выбор организма по щелчку ЛКМ
+            //----------------------------------------------------------------------------------выбор организма по щелчку ЛКМ-----------доделать перевыбор на одном месте
             public Organism? selectedObject = null;
             public void SelectTarget(Point selectedPoint)
             {
@@ -145,13 +169,14 @@ namespace MicroLife_Simulator
                     for (int j = -3; j < 4; j++)
                     {
                         Point p = new Point(selectedPoint.X + i, selectedPoint.Y + j);
-                        if (cellDictionary.ContainsKey(p))
+                        if (cellDictionary.ContainsKey(p) && (selectedObject != cellDictionary[p]) )
                         {
                             selectedObject = cellDictionary[p];
                             selectedPoint = new Point(p.X, p.Y);
                             break;
                         }
                         else { selectedObject = null; }
+                        
                     }
                     if (selectedObject != null) { break; }
                 }
@@ -160,9 +185,10 @@ namespace MicroLife_Simulator
                     selectedObject = null;
                     selectedPoint = new Point(-1, -1);
                 }
-
+                
                 ComboBoxUpdate(selectedObject);
             }
+            
             //--------------------------------------------------------------------------отрисовка рамки вокруг организма
             int frameSize = 7;
             List<Point> coloredPoints = new List<Point>();
@@ -182,7 +208,7 @@ namespace MicroLife_Simulator
                             if ((x == -frameSize || x == frameSize) || (y == -frameSize || y == frameSize))
                             {
                                 if ((selectedObject.point.X + x > 1) && (selectedObject.point.X + x < bmp.Width) && (selectedObject.point.Y + y > 1) && (selectedObject.point.Y + y < bmp.Height))
-                                { 
+                                {
                                     bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
                                     coloredPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
                                 }
@@ -192,19 +218,18 @@ namespace MicroLife_Simulator
                 }
             }
             //------------------------------------------------------------------------обновление информации по организму
-           
             public void ComboBoxUpdate(Organism? selected)
             {
 
                 comboBox.Items.Clear();
                 if (selected != null)
-                { 
+                {
                     foreach (var item in selected.bodyTypes)
                     {
                         comboBox.Items.Add(item.name);
                     }
                     comboBox.Text = selected.bodyTypes[0].name;
-                    
+
                 }
                 DrawOrganColor(bmpOrganColor);
             }
@@ -220,10 +245,9 @@ namespace MicroLife_Simulator
                     }
 
                 }
-                else {listBox.Items.Clear(); }
+                else { listBox.Items.Clear(); }
             }
-            //----------------------------------------------------------------------------
-
+            //---------------------------------------------------------------------------
             public void CreateZones_auto()//случаная местность
             {
 
@@ -231,28 +255,6 @@ namespace MicroLife_Simulator
             public void CreateZones_manual(Point mousePoint, ZoneType activeType)//ручное создание зоны
             {
                 //создавать зону типа activeType в точке курсора mousePoint
-            }
-
-            public string GetGenotype(Organism? selected)
-            {
-                string result = "";
-                result += selected.genList.Count + "|";
-                foreach (var item in selected.genList)
-                {
-                    result += item.part + "|" 
-                        + item.localplace.X.ToString() + "|" 
-                        + item.localplace.Y.ToString() + "|" 
-                        + item.color.R.ToString()  + "|" 
-                        + item.color.G.ToString() + "|" 
-                        + item.color.B.ToString() + "|";
-                }
-                result += selected.dublicateAgeMax.ToString() + "|" 
-                    + selected.dublicateAgeMin.ToString() + "|" 
-                    + selected.dublicateDelayMax.ToString() + "|" 
-                    + selected.dublicateFoodPrice.ToString() + "|"
-                    + selected.maxage.ToString() + "|" 
-                    + selected.maxfood.ToString() + "|";
-                return result;
             }
         }
     }

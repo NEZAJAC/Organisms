@@ -1,13 +1,9 @@
-using System.Collections.Immutable;
-using System.Reflection;
-using System.Runtime.InteropServices;
-
 namespace MicroLife_Simulator
 {
 
     public partial class Form1 : Form
     {
-        Point p = new Point(0,0);
+        Point p = new Point(0, 0);
         public static Point BorderChecker(Point point, Bitmap bmp)
         {
             int x = point.X;
@@ -52,26 +48,8 @@ namespace MicroLife_Simulator
             }
             label17.Text = controller.radiationLVL.ToString();
         }
-        private void TrackBar3_ValueChanged(object sender, EventArgs e)
-        {
-            pictureBox1.Size = size * trackBar3.Value;
-            pictureBox1.Location = PictureBorders(pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4, pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4);
-            label15.Text = "x" + trackBar3.Value.ToString() + "  Zoom";
-        }
-        private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
-        {
-            if (e.Delta > 0 && trackBar3.Value < 3) { trackBar3.Value++; }
-            else if (e.Delta < 0 && trackBar3.Value > 1) { trackBar3.Value--; }
-        }
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
 
-            if (textBox1.TextLength > 0)
-            {
-                MAXgrass = int.Parse(textBox1.Lines[0]);
-            }
 
-        }
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             if (textBox2.TextLength > 0)
@@ -95,66 +73,42 @@ namespace MicroLife_Simulator
                 if (boo) { controller.cellsListTORemove.Add(item); }
                 boo = !boo;
             }
-            foreach (var item in controller.cellsListTORemove)
-            {
-                item.Cleary(bmp);
-                controller.cellsList.Remove(item);
-            }
-            controller.cellsListTORemove.Clear();
         }
-        private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
+        int zoomValue = 1;
+        private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0 && zoomValue < 10) { zoomValue++; pictureBox1.Size += size; }
+            else if (e.Delta < 0 && zoomValue > 1) { zoomValue--; pictureBox1.Size -= size; }
+            label15.Text = "x" + zoomValue.ToString() + "  Zoom";
+
+            int x = pictureBox1.Location.X < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : pictureBox1.Location.X > 0 ? 0 : pictureBox1.Location.X;
+            int y = pictureBox1.Location.Y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : pictureBox1.Location.Y > 0 ? 0 : pictureBox1.Location.Y;
+
+            pictureBox1.Location = new Point(x, y);
+        }
+        private void pictureBox2_MouseMoveAndDown(object sender, MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                int x = -e.X * pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4;
-                int y = -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4;
+                int x = -e.X * pictureBox1.Width / pictureBox2.Width + bmp.Width/2;
+                int y = -e.Y * pictureBox1.Height / pictureBox2.Height + bmp.Height/2;
 
-                pictureBox1.Location = PictureBorders(x, y);
-                //label11.Text = pictureBox1.Location.ToString();
-            }
-        }
-        private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                int x = -e.X * pictureBox1.Width / pictureBox2.Width + pictureBox1.Width / 4;
-                int y = -e.Y * pictureBox1.Height / pictureBox2.Height + pictureBox1.Height / 4;
+                x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
+                y = y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y;
 
-                pictureBox1.Location = PictureBorders(x, y);
-                //label11.Text = pictureBox1.Location.ToString();
+                pictureBox1.Location = new Point(x, y);
             }
-        }
-        Point PictureBorders(int x, int y)
-        {
-            if (trackBar3.Value == 1)
-            {
-                x = x < 5 ? 5 : x > 5 ? 5 : x;
-                y = y < 12 ? 12 : y > 12 ? 12 : y;
-            }
-            if (trackBar3.Value == 2)
-            {
-                x = x < -1070 ? -1070 : x > 5 ? 5 : x;
-                y = y < -620 ? -620 : y > 12 ? 12 : y;
-            }
-            if (trackBar3.Value == 3)
-            {
-                x = x < -2148 ? -2148 : x > 5 ? 5 : x;
-                y = y < -1251 ? -1251 : y > 12 ? 12 : y;
-            }
-            return new Point(x, y);
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            //controller.grassList.Clear();
-            //bmp.Dispose();
-            //bmp = new Bitmap(pictureBox1.Height, pictureBox1.Width);
-            //NewRefresh();
-
+            for (int i = 0; i < controller.grassList.Count / 10; i++)
+            {
+                controller.grassListTORemove.Add(controller.grassList[i]);
+            }
         }
-
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            p = new Point(e.Location.X / trackBar3.Value, e.Location.Y / trackBar3.Value);
+            p = new Point(e.Location.X / zoomValue, e.Location.Y / zoomValue);
             controller.SelectTarget(p);
             if (panel1.Visible)
             {
@@ -164,17 +118,14 @@ namespace MicroLife_Simulator
             }
             label20.Text = bmp.GetPixel(p.X, p.Y).ToString();
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             panel1.Hide();
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             panel1.Show();
         }
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             // comboBox1.SelectedItem.ToString();
@@ -186,32 +137,83 @@ namespace MicroLife_Simulator
 
         private void GrassLimit_CB_CheckedChanged(object sender, EventArgs e)
         {
-            textBox1.Enabled = !textBox1.Enabled;
+            trackBar7.Enabled = !trackBar7.Enabled;
         }
-
         private void OrgLimit_CB_CheckedChanged(object sender, EventArgs e)
         {
             textBox2.Enabled = !textBox2.Enabled;
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
             if (controller.selectedObject != null)
             {
-                textBox3.Text = controller.GetGenotype(controller.selectedObject);
+                textBox3.Text = controller.selectedObject.GetGenotype(controller.selectedObject); 
+                textBox3.Text += "\r\n";
+                textBox3.Text += "\r";
+                textBox3.Text += "\r\nOrganism ID:  ";
+                textBox3.Text += controller.selectedObject.GetID(controller.selectedObject.myGenWords);
             }
             panel4.Visible = true;
         }
-
         private void button6_Click(object sender, EventArgs e)
         {
             panel4.Visible = false;
         }
-
         private void button7_Click(object sender, EventArgs e)
         {
             var pp = p == new Point(0, 0) ? new Point(bmp.Width / 2, bmp.Height / 2) : p;
             controller.cellsList.Add(new Organism(pp, textBox3.Text));
+        }
+
+        private void trackBar7_Scroll(object sender, EventArgs e)
+        {
+            label24.Text = trackBar7.Value.ToString();
+            MAXgrass = trackBar7.Value;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            controller.CreateGrass(bmp, rand, 100);
+        }
+        public void UpdateTargetInfo()
+        {
+
+            if (panel1.Visible && bmpObservePicture != null)
+            {
+
+                controller.ListBoxUpdate(controller.selectedObject);
+                controller.DrawOrganColor(controller.bmpOrganColor);
+                controller.DrawObservePicture(bmpObservePicture);
+                pictureBox3.Image = bmpObservePicture;
+                if (controller.selectedObject != null)
+                {
+                    label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.maxage;
+                    label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
+                    label6.Text = controller.selectedObject.canDuplicate.ToString();
+                    label3.Text = controller.selectedObject.hungry.ToString();
+                    label9.Text = controller.selectedObject.point.ToString();
+                    progressBar1.Maximum = controller.selectedObject.parameters.maxFatigue;
+                    progressBar1.Value = controller.selectedObject.fatigue;
+                    pictureBox4.Image = bmpOrgansColor;
+                }
+                else { label10.Text = "NoNe"; label11.Text = "NoNe"; label6.Text = "NoNe"; label3.Text = "NoNe"; ; progressBar1.Value = 0; progressBar1.Maximum = 100; }
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            if (controller.selectedObject != null)
+            {
+                //controller.selectedObject.TurnRL("X");
+            }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            if (controller.selectedObject != null)
+            {
+               // controller.selectedObject.TurnRL("Y");
+            }
         }
     }
 

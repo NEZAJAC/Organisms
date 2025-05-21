@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Reflection;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+﻿using System;
 
 namespace MicroLife_Simulator
 {
@@ -24,17 +21,21 @@ namespace MicroLife_Simulator
             public List<string> partsData = new List<string>();//---------для вывода информации
             public BodyPart()
             {
-                
+
 
             }
             public virtual string UpdateMyData()
             {
                 partsData.Clear();
-                partsData.Add("localplace X\t" + localplace.X.ToString());
-                partsData.Add("localplace Y\t" + localplace.Y.ToString());
-                partsData.Add("energyCost\t" + energyCost.ToString());
                 partsData.Add(color.ToString());
+                partsData.Add("localplace       \t" + localplace.ToString());
+                partsData.Add("energyCost\t" + energyCost.ToString());
+
                 return name;
+            }
+            void FoodConsume(Organism body)
+            {
+                body.food -= energyCost;//--------------------------------------------------------------------------------------сделать отсутствие потребления если часть тела не работала}
             }
             public virtual void Dosomething(Organism body, Bitmap bmp)
             {
@@ -47,7 +48,7 @@ namespace MicroLife_Simulator
 
         class Universal : BodyPart//---------------------------------------------------------------------------------------------------Universal
         {
-            
+
             public int EatStrength = 25;
             public int eatResult = 0;
             int transferStrength = 15;
@@ -118,28 +119,36 @@ namespace MicroLife_Simulator
         /// </summary>
         class Mouth : BodyPart
         {
-            public int EatStrength = 50;
-            public bool predator = false;
+            public int EatStrength = 25;
+            public int EatRange = 3;
+            List<BodyPart> stomaches = new List<BodyPart>();
 
-            public int eatResult = 0;
+            int alreadyEaten = 0;
             public Point eatTarget = new Point(0, 0);
             public List<Point> ignorePoints = new List<Point>();
-            
+            List<Point> points = new List<Point>();
             public Mouth()
             {
                 name = "Mouth";
                 color = Color.Red;
-                energyCost = 1;
+                energyCost = 3;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
                 partsData.Add("EatStrength\t" + EatStrength.ToString());
-                partsData.Add("eatTarget X\t" + eatTarget.X.ToString());
-                partsData.Add("eatTarget Y\t" + eatTarget.Y.ToString());
+                partsData.Add("AlreadyEaten    \t" + alreadyEaten.ToString());
+                partsData.Add("EatTarget    \t" + (eatTarget != new Point(-1,-1) ? eatTarget.ToString() : "NoNe"));
+                partsData.Add("Stomaches\t" + stomaches.Count.ToString());
+                partsData.Add("---------------------------------");
                 foreach (var item in ignorePoints)
                 {
-                    partsData.Add("ignorePoints X\t" + item.X.ToString() + " " + item.Y.ToString());
+                    partsData.Add("IgnorePoints\t" + item.ToString());
+                }
+                partsData.Add("---------------------------------");
+                foreach (var item in points)
+                {
+                    partsData.Add("AvaliblePoints  \t" + item.ToString());
                 }
 
                 return "";
@@ -147,99 +156,78 @@ namespace MicroLife_Simulator
 
             public bool Eat(out Point targetEat, Bitmap bmp)
             {
-                List<Point> points = new List<Point>();
-                if (!predator)
+                points.Clear();
+                for (int i = -EatRange; i <= EatRange; i++)
                 {
-                    for (int i = -1; i < 2; i++)
+                    for (int j = -EatRange; j <= EatRange; j++)
                     {
-                        for (int j = -1; j < 2; j++)
+                        Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
+                        var temp = bmp.GetPixel(p.X, p.Y);
+                        if (temp.G == Color.Green.G)
                         {
-                             Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
-                             var temp = bmp.GetPixel(p.X, p.Y);
-                             if (bmp.GetPixel(p.X, p.Y).G == Color.Green.G)
-                             {
-                                points.Add(new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j));
-                             }
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = -1; i < 2; i++)
-                    {
-                        for (int j = -1; j < 2; j++)
-                        {
-                            if (!ignorePoints.Contains(new Point(i, j)))
-                            {
-                                Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
-                                var temp = bmp.GetPixel(p.X, p.Y);
-                                if (bmp.GetPixel(p.X, p.Y).G > 0 || bmp.GetPixel(p.X, p.Y).R > 0 || bmp.GetPixel(p.X, p.Y).B > 0 || bmp.GetPixel(p.X, p.Y).G != Color.Green.G)
-                                {
-                                    points.Add(new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j));
-                                }
-                            }
+                            points.Add(new Point(p.X, p.Y));
                         }
                     }
                 }
                 targetEat = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(-1, -1);
-                return targetEat.X != -1 && targetEat.Y != -1 ? true : false;
+                return targetEat != new Point(-1,-1);
             }
 
-            public void EatTarget(Organism body)
+            public void ToBody(Organism body)
             {
-                if (eatTarget.X != -1 && eatTarget.Y != -1 && body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+
+                if (body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
                 {
                     //------------------------------------------------------Доработать математику
                     int difference = body.controller.grassDictionary[eatTarget].food - EatStrength;
                     int amount = difference <= 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;
                     body.controller.grassDictionary[eatTarget].food -= amount;
                     body.food += amount;
+                    alreadyEaten += amount;
                 }
             }
             public void ToStomach(Organism body)
             {
-                int overEating = 0;
-                if (eatTarget.X != -1 && eatTarget.Y != -1 && body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+                if (body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
                 {
-                    int stomaches = 0;
-                    foreach (var item in body.bodyTypes)
-                    {
-                        if (item.name == "Stomach")
-                        { 
-                            stomaches++;
-                        }
-                    }
                     foreach (var item in body.bodyTypes)
                     {
                         if (item.name == "Stomach")
                         {
-                            Stomach stomach = (Stomach)item;
-                            int difference = body.controller.grassDictionary[eatTarget].food - EatStrength;
-                            int amount = difference <= 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;//----сколько может откусить
-                            body.controller.grassDictionary[eatTarget].food -= amount/stomaches;
-                            var overFood = stomach.currentCapacity + amount / stomaches > stomach.capacity ? stomach.currentCapacity + amount / stomaches - stomach.capacity : 0;   
-                            stomach.currentCapacity = overFood > 0 ? stomach.capacity : stomach.currentCapacity + amount / stomaches;
-                            overEating += overFood;
+                            if (!stomaches.Contains(item)) stomaches.Add(item);
                         }
                     }
-                    
-                }
-                if(overEating >= 20)
-                {
-                    if (!body.controller.infectionLVL.ContainsKey(eatTarget)) { body.controller.infectionLVL.Add(eatTarget, 0); } else
-                    { 
-                        body.controller.infectionLVL[eatTarget] += overEating; 
+                    int amount = body.controller.grassDictionary[eatTarget].food - EatStrength < 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;
+                    body.controller.grassDictionary[eatTarget].food -= amount;
+                    alreadyEaten += amount;
+                    int pieceOfFood = amount / stomaches.Count;
+                    foreach (var item in stomaches)
+                    {
+                        Stomach stomach = (Stomach)item;
+                        if (stomach.currentCapacity + pieceOfFood <= stomach.capacity)
+                        {
+                            stomach.currentCapacity += pieceOfFood;
+                        }
+                        else { stomach.currentCapacity = stomach.capacity; }
+
                     }
-                    
                 }
-                //------------------------------------------------------------сделать выбрасывание излишков и создание мусора(отравление почвы)
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                if (!Eat(out eatTarget, bmp)) { body.move = true; } else { body.move = false; }// рот решает что делать организму??? НЕТ!!!//только пока нет мозга
-                if(!body.hasStomach){ EatTarget(body); }{ ToStomach(body); }
-                //body.ToMouthSignal = eatTarget;
-                //body.EatTarget(body.controller.grassDictionary, EatStrength);
+                ignorePoints = body.ignorePoints;
+                if (body.food >= body.maxfood) { body.hungry = false; }
+                if (body.food <= body.parameters.hungryFoodLVL) { body.hungry = true; }//-----------------------------------------------починить голод, желудок не учитывается наполненным
+                if (body.hungry)
+                {
+                    if (!Eat(out eatTarget, bmp)) { body.move = true; }
+                    else
+                    {
+                        body.move = false;
+                        if (body.myGenWords.Contains("Stomach")) { ToStomach(body); } else { ToBody(body); }
+                    }// рот решает что делать организму??? НЕТ!!!//только пока нет мозга
+                }
+                else { body.move = true; }
             }
         }
         /// <summary>
@@ -247,7 +235,13 @@ namespace MicroLife_Simulator
         /// </summary>
         class Brain : BodyPart
         {
-            enum Tasks {Move,Eat,Duplicate }
+            public int brainLessDelay = 0;
+            public int brainLessDelayMax = 100;
+
+            int randoms;
+            string? side;
+
+            enum Tasks { Move, Eat, Duplicate, TemperatureSafe }
             //мозг решает куда он хочет идти сейчас, дает указ ногам, ноги проверяют доступные места куда могут пойти, если есть совпаения то идут туда
             //входным параметром может быть стадия голода организма
             //сигналы от "глаз"
@@ -268,7 +262,25 @@ namespace MicroLife_Simulator
             //   point.X
             //Сначала мы выбираем ближайшие объекты. Для глаз ближайшую пищу, для ног ближайший шаг до этой пиши. В целом определяем цель и как до нее дойти
             //Это не требует работы нейросети?
-            List<Point> points = new List<Point>();
+
+            //время без размножения(поиск еды, поиск партнера(для половых органов), движение)
+            //сила голода(поиск еды, движение)
+            //отдых, тепло(оставаться без действий)
+            //
+            static int a = 5;
+            static int b = 6;
+            static int c = 6;
+            static int d = 4;
+            double[]? inputs = new double[a];
+            double[]? gradient1 = new double[a * b];
+            double[]? layer1 = new double[b];
+            double[]? gradient2 = new double[b * c];
+            double[]? layer2 = new double[c];
+            double[]? gradient3 = new double[c * d];
+            double[]? output = new double[d];
+            //Сложить все точки из поступающего массива, разделяя отрицательные - отдна сторона и положительные - другая сторона, получив значения определяющие вес приоритетной стороны движения - ВХОДНЫЕ ДАННЫЕ
+            // После всех работ с числами получить сторону в которую организм сделает шаг
+            //
             public Brain()
             {
                 name = "Brain";
@@ -280,19 +292,94 @@ namespace MicroLife_Simulator
                 base.UpdateMyData();
                 return "";
             }
-            void NeuroWork()
+
+            public void TurnRL(string axis, Organism organism)
             {
-                //от 0 до 8(0-24)(0-48) входных точек - координаты куда можно пойти
-                // точка состоит в диапазоне -1, 1 можно представить как х = -1 , у = 1
-                
+                if (axis == "Y")
+                {
+                    foreach (var part in organism.bodyTypes) { part.localplace.Y *= -1; }
+                }
+                if (axis == "X")
+                {
+                    foreach (var part in organism.bodyTypes) { part.localplace.X *= -1; }
+                }
+            }
+            public void TurnRL2(Organism organism)
+            {
+                if (brainLessDelay >= brainLessDelayMax)
+                {
+                    randoms = rand.Next(0, 3);
+                    side = randoms == 0 ? "" : randoms == 1 ? "X" : "Y";
+                    TurnRL(side,organism);
+                    brainLessDelay = 0;
+                }
+                brainLessDelay++;
+            }
+            void NeuroCalculate()
+            {
+                int n = 0;
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    for (int j = 0; j < layer1.Length; j++)
+                    {
+                        layer1[j] += inputs[i] * gradient1[n];
+                        ++n;
+                    }
+                    layer1[i] += rand.NextDouble();//Bias
+                }
+                n = 0;
+                for (int i = 0; i < layer1.Length; i++)
+                {
+                    for (int j = 0; j < layer2.Length; j++)
+                    {
+                        layer2[j] += layer1[i] * gradient2[n];
+                        ++n;
+                    }
+                    layer2[i] += rand.NextDouble();//Bias
+                }
+                n = 0;
+                for (int i = 0; i < layer2.Length; i++)
+                {
+                    for (int j = 0; j < output.Length; j++)
+                    {
+                        output[j] += layer2[i] * gradient3[n];
+                        ++n;
+                    }
+                    output[i] += rand.NextDouble();//Bias
+                }
+            }
+            void BackError()
+            {
+
+            }
+            void WriteInputs(Organism body)
+            {
+                //заполнить тут инпуты входными значениями
+            }
+            double[]? WriteNewData(int length)
+            {
+                double[]? inputs = new double[length];
+                for (int i = 0; i < length; i++)
+                {
+                    inputs[i] = rand.NextDouble();
+                }
+                return inputs;
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-               points.Clear();
-                points = body.closestPoiints;
-
-                //нихуя не понятно как делать
-                //понятно как думать но не понятно как делать
+                TurnRL2(body);
+                //body.EyeSignal
+                //количество входных сигналов равно длине словаря
+                //      / 1 - 1 \
+                //   x  - 2 - 2 - x 
+                //   y  - 3 - 3 - y
+                //      \ 4 - 4 /
+                //тут мы находим результирующие точки, добавляем в массим движения
+                //gradient1 ??= WriteNewData(gradient1.Length);//должно выполняться 1 раз
+                //gradient2 ??= WriteNewData(gradient2.Length);//должно выполняться 1 раз
+                //gradient3 ??= WriteNewData(gradient3.Length);//должно выполняться 1 раз
+                //WriteInputs(body);
+                //NeuroCalculate();
             }
         }
         /// <summary>
@@ -300,9 +387,10 @@ namespace MicroLife_Simulator
         /// </summary>
         class Leg : BodyPart//ножка двигает всю клетку в одну сторону 
         {
-            Random rand = new Random();
             public Point moveResult = new Point(0, 0);
-            public int speed = 1;
+            public int speedX = 1;
+            public int speedY = 1;
+            List<Point> points = new List<Point>();
             public Leg()
             {
                 name = "Leg";
@@ -315,36 +403,47 @@ namespace MicroLife_Simulator
                 base.UpdateMyData(); ;
                 partsData.Add("Speed X\t" + moveResult.X.ToString());
                 partsData.Add("Speed Y\t" + moveResult.Y.ToString());
+                foreach (var item in points)
+                {
+                    partsData.Add("Avalible point\t" + item.ToString());
+                }
                 return "";
             }
-            public Point MoveResult(Bitmap bmp) //-------------------------------------------Добавить точки игнорирования//Оставить эту фукнцию для движения без органов осязания
+            public Point MoveResult(Bitmap bmp, Organism body) //-------------------------------------------Добавить точки игнорирования//Оставить эту фукнцию для движения без органов осязания
             {
-                List<Point> points = new List<Point>();
-                for (int i = -1; i <= 1; i++)
+                points.Clear();
+                for (int i = -speedX; i <= speedX; i++)
                 {
-                    for (int j = -1; j <= 1; j++)
+                    for (int j = -speedY; j <= speedY; j++)
                     {
-                        Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
-                        points.Add(bmp.GetPixel(p.X, p.Y).A == 0 ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0));
+                        Point p = BorderChecker(body.point.X + localplace.X + i + rand.Next(-1,1), body.point.Y + localplace.Y + j + rand.Next(-1, 1), bmp);
+                        Color color = bmp.GetPixel(p.X, p.Y);
+                        if (color.B == 0 || color.A == 0)
+                        {
+                            points.Add(new Point(localplace.X + i, localplace.Y + j));
+                        }
                     }
                 }
-                for (int i = points.Count - 1; i > -1; i--)
-                {
-                    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
-                }
-                return points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(0, 0); ;
+                return points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(0, 0);//-----------------------------------------сюда можно вмешаться органами чувств или мозгом и решить куда идти
             }
 
 
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                if (body.move)
+                if (body.fatigue == 0) { body.exhaustion = true; }
+                if (body.fatigue > body.parameters.maxFatigue/body.exhaustionLvl) { body.exhaustion = false; }
+                if (body.move && !body.exhaustion)//---------------------------------------------------------------------------------------------------------------------------вот здесь мы это фиксим, ноги теперь случаются
                 {
-                    moveResult = MoveResult(bmp);
-                    
-
+                    moveResult = MoveResult(bmp, body);
                     //body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
                     body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);
+                    body.fatigue += body.fatigue > 0 ? -1 : 0;
+
+                }
+                else
+                {
+
+                    if (body.fatigue != body.parameters.maxFatigue) { body.fatigue += 1; }
                 }
             }
         }
@@ -356,24 +455,26 @@ namespace MicroLife_Simulator
             public int capacity = 3000;
             public int currentCapacity = 0;
             int transferStrength = 25;
-            int transferPlus = 2;
+            int transferPlus = 3;
+            int amountTransfered = 0;
             int transferDelay { get; }
             int transferDelayNow = 0;
-            public Stomach()
+            public Stomach()//---------------------------------------------------------------------------баг с желудком, переработать логику обмена и разделения между несколькими
             {
                 name = "Stomach";
                 color = Color.RosyBrown;
                 energyCost = 1;
 
-                transferDelay = 7;
+                transferDelay = 3;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
-                partsData.Add("Capacity\t" + currentCapacity.ToString() + "/" +capacity.ToString());
+                partsData.Add("Capacity\t" + currentCapacity.ToString() + "/" + capacity.ToString());
                 partsData.Add("Transfer\t" + transferStrength.ToString());
-                partsData.Add("transferPlus\t" + transferPlus.ToString());
-                partsData.Add("transferDelayNow\t" + transferDelayNow.ToString());
+                partsData.Add("TransferPlus\t" + transferPlus.ToString());
+                partsData.Add("TransferDelayNow\t" + transferDelayNow.ToString());
+                partsData.Add("AmountTransfered\t" + amountTransfered.ToString());
                 return "";
             }
             void DigestFood(Organism body)
@@ -382,17 +483,19 @@ namespace MicroLife_Simulator
                 if (body.food + amount <= body.maxfood)
                 {
                     currentCapacity -= amount;
-                    body.food += amount + transferPlus;
+                    body.food += amount + transferPlus <= body.maxfood ? amount + transferPlus : body.maxfood;
+                    amountTransfered += amount + transferPlus;
                 }
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                if (transferDelayNow < transferDelay){ transferDelayNow++; }
+                if (transferDelayNow < transferDelay) { transferDelayNow++; }
                 if (currentCapacity > 0 && transferDelayNow == transferDelay)
                 {
                     transferDelayNow = 0;
                     DigestFood(body);
                 }
+                if (currentCapacity == capacity) { body.hungry = false; } else if(currentCapacity == 0 && body.food <= body.parameters.hungryFoodLVL) { body.hungry = true; }
             }
         }
         /// <summary>
@@ -400,7 +503,7 @@ namespace MicroLife_Simulator
         /// </summary>
         class Eye : BodyPart//проверяет бОльшую область чем сенсоры других органов, отличает цвет, имеет выход нервного окончания для влияния на действия
         {
-            
+
             //--------------------------
             public int eyeRange = 3;
             //--------------------------
@@ -415,7 +518,7 @@ namespace MicroLife_Simulator
                 color = Color.White;
                 energyCost = 1;
             }
-            
+
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -428,31 +531,18 @@ namespace MicroLife_Simulator
             }
             void SenseEye(Organism body, Bitmap bmp)
             {
-                for (int i = -eyeRange; i < eyeRange; i++)
+                for (int i = -eyeRange; i <= eyeRange; i++)
                 {
-                    for (int j = -eyeRange; j < eyeRange; j++)
+                    for (int j = -eyeRange; j <= eyeRange; j++)
                     {
                         Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
                         if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.EyeSignal.ContainsKey(p))
                         {
-                             Color color = bmp.GetPixel(p.X, p.Y);
-                             if (color.G <= greenColor && color.G > 0 || color.A <= redColor && color.A > 0 || color.B <= blueColor && color.B > 0) 
-                            { 
+                            Color color = bmp.GetPixel(p.X, p.Y);
+                            if (color.G <= greenColor && color.G > 0 || color.A <= redColor && color.A > 0 || color.B <= blueColor && color.B > 0)
+                            {
                                 body.EyeSignal.Add(p, color);
                             }
-                        }
-                        
-                    }
-                }
-                for (int i = -1; i <= 1; i++)
-                {
-                    for (int j = -1; j <= 1; j++)
-                    {
-                        Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
-                        Color color = bmp.GetPixel(p.X, p.Y);
-                        if (body.ignorePoints.Contains(new Point(p.X, p.Y)) || color.A == 255)
-                        {
-                            body.closestPoiints.Add(p);
                         }
                     }
                 }
@@ -466,8 +556,11 @@ namespace MicroLife_Simulator
         /// <summary>
         /// Сенсоры организма//видит зараженные органикой территории
         /// </summary>
-        class Sensors : BodyPart 
+        class Sensors : BodyPart
         {
+            //--------------------------
+            public int sensorRange = 2;
+            int targets = 0;
             public Sensors()
             {
                 name = "Sensors";
@@ -477,11 +570,32 @@ namespace MicroLife_Simulator
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
+                partsData.Add("Targets    \t" + targets.ToString());
                 return "";
+            }
+
+            void Sense(Organism body, Bitmap bmp)
+            {
+                for (int i = -sensorRange; i <= sensorRange; i++)
+                {
+                    for (int j = -sensorRange; j <= sensorRange; j++)
+                    {
+                        Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
+                        if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.SenseSignal.ContainsKey(p))
+                        {
+                            Color color = bmp.GetPixel(p.X, p.Y);
+                            if (body.controller.infectionLVL.ContainsKey(p))
+                            {
+                                body.SenseSignal.Add(p, color);
+                                targets = body.SenseSignal.Count;
+                            }
+                        }
+                    }
+                }
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-
+                Sense(body, bmp);
             }
         }
         /// <summary>
@@ -491,7 +605,7 @@ namespace MicroLife_Simulator
         {//жиры не используются для определения возможности размножиться, что дает организму дольше жить без еды после деления
             int fats = 0;
             int maxFats = 5000;
-            int exchangeStrength = 3;
+            int exchangeStrength = 10;
 
             public Fats()
             {
@@ -531,7 +645,7 @@ namespace MicroLife_Simulator
         {
             public Gills()
             {
-                name = "Jabres";
+                name = "Gills";
                 color = Color.DeepPink;
                 energyCost = 1;
             }
@@ -550,6 +664,7 @@ namespace MicroLife_Simulator
         /// </summary>
         class Genitals : BodyPart //определяют схему размножения
         {
+            Organism? friend;
             public Genitals()
             {
                 name = "Genitals";
@@ -561,9 +676,15 @@ namespace MicroLife_Simulator
                 base.UpdateMyData();
                 return "";
             }
+
+            Organism? FindFriend(Organism body)
+            {
+                
+                return null;
+            }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-
+                friend = FindFriend(body); 
             }
         }
         /// <summary>
@@ -572,31 +693,37 @@ namespace MicroLife_Simulator
         class Filter : BodyPart //позволяет поедать(фильтровать) зараженные органикой территории
         {
             public int cleanStrength = 100;
-            public int foodConvert = 500;
+            public int cleanRange = 2;
+            public int foodConvert = 110;
             public int amountClean = 0;
             List<Point> points = new List<Point>();
-            Point target = new Point();
+            Point target;
             public Filter()
             {
                 name = "Filter";
                 color = Color.DimGray;
-                energyCost = 1;
+                energyCost = 3;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
-                partsData.Add("cleanStrength\t" + cleanStrength.ToString());
-                partsData.Add("foodConvert\t" + foodConvert.ToString());
-                partsData.Add("target\t" + target.ToString());
-                partsData.Add("amountClean\t" + amountClean.ToString());
+                partsData.Add("CleanStrength\t" + cleanStrength.ToString());
+                partsData.Add("FoodConvert  \t" + foodConvert.ToString());
+                partsData.Add("AmountClean  \t" + amountClean.ToString());
+                partsData.Add("CleanTarget       \t" + (target != new Point(-1, -1) ? target.ToString() : "NoNe"));
+                foreach (Point p in points)
+                {
+                    partsData.Add("AvalibleTargets\t" + target.ToString());
+                }
                 return "";
             }
             void FindInfection(Bitmap bmp)
             {
+                target = new Point(-1, -1);
                 points.Clear();
-                for (int i = -1; i <= 1; i++)
+                for (int i = -cleanRange; i <= cleanRange; i++)
                 {
-                    for (int j = -1; j <= 1; j++)
+                    for (int j = -cleanRange; j <= cleanRange; j++)
                     {
                         Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
                         Color color = bmp.GetPixel(p.X, p.Y);
@@ -608,7 +735,7 @@ namespace MicroLife_Simulator
                 {
                     if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
                 }
-                if(points.Count > 0) { target = points[rand.Next(0, points.Count)]; }
+                if (points.Count > 0) { target = points[rand.Next(0, points.Count)]; }
             }
             void CleanInfection(Organism body)
             {
@@ -622,8 +749,11 @@ namespace MicroLife_Simulator
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                FindInfection(bmp);
-                CleanInfection(body);
+                if (body.hungry)
+                {
+                    FindInfection(bmp);
+                    CleanInfection(body);
+                }
             }
         }
         /// <summary>
@@ -653,22 +783,28 @@ namespace MicroLife_Simulator
         class MiteHorns : BodyPart
         {
             int amountDrinking = 0;
-            int bloodIntake = 15;
-            int biteRange = 2;
+            int bloodIntake = 40;
+            int bloodDrink = 1;
+            int biteRange = 3;
             public Organism? target = null;
             public MiteHorns()
             {
                 name = "MiteHorns";
                 color = Color.DimGray;
-                energyCost = 2;
+                energyCost = 3;
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
                 if (target != null)
                 {
-                    partsData.Add("target X\t" + target.point.X.ToString());
-                    partsData.Add("target Y\t" + target.point.Y.ToString());
+                    partsData.Add("Target         \t" + target.point.ToString());
+                    partsData.Add("TargetEnergy   \t" + target.food.ToString());
+                }
+                else
+                {
+                    partsData.Add("Target         \t" + "NoNe");
+                    partsData.Add("TargetEnergy   \t" + "NoNe");
                 }
                 partsData.Add("amountDrinking\t" + amountDrinking.ToString());
                 return "";
@@ -680,34 +816,35 @@ namespace MicroLife_Simulator
                     for (int j = -biteRange; j <= biteRange; j++)
                     {
                         Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
-                        if (myOrganism.controller.cellDictionary.ContainsKey(p) &&
-                            myOrganism.controller.cellDictionary[p].point != myOrganism.point &&
-                            myOrganism.controller.cellDictionary[p].genList[0].localplace != myOrganism.genList[0].localplace &&
-                            myOrganism.controller.cellDictionary[p].genList[0].color.ToArgb != myOrganism.genList[0].color.ToArgb)
+                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords) && !findTarget.myGenWords.Contains("MiteHorns"))
                         {
                             target = myOrganism.controller.cellDictionary[p];
                             break;
                         }
                     }
-                    if (target != null) break; 
+                    if (target != null) break;
                 }
             }
             void BiteTarget(Organism myOrganism)
             {
+                if(target.fatigue - bloodDrink > 0)
+                {
+                    target.fatigue -= bloodDrink;
+                    myOrganism.food += bloodIntake;
+                    amountDrinking += bloodIntake;
+                }
+
                 if (Math.Abs(target.point.X - (globalplace.X + localplace.X)) > biteRange && Math.Abs(target.point.Y - (globalplace.Y + localplace.Y)) > biteRange)
                 {
                     target = null;
                 }
-                else
-                {
-                    target.food -= bloodIntake;
-                    myOrganism.food += bloodIntake;
-                    amountDrinking += bloodIntake;
-                }
             }
             public override void Dosomething(Organism myOrganism, Bitmap bmp)
             {
-                if (target == null) {FindTargets(myOrganism, bmp); } else { BiteTarget(myOrganism); }
+                if(myOrganism.globalTarget != null) { target = myOrganism.globalTarget; return; }
+                if (target == null) { FindTargets(myOrganism, bmp); } else { BiteTarget(myOrganism); }
+                if (target != null && target.food <= 500) { target = null; }
             }
         }
         /// <summary>
@@ -715,10 +852,138 @@ namespace MicroLife_Simulator
         /// </summary>
         class Clues : BodyPart
         {
+            int holdOnRange = 4;
+            public Organism? target = null;
             public Clues()
             {
                 name = "Clues";
                 color = Color.LavenderBlush;
+                energyCost = 0;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                if (target != null)
+                {
+                    partsData.Add("Target         \t" + target.point.ToString());
+                    partsData.Add("TargetEnergy   \t" + target.food.ToString());
+                }
+                else
+                {
+                    partsData.Add("Target         \t" + "NoNe");
+                    partsData.Add("TargetEnergy   \t" + "NoNe");
+                }
+                partsData.Add("HookDistance   \t" + holdOnRange.ToString());
+                return "";
+            }
+            void FindTargets(Organism myOrganism, Bitmap bmp)
+            {
+                for (int i = -holdOnRange; i <= holdOnRange; i++)
+                {
+                    for (int j = -holdOnRange; j <= holdOnRange; j++)
+                    {
+                        Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
+                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
+                        {
+                            target = findTarget;
+                            findTarget = null;
+                            break;
+                        }
+                    }
+                    if (target != null) break;
+                }
+            }
+            void Hook(Organism body)
+            {
+                if (target != null)
+                    body.newPoint = target.newPoint;
+                    body.globalTarget = target;
+            }
+            bool CheckDistance(Organism body, Organism? target)
+            {
+                if (target == null) return false;
+                return Math.Abs(body.point.X - target.point.X) <= holdOnRange && Math.Abs(body.point.Y - target.point.Y) <= holdOnRange;
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                if (target == null) { FindTargets(body, bmp); body.move = true; } else { Hook(body); body.move = false; }
+                if ((target != null && !CheckDistance(body, target)) || (target != null && target.food <= 0)) { target = null; }
+            }
+        }
+        /// <summary>
+        /// когти для удержание другого организма
+        /// </summary>
+        class Claws : BodyPart
+        {
+            int holdOnRange = 4;
+            public Organism? target = null;
+            public Claws()
+            {
+                name = "Claws";
+                color = Color.WhiteSmoke;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                if (target != null)
+                {
+                    partsData.Add("Target         \t" + target.point.ToString());
+                    partsData.Add("TargetEnergy   \t" + target.food.ToString());
+                }
+                else
+                {
+                    partsData.Add("Target         \t" + "NoNe");
+                    partsData.Add("TargetEnergy   \t" + "NoNe");
+                }
+                partsData.Add("HoldOnDistance   \t" + holdOnRange.ToString());
+                return "";
+            }
+            void FindTargets(Organism myOrganism, Bitmap bmp)
+            {
+                for (int i = -holdOnRange; i <= holdOnRange; i++)
+                {
+                    for (int j = -holdOnRange; j <= holdOnRange; j++)
+                    {
+                        Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
+                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
+                        {
+                            target = findTarget;
+                            findTarget = null;
+                            break;
+                        }
+                    }
+                    if (target != null) break;
+                }
+            }
+            void holdOn(Organism body)
+            {
+                if (target != null)
+                    target.newPoint = body.newPoint;
+                    body.globalTarget = target;
+            }
+            bool CheckDistance(Organism body, Organism? target)
+            {
+                if (target == null) return false;
+                return Math.Abs(body.point.X - target.point.X) <= holdOnRange && Math.Abs(body.point.Y - target.point.Y) <= holdOnRange;
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                if (target == null) { FindTargets(body, bmp); } else if (CheckDistance(body, target)) { holdOn(body); } 
+                if ((target != null && !CheckDistance(body, target)) || (target != null && target.food <= 0)) { target = null; }
+            }
+        }
+        /// <summary>
+        /// позволяют получать питание от солнца
+        /// </summary>
+        class Chlorophylls : BodyPart
+        {
+            public Chlorophylls()
+            {
+                name = "Chlorophylls";
+                color = Color.LightGreen;
                 energyCost = 1;
             }
             public override string UpdateMyData()
@@ -732,13 +997,35 @@ namespace MicroLife_Simulator
             }
         }
         /// <summary>
-        /// позволяют получать питание от солнца
+        /// его не могут скушать рты и мешают скушать органы которые около кератина
         /// </summary>
-        class Chlorophylls : BodyPart
+        class Keratin : BodyPart
         {
-            public Chlorophylls()
+            public Keratin()
             {
-                name = "Chlorophylls";
+                name = "Keratin";
+                color = Color.LightGreen;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                return "";
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
+            }
+        }
+        /// <summary>
+        /// метаморфизин это особая часть тела, которая не является физическим органом и не выполняющая физических действий, но позволяет организму переходить в другую фазу, позволяя менять расположение частей тела
+        /// может использоваться как аналогия матаморфоз у гусеницы
+        /// </summary>
+        class Metamorfizin : BodyPart
+        {
+            public Metamorfizin()
+            {
+                name = "Metamorfizin";
                 color = Color.LightGreen;
                 energyCost = 1;
             }

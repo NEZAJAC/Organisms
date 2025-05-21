@@ -56,10 +56,12 @@
             }
             public Grass(Point pointIN)
             {
+
                 maxfood = 100;
                 food = rand.Next(maxfood / 10);
                 maxfood = rand.Next(500, 1000);
-                maxage = maxfood * 2;
+                maxage = 1000;
+                age = rand.Next(50, 1000);
                 pen.Color = Color.Green;
                 point = pointIN;
 
@@ -67,8 +69,9 @@
 
             public bool GrassUpdate(int sunIN)
             {
-                food = food >= maxfood ? food - maxfood + 1 : food;
+                food = food > maxfood ? food - maxfood + 1 : food;
                 food = sunIN > 0 ? food + sunIN : food--;
+                age++;
                 return food >= maxfood;
             }
 
@@ -89,122 +92,195 @@
             public Point localplace { get; set; }      //локальное положение органа в организме
             public Color color { get; set; }          //цвет органа(от цвета зависит увидят ли его глаза )
         }
-
         struct OrganismParameters
         {
             public int bodyTemperatureMax;
             public int bodyTemperatureMin;
+            public int childs;
 
-            public int dublicateDelay;    //--------------------------------------задержка перед повторным делением(текущая)
+            public int dublicateAgeMax;   //----------------------------------------------------максимальный возраст деления
+            public int dublicateAgeMin;   //-----------------------------------------------------минимальный возраст деления
             public int dublicateDelayMax; //-----------------------------задержка перед повторным делением(верхнее значение)
-            public int dublicateFood;     //--------------------------------------требуемое количество насыщения для деления
             public int dublicateFoodPrice;//--------------------------------------------------------------------цена деления
             public int hungryFoodLVL;     //-------------------------------------значение на котором организм захочет кушать
-            public int dublicateAgeMin;   //-----------------------------------------------------минимальный возраст деления
-            public int dublicateAgeMax;   //----------------------------------------------------максимальный возраст деления
-            public int childs;
+            public int dublicateDelay;    //--------------------------------------задержка перед повторным делением(текущая)
+            public int dublicateFood;     //--------------------------------------требуемое количество насыщения для деления
+            public int maxFatigue;
+            public int exhaustionLvl;
         }
         class Organism : Object
         {
-            OrganismParameters parameters;
+            List<string> partsNames = new List<string>()
+            {
+                "Mouth",
+                "Brain",
+                "Leg",
+                "Stomach",
+                "Eye",
+                "Sensors",
+                "Fats",
+                "Gills",
+                "Genitals",
+                "Filter",
+                "SpeechApparatus",
+                "MiteHorns",
+                "Clues",
+                "Claws",
+                "Chlorophylls",
+                "Keratin"
+            };
+            public string[] myGenWords;
+            public Organism? globalTarget;
+            public int fatigue = 0;//-------------------------------------------------------------------------усталость
+            public int exhaustionLvl = 5;
+            public bool exhaustion = false;
+            public int pooopas = 0;
+            public OrganismParameters parameters;
             public Controller? controller = null;
             int radiation = 10;
             //для организма
             public Point newPoint = new Point();
             public Point lastPoint = new Point();
-
-            //---------------------------
-            public int bodyTemperatureMax;
-            public int bodyTemperatureMin;
-            //---------------------------размножение
-            public bool canDuplicate = true;
-            public int dublicateDelay;    //--------------------------------------задержка перед повторным делением(текущая)
-            public int dublicateDelayMax; //-----------------------------задержка перед повторным делением(верхнее значение)
-            public int dublicateFood;     //--------------------------------------требуемое количество насыщения для деления
-            public int dublicateFoodPrice;//--------------------------------------------------------------------цена деления
-            public int hungryFoodLVL;     //-------------------------------------значение на котором организм захочет кушать
-            public int dublicateAgeMin;   //-----------------------------------------------------минимальный возраст деления
-            public int dublicateAgeMax;   //----------------------------------------------------максимальный возраст деления
-            public int childs;          //--------------------------------------------------количество детей на одно деление
+            //--------------------------------------------------количество детей на одно деление
             /// <summary>
             /// Сигналы мозгу для обработки входящие
             /// </summary>
-            public int HungrySignal;//---------------------------------------------------------------------------------гoлод
-            public Dictionary<Point, Color> EyeSignal = new Dictionary<Point, Color>();//---------------------глаза, сенсоры
+            // public int HungrySignal;//---------------------------------------------------------------------------------гoлод
+            public Dictionary<Point, Color> EyeSignal = new Dictionary<Point, Color>();//------------------------------глаза
+            public Dictionary<Point, Color> SenseSignal = new Dictionary<Point, Color>();//--------------------------сенсоры
             public int bodyTemperatureSignal;       //------------------------------------------------------температура тела
             public int WithoutDublicateSignal = 0; //---------------------------------------------------задержка размножения
             /// <summary>
             /// Сигналы из мозга обработанные исходящие
             /// </summary>
             public List<Point> ToLegSignal = new List<Point>();//-------------------------------------------точка для движения
-            public List<Point> closestPoiints = new List<Point>();
             public Point ToMouthSignal = new Point();//----------------------------------------------------------цель поедания
             //---------------------------------------------------------Генотип
             public List<BodyPart> bodyTypes = new List<BodyPart>();
             public List<Genome> genList = new List<Genome>();
+            //public List<(string part, Point localplace, Color color)> genList;
+            //-----------------------------------------------------
+            public bool canDuplicate = false;
+            public bool hungry = true;
             //--------------------------------------------------------------------------------------------------------------
             public List<Point> ignorePoints = new List<Point>();//-------------------------------------------------свое тело
-            public bool hasGenitals = false;//--------------------------------------------------------есть ли половые органы
-            public bool hasMouth = false;//---------------------------------------------------------------------есть ли мозг
-            public bool hasLeg = false;
-            public bool hasBrain = false;
-            public bool hasEye = false;
-            public bool hasFats = false;
-            public bool hasStomach = false;
-            public bool hasMiteHorns = false;
-            public bool hasFilter = false;
             //------------------------------
             public bool move = true;
             public Organism(Point pointIN)//используется для первого запуска или дополнительной генерации организмов.
             {
                 point = pointIN;
                 food = 9000;
-                maxage = 2000;
+                maxage = 4000;
                 age = 0;
 
                 //parameters.childs = 1;
                 //parameters.dublicateAgeMin = maxage / 8;
 
-
-                dublicateAgeMin = maxage / 8;
-                dublicateAgeMax = maxage - maxage / 8;
+                parameters.dublicateAgeMin = maxage / 8;
+                parameters.dublicateAgeMax = maxage - maxage / 8;
                 GenGeneration();
-                dublicateDelayMax = 150 * genList.Count;
-                dublicateDelay = dublicateDelayMax;
-                dublicateFood = 2000 * genList.Count;
-                dublicateFoodPrice = 2000 * genList.Count;
+                parameters.dublicateDelayMax = 150 * genList.Count / 2;
+                parameters.dublicateDelay = parameters.dublicateDelayMax;
+                parameters.dublicateFood = 2300 * genList.Count;
+                parameters.dublicateFoodPrice = parameters.dublicateFood/2;
                 maxfood = 2600 * genList.Count;
-                hungryFoodLVL = maxfood / 2;
+                parameters.hungryFoodLVL = maxfood - 2600;
+                myGenWords = GetGenotype(this).Split(new char[] { '|' });
+                parameters.maxFatigue = rand.Next(70,200);
+                fatigue = rand.Next(0, parameters.maxFatigue);
             }
             public Organism(Point pointIN, Organism parent)
             {
+                parent.food -= parent.parameters.dublicateFoodPrice;
                 point = pointIN;
-                food = parent.food;
+                food = 2000 * genList.Count;
                 maxfood = parent.maxfood;
-                dublicateFood = parent.dublicateFood;
+                parameters.dublicateFood = parent.parameters.dublicateFood;
                 maxage = parent.maxage;
                 age = 0;
-                dublicateDelayMax = parent.dublicateDelayMax;
-                dublicateDelay = dublicateDelayMax;
-                dublicateFoodPrice = parent.dublicateFoodPrice;
-                dublicateAgeMin = parent.dublicateAgeMin;
-                dublicateAgeMax = parent.dublicateAgeMax;
+                parameters.dublicateDelayMax = parent.parameters.dublicateDelayMax;
+                parameters.dublicateDelay = parameters.dublicateDelayMax;
+                parameters.dublicateFoodPrice = parent.parameters.dublicateFoodPrice;
+                parameters.dublicateAgeMin = parent.parameters.dublicateAgeMin;
+                parameters.dublicateAgeMax = parent.parameters.dublicateAgeMax;
+                parameters.maxFatigue = parent.parameters.maxFatigue;
+                parameters.exhaustionLvl = parent.parameters.exhaustionLvl;
+                parameters.hungryFoodLVL = parent.parameters.hungryFoodLVL;
+                fatigue = rand.Next(0, parameters.maxFatigue);
+                radiation = parent.radiation;
                 genList = GenCopyes(parent.genList);
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
-                BodyRemoveRandomPart(genList);
+                //BodyRemoveRandomPart(genList);
                 BodyCreate(genList);
+                myGenWords = GetGenotype(this).Split(new char[] { '|' });
             }
             public Organism(Point pointIN, Organism organismX, Organism organismY) //--------------------------------------------------------Доделать половое размножение
             {
                 point = pointIN;
-
+                food = (organismX.food + organismY.food) / 2;
+                age = 0;
+                parameters.dublicateDelay = parameters.dublicateDelayMax;
+                myGenWords = Crossingover(organismX.myGenWords, organismY.myGenWords);
             }
             public Organism(Point pointIN, string genome)
             {
-                string[] words = genome.Split(new char[] { '|' });
-                if (int.TryParse(words[0], out int id))
+                DecodeGenotype(genome, out myGenWords);
+                point = pointIN;
+                food = 9000;
+                parameters.dublicateFood = maxfood;
+                age = 0;
+
+                BodyCreate(genList);
+
+            }
+            public string[] Crossingover(string[] myGenome, string[] otherGenome)
+            {
+                int myNumber = int.Parse(myGenome[0]);
+                int otherNumber = int.Parse(otherGenome[0]);
+                int biggerInt = myNumber >= otherNumber ? myNumber : otherNumber;
+                int maxString = myGenome.Length >= otherGenome.Length ? myGenome.Length : otherGenome.Length;
+                for (int i = 0; i < biggerInt; i++)
+                {
+                    myGenWords[i] = rand.Next(0, 2) == 1 ? myGenome[i] : otherGenome[i];
+                }
+                for (int i = biggerInt; i < maxString; i++)
+                {
+                    myGenWords[i] = rand.Next(0, 2) == 1 ? myGenome[i] : otherGenome[i];
+                }
+                return myGenWords;
+            }
+            public string GetGenotype(Organism? selected)
+            {
+                string result = "";
+                result += selected.genList.Count + "|";
+                foreach (var item in selected.genList)
+                {
+                    result += item.part + "|"
+                        + item.localplace.X.ToString() + "|"
+                        + item.localplace.Y.ToString() + "|"
+                        + item.color.R.ToString() + "|"
+                        + item.color.G.ToString() + "|"
+                        + item.color.B.ToString() + "|";
+                }
+                result += selected.parameters.dublicateAgeMax.ToString() + "|"
+                    + selected.parameters.dublicateAgeMin.ToString() + "|"
+                    + selected.parameters.dublicateDelayMax.ToString() + "|"
+                    + selected.parameters.dublicateFoodPrice.ToString() + "|"
+                    + selected.parameters.hungryFoodLVL.ToString() + "|"
+                    + selected.parameters.dublicateDelay.ToString() + "|"
+                    + selected.parameters.dublicateFood.ToString() + "|"
+                    + selected.maxage.ToString() + "|"
+                    + selected.maxfood.ToString() + "|"
+                    + selected.parameters.maxFatigue.ToString() + "|";
+                return result;
+            }
+            void DecodeGenotype(string genome, out string[] words)
+            {
+                words = genome.Split(new char[] { '|' });
+                //string asd = genome.Split(new char[] { '|' }).Contains("Mouth") ? "asd": " adsa";//test
+                if (int.TryParse(words[0], out _))
                 {
                     string partt;
                     int localplaceX;
@@ -225,22 +301,58 @@
                         j = i * 6 + 1;
                         i++;
                     }
-                    dublicateAgeMax = int.Parse(words[j]);
-                    dublicateAgeMin = int.Parse(words[j + 1]);
-                    dublicateDelayMax = int.Parse(words[j + 2]);
-                    dublicateFoodPrice = int.Parse(words[j + 3]);
-                    maxage = int.Parse(words[j + 4]);
-                    maxfood = int.Parse(words[j + 5]);
+                    parameters.dublicateAgeMax = int.Parse(words[j]);
+                    parameters.dublicateAgeMin = int.Parse(words[j + 1]);
+                    parameters.dublicateDelayMax = int.Parse(words[j + 2]);
+                    parameters.dublicateFoodPrice = int.Parse(words[j + 3]);
+                    parameters.hungryFoodLVL = int.Parse(words[j + 4]);
+                    parameters.dublicateDelay = int.Parse(words[j + 5]);
+                    parameters.dublicateFood = int.Parse(words[j + 6]);
+                    maxage = int.Parse(words[j + 7]);
+                    maxfood = int.Parse(words[j + 8]);
+                    parameters.maxFatigue = int.Parse(words[j + 9]);
                 }
-
-                point = pointIN;
-                food = 9000;
-                dublicateFood = maxfood;
-                age = 0;
-                dublicateDelay = dublicateDelayMax;
-
-                BodyCreate(genList);
-
+            }
+            
+            /// <summary>
+            /// если генотип различается то false иначе true
+            /// </summary>
+            /// <param name="myGenome"></param>
+            /// <param name="otherGenome"></param>
+            /// <returns></returns>
+            public bool CompireGenotype(string[] myGenome, string[] otherGenome)
+            {
+                int length = myGenome.Length >= otherGenome.Length ? otherGenome.Length : myGenome.Length;
+                int difference = Math.Abs(myGenome.Length - otherGenome.Length);
+                for (int i = 0; i < length; i++)
+                {
+                    difference += myGenome[i] == otherGenome[i] ? 0 : 1;
+                }
+                return difference <= 10;
+            }
+            public bool GetIDdiff(string[] mywords, string[] otherwords)
+            {
+                string myID = mywords[0] + mywords[1];
+                string otherID = otherwords[0] + mywords[1];
+                for (int i = 1; i < int.Parse(mywords[0]); i++)
+                {
+                    myID += mywords[i * 6 + 1];
+                }
+                for (int i = 1; i < int.Parse(otherwords[0]); i++)
+                {
+                    otherID += otherwords[i * 6 + 1];
+                }
+                return myID == otherID;
+            }
+            public string GetID(string[] mywords)
+            {
+                int len = int.Parse(mywords[0]);
+                string myID = mywords[0] + mywords[1];
+                for (int i = 1; i < len; i++)
+                {
+                    myID += mywords[i * 6 + 1];
+                }
+                return myID;
             }
             void FindIgnorePoints()
             {
@@ -250,44 +362,31 @@
                     ignorePoints.Add(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y));
                 }
             }
-            Point Normalizator2()
+            Point Normalizator()
             {
-                List<Point> ignorePoints = new List<Point>();
-                List<Point> accessPoints = new List<Point>();
+                //обходим все наши части тела, выбираем случайную, смотрим пустые места вокруг выбранной части заглядывая в геном организма, запоминаем свободную точку случайную, передаем точку дальше
+                
+                List<Point> points = new List<Point>();//все точки организма
                 foreach (var item in genList)
                 {
-                    ignorePoints.Add(new Point(item.localplace.X, item.localplace.Y));//находим точки которые уже заняты
+                    points.Add(item.localplace);
                 }
-                foreach (var item in genList)
+                Point pp = points[rand.Next(0, points.Count)];//случайная точка вокруг которой пляшем
+                List<Point> p = new List<Point>();
+                for (int x = -1; x <= 1; x++)
                 {
-                    for (int i = -1; i < 1; i++)//обходим диапазон доступный для органа
+                    for (int y = -1; y <= 1; y++)
                     {
-                        for (int j = -1; j < 1; j++)
+                        if(x != 0 && y != 0 && !points.Contains(new Point(pp.X + x, pp.Y + y)))
                         {
-                            if (!accessPoints.Contains(new Point(item.localplace.X + i, item.localplace.Y + j)))//пропускаем занятые точки
-                            {
-                                accessPoints.Add(new Point(item.localplace.X + i, item.localplace.Y + j));//добавляем все доступные места в список
-                            }
+                            p.Add(new Point(pp.X + x, pp.Y + y));
                         }
                     }
                 }
-                List<Point> points = new List<Point>();
-                for (int i = -genList.Count / 2; i <= genList.Count / 2; i++)//обходим диапазон доступный для органа
-                {
-                    for (int j = -genList.Count / 2; j <= genList.Count / 2; j++)
-                    {
-                        if (!ignorePoints.Contains(new Point(i, j)))//пропускаем занятые точки
-                        {
-                            points.Add(new Point(i, j));//добавляем все доступные места в список
-                        }
-                    }
-                }
-                ignorePoints.Clear();
-                Point newP = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(0, 0);
-                return newP;//выбираем случайное место для нового органа
+                return p[rand.Next(0,p.Count)];
             }
 
-            Point Normalizator()
+            Point Normalizator1()
             {
                 List<Point> accessPoints = new List<Point>();
                 foreach (var item in genList)
@@ -309,7 +408,7 @@
             void GenGeneration()
             {
                 List<Point> points = new List<Point>();
-                int times = rand.Next(5, 8);
+                int times = rand.Next(2, 5);
                 while (points.Count != times)
                 {
                     Point point = new Point(rand.Next(-times / 2, times / 2), rand.Next(-times / 2, times / 2));
@@ -322,17 +421,20 @@
                 for (int i = 0; i < points.Count; i++)
                 {
                     Color color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
-                    switch (rand.Next(1, 10))
+                    switch (rand.Next(1, 13))
                     {
-                        case 1: { genList.Add(new Genome { part = "Mouth", localplace = points[i], color = color }); bodyTypes.Add(new Mouth()); hasMouth = true; } break;
-                        case 2: { genList.Add(new Genome { part = "Leg", localplace = points[i], color = color }); bodyTypes.Add(new Leg()); hasLeg = true; } break;
-                        case 3: { genList.Add(new Genome { part = "Eye", localplace = points[i], color = color }); bodyTypes.Add(new Eye()); hasEye = true; } break;
-                        case 4: { genList.Add(new Genome { part = "Brain", localplace = points[i], color = color }); bodyTypes.Add(new Brain()); hasBrain = true; } break;
-                        case 5: { genList.Add(new Genome { part = "Fats", localplace = points[i], color = color }); bodyTypes.Add(new Fats()); hasFats = true; } break;
-                        case 6: { genList.Add(new Genome { part = "Genitals", localplace = points[i], color = color }); bodyTypes.Add(new Genitals()); hasGenitals = true; } break;
-                        case 7: { genList.Add(new Genome { part = "Stomach", localplace = points[i], color = color }); bodyTypes.Add(new Stomach()); hasStomach = true; } break;
-                        case 8: { genList.Add(new Genome { part = "MiteHorns", localplace = points[i], color = color }); bodyTypes.Add(new MiteHorns()); hasMiteHorns = true; } break;
-                        case 9: { genList.Add(new Genome { part = "Filter", localplace = points[i], color = color }); bodyTypes.Add(new Filter()); hasFilter = true; } break;
+                        case 1: { genList.Add(new Genome { part = "Mouth", localplace = points[i], color = color }); bodyTypes.Add(new Mouth()); } break;
+                        case 2: { genList.Add(new Genome { part = "Leg", localplace = points[i], color = color }); bodyTypes.Add(new Leg()); } break;
+                        case 3: { genList.Add(new Genome { part = "Eye", localplace = points[i], color = color }); bodyTypes.Add(new Eye()); } break;
+                        case 4: { genList.Add(new Genome { part = "Brain", localplace = points[i], color = color }); bodyTypes.Add(new Brain()); } break;
+                        case 5: { genList.Add(new Genome { part = "Fats", localplace = points[i], color = color }); bodyTypes.Add(new Fats()); } break;
+                        case 6: { genList.Add(new Genome { part = "Genitals", localplace = points[i], color = color }); bodyTypes.Add(new Genitals()); } break;
+                        case 7: { genList.Add(new Genome { part = "Stomach", localplace = points[i], color = color }); bodyTypes.Add(new Stomach()); } break;
+                        case 8: { genList.Add(new Genome { part = "MiteHorns", localplace = points[i], color = color }); bodyTypes.Add(new MiteHorns()); } break;
+                        case 9: { genList.Add(new Genome { part = "Clues", localplace = points[i], color = color }); bodyTypes.Add(new Clues()); } break;
+                        case 10: { genList.Add(new Genome { part = "Filter", localplace = points[i], color = color }); bodyTypes.Add(new Filter()); } break;
+                        case 11: { genList.Add(new Genome { part = "Claws", localplace = points[i], color = color }); bodyTypes.Add(new Claws()); } break;
+                        case 12: { genList.Add(new Genome { part = "Sensors", localplace = points[i], color = color }); bodyTypes.Add(new Sensors()); } break;
 
                     }
                     bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
@@ -340,12 +442,12 @@
                 }
                 points.Clear();
                 //-----------------Для теста
-                //genList.Add(new Genome { part = "Filter", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); hasStomach = true; bodyTypes.Add(new Filter());
+                //genList.Add(new Genome { part = "Stomach", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); hasStomach = true; bodyTypes.Add(new Stomach());
                 //bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
                 //bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
-                //genList.Add(new Genome { part = "Eye", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); bodyTypes.Add(new Eye());
-                //bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
-                //bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
+                genList.Add(new Genome { part = "Leg", localplace = Normalizator(), color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) }); bodyTypes.Add(new Leg());
+                bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
+                bodyTypes[bodyTypes.Count - 1].color = genList[genList.Count - 1].color;
                 //-----------------
 
             }
@@ -363,45 +465,60 @@
             {
                 //любое число для сравнения обязано быть меньше 100 иначе при уровне радиации 900 результат никогда не будет положительным
                 //Stage 1 some chenges
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 311 - radiation) == 1)
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = Normalizator(), part = genotype[rnd].part, color = genotype[rnd].color };
                 }
-                if (rand.Next(0, 1011 - radiation) < 5 + radiation / 50) //цвет
+                if (rand.Next(0, 311 - radiation) == 2) //цвет
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = genotype[rnd].localplace, part = genotype[rnd].part, color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) };
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 3)
                 {
-                    int rnd = dublicateDelayMax + rand.Next(-radiation / 10, radiation / 10);
-                    dublicateDelayMax = rnd < 50 ? rnd : 50;
+                    int rnd = parameters.dublicateDelayMax + rand.Next(-radiation / 10, radiation / 10);
+                    parameters.dublicateDelayMax = rnd < 50 ? rnd : 50;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 4)
                 {
-                    int rnd = dublicateFood + rand.Next(-300, 300);
-                    dublicateFood = rnd < maxfood && rnd > maxfood / 10 ? rnd : dublicateFood;
+                    int rnd = parameters.dublicateFood + rand.Next(-300, 300);
+                    parameters.dublicateFood = rnd < maxfood && rnd > maxfood / 10 ? rnd : parameters.dublicateFood;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 5)
                 {
                     int rnd = maxage + rand.Next(-300, 300);
                     maxage = rnd > 0 ? rnd : maxage;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 6)
                 {
                     int rnd = maxfood + rand.Next(-300, 300);
-                    maxfood = rnd > dublicateFood ? rnd : 300;
+                    maxfood = rnd > parameters.dublicateFood ? rnd : maxfood;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 7)
                 {
-                    int rnd = dublicateFoodPrice + rand.Next(-300, 300);
-                    dublicateFoodPrice = rnd > 0 ? rnd : 100;
+                    int rnd = parameters.dublicateFoodPrice + rand.Next(-300, 300);
+                    parameters.dublicateFoodPrice = rnd > 0 ? rnd : parameters.dublicateFoodPrice;
                 }
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 50)
+                if (rand.Next(0, 311 - radiation) == 8)
                 {
-                    int rnd = dublicateAgeMin + rand.Next(-300, 300);
-                    dublicateAgeMin = rnd > 0 ? rnd : 100;
+                    int rnd = parameters.dublicateAgeMin + rand.Next(-300, 300);
+                    parameters.dublicateAgeMin = rnd > 0 ? rnd : parameters.dublicateAgeMin;
+                }
+                if (rand.Next(0, 311 - radiation) == 9)
+                {
+                    int rnd = parameters.maxFatigue + rand.Next(-10, 11);
+                    parameters.maxFatigue = rnd > 0 ? rnd : parameters.maxFatigue;
+                }
+                if (rand.Next(0, 311 - radiation) == 10)
+                {
+                    int rnd = parameters.exhaustionLvl + rand.Next(-1, 2);
+                    parameters.exhaustionLvl = rnd > 0 && rnd <= 10 ? rnd : parameters.exhaustionLvl;
+                }
+                if (rand.Next(0, 311 - radiation) == 11)
+                {
+                    int rnd = parameters.hungryFoodLVL + rand.Next(-200, 200);
+                    parameters.hungryFoodLVL = rnd > 0 && rnd <= 500 ? rnd : parameters.hungryFoodLVL;
                 }
 
 
@@ -411,50 +528,26 @@
             void BodyAddRandomPart(List<Genome> genotype)
             {
                 //Stage 2 new parts
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 311 - radiation) == 21)
                 {
-                    switch (rand.Next(1, 10))
-                    {
-                        case 1: genotype.Add(new Genome { localplace = Normalizator(), part = "Mouth", color = genotype[0].color }); hasMouth = true; break;
-                        case 2: genotype.Add(new Genome { localplace = Normalizator(), part = "Leg", color = genotype[0].color }); hasLeg = true; break;
-                        case 3: genotype.Add(new Genome { localplace = Normalizator(), part = "Eye", color = genotype[0].color }); hasEye = true; break;
-                        case 4: genotype.Add(new Genome { localplace = Normalizator(), part = "Brain", color = genotype[0].color }); hasBrain = true; break;
-                        case 5: genotype.Add(new Genome { localplace = Normalizator(), part = "Fats", color = genotype[0].color }); hasFats = true; break;
-                        case 6: genotype.Add(new Genome { localplace = Normalizator(), part = "Genitals", color = genotype[0].color }); hasGenitals = true; break;
-                        case 7: genotype.Add(new Genome { localplace = Normalizator(), part = "Stomach", color = genotype[0].color }); hasStomach = true; break;
-                        case 8: genotype.Add(new Genome { localplace = Normalizator(), part = "MiteHorns", color = genotype[0].color }); hasMiteHorns = true; break;
-                        case 9: genotype.Add(new Genome { localplace = Normalizator(), part = "Filter", color = genotype[0].color }); hasFilter = true; break;
-                    }
+                    genotype.Add(new Genome { localplace = Normalizator(), part = partsNames[rand.Next(0, partsNames.Count)], color = genotype[0].color });
                 }
             }
             void BodyChengeRandomPart(List<Genome> genotype)
             {
                 //Stage 2 new parts
-                if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
+                if (rand.Next(0, 311 - radiation) == 22)
                 {
                     int place = rand.Next(0, genList.Count);
-                    switch (rand.Next(1, 10))
-                    {
-                        case 1: genotype[place] = new Genome { localplace = Normalizator(), part = "Mouth", color = genotype[0].color }; hasMouth = true; break;
-                        case 2: genotype[place] = new Genome { localplace = Normalizator(), part = "Leg", color = genotype[0].color }; hasLeg = true; break;
-                        case 3: genotype[place] = new Genome { localplace = Normalizator(), part = "Eye", color = genotype[0].color }; hasEye = true; break;
-                        case 4: genotype[place] = new Genome { localplace = Normalizator(), part = "Brain", color = genotype[0].color }; hasBrain = true; break;
-                        case 5: genotype[place] = new Genome { localplace = Normalizator(), part = "Fats", color = genotype[0].color }; hasFats = true; break;
-                        case 6: genotype[place] = new Genome { localplace = Normalizator(), part = "Genitals", color = genotype[0].color }; hasGenitals = true; break;
-                        case 7: genotype[place] = new Genome { localplace = Normalizator(), part = "Stomach", color = genotype[0].color }; hasStomach = true; break;
-                        case 8: genotype[place] = new Genome { localplace = Normalizator(), part = "MiteHorns", color = genotype[0].color }; hasMiteHorns = true; break;
-                        case 9: genotype[place] = new Genome { localplace = Normalizator(), part = "Filter", color = genotype[0].color }; hasFilter = true; break;
-                    }
+                    genotype[place] = new Genome { localplace = Normalizator(), part = partsNames[rand.Next(0, partsNames.Count)], color = genotype[place].color };
                 }
             }
-            void BodyRemoveRandomPart(List<Genome> genotype)
+            void BodyRemoveRandomPart(List<Genome> genotype)//доработать тут(проблема что часть тела может быть убрана но к ней будут "прикреплены" другие и образуется дырка)
             {
-                //Stage 2 new parts
                 if (rand.Next(0, 1011 - radiation) < 3 + radiation / 100)
                 {
                     int place = rand.Next(0, genList.Count);
                     genotype.Remove(genotype[place]);
-
                 }
             }
             void BodyCreate(List<Genome> genList)
@@ -517,6 +610,24 @@
                             globalplace = point,
                             color = genList[i].color
                         },
+                        "Clues" => new Clues
+                        {
+                            localplace = genList[i].localplace,
+                            globalplace = point,
+                            color = genList[i].color
+                        },
+                        "Claws" => new Claws
+                        {
+                            localplace = genList[i].localplace,
+                            globalplace = point,
+                            color = genList[i].color
+                        },
+                        "Sensors" => new Sensors
+                        {
+                            localplace = genList[i].localplace,
+                            globalplace = point,
+                            color = genList[i].color
+                        },
                         _ => new Fats
                         {
                             localplace = genList[i].localplace,
@@ -525,19 +636,24 @@
                         },
                     };
                     bodyTypes.Add(bodyPart);
+                    
                 }
             }
             public new void Draw(Bitmap bmp)
             {
                 Normalize(bmp);
-                Cleary(bmp);
+                foreach (var item in bodyTypes)//Clean
+                {
+                    Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
+                    p = BorderChecker(p, bmp);
+                    bmp.SetPixel(p.X, p.Y, Color.Empty);
+                }
                 foreach (var item in bodyTypes)//Draw
                 {
                     Point p = new Point(point.X + item.localplace.X, point.Y + item.localplace.Y);
                     p = BorderChecker(p, bmp);
                     bmp.SetPixel(p.X, p.Y, item.color);
                 }
-
             }
             public void Cleary(Bitmap bmp)
             {
@@ -548,30 +664,45 @@
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                 }
             }
-
-            public void DoworkPrepare(Bitmap bmp, Controller controllerIN)//берет движение от части тела, берет все другие действия от других частей тела
+            public void DoworkPrepare(Bitmap bmp, Controller controllerIN)
             {
                 controller ??= controllerIN;
                 radiation = controller.radiationLVL;
                 lastPoint = point;
+                Cleary(bmp);
+                //TurnRL2();
                 EyeSignal.Clear();
+                SenseSignal.Clear();
                 FindIgnorePoints();
+
                 foreach (var part in bodyTypes)
                 {
-                    food -= part.energyCost;
+                    pooopas += part.energyCost;
                     part.lastGlobalplace = new Point(lastPoint.X + part.localplace.X, lastPoint.Y + part.localplace.Y);
                     part.Dosomething(this, bmp);
+                    food -= part.energyCost;//--------------------------------------------------------------------------------------сделать отсутствие потребления если часть тела не работала
                     part.globalplace = point;
+                    Cleary(bmp);
                 }
-                point = newPoint;
+                point = newPoint != new Point(0, 0) ? newPoint : point; //----------------------------------------------------------фикс появления в углу экрана
                 canDuplicate = Duplicate();
                 age++;//старение
+                PoopasAdd();
+
+            }
+            void PoopasAdd()
+            {
+                if (pooopas >= 1000)
+                {
+                    pooopas -= 1000;
+                    if (!controller.infectionLVL.ContainsKey(point)) { controller.infectionLVL.Add(point, 500); } else { controller.infectionLVL[point] += 500; }
+                }
             }
 
             public bool Duplicate()
             {
-                dublicateDelay = dublicateDelay < dublicateDelayMax ? dublicateDelay + 1 : dublicateDelay;
-                return dublicateDelay == dublicateDelayMax && age < dublicateAgeMax && dublicateAgeMin < age ? true : false;
+                parameters.dublicateDelay = parameters.dublicateDelay < parameters.dublicateDelayMax ? parameters.dublicateDelay + 1 : parameters.dublicateDelay;
+                return parameters.dublicateDelay == parameters.dublicateDelayMax && age < parameters.dublicateAgeMax && parameters.dublicateAgeMin < age ? true : false;
             }
         }
 
