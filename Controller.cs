@@ -10,10 +10,17 @@ namespace MicroLife_Simulator
             public List<Grass> grassListTEMP = new List<Grass>();
             public List<Grass> grassListTORemove = new List<Grass>();
             public Dictionary<Point, Grass> grassDictionary = new Dictionary<Point, Grass>();
+            //---------------------------------------------------------------------------------------------------
             public List<Organism> cellsList = new List<Organism>();
             public List<Organism> cellsListTEMP = new List<Organism>();
             public List<Organism> cellsListTORemove = new List<Organism>();
             public Dictionary<Point, Organism> cellDictionary = new Dictionary<Point, Organism>();
+            //---------------------------------------------------------------------------------------------------
+            public List<Egg> eggList = new List<Egg>();
+            public List<Egg> eggListTEMP = new List<Egg>();
+            public List<Egg> eggListTORemove = new List<Egg>();
+            public Dictionary<Point, Egg> eggDictionary = new Dictionary<Point, Egg>();
+            //---------------------------------------------------------------------------------------------------
             public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
             public List<Point> obstacles = new List<Point>();
             public int sunLVL;
@@ -88,6 +95,7 @@ namespace MicroLife_Simulator
                 DrawInfection(bmp);
                 foreach (Grass grass in grassList) { grass.Draw(bmp); }
                 foreach (Organism cell in cellsList) { cell.Draw(bmp); }
+                foreach (Egg egg in eggList) { egg.Draw(bmp); }
             }
             List<Point> points = new List<Point>();
             void DrawInfection(Bitmap bmp)
@@ -143,6 +151,7 @@ namespace MicroLife_Simulator
                         for (int j = 0; j < bmp.Height; j++)
                         {
                             bmp.SetPixel(i, j, selectedObject.bodyTypes[comboBox.SelectedIndex].color);
+                            
                         }
                     }
 
@@ -185,7 +194,6 @@ namespace MicroLife_Simulator
                     selectedObject = null;
                     selectedPoint = new Point(-1, -1);
                 }
-                
                 ComboBoxUpdate(selectedObject);
             }
             

@@ -49,6 +49,8 @@
             label15 = new Label();
             pictureBox2 = new PictureBox();
             groupBox3 = new GroupBox();
+            trackBar3 = new TrackBar();
+            AutoKill = new CheckBox();
             groupBox8 = new GroupBox();
             trackBar5 = new TrackBar();
             trackBar4 = new TrackBar();
@@ -106,6 +108,7 @@
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar3).BeginInit();
             groupBox8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBar4).BeginInit();
@@ -309,7 +312,7 @@
             // label16
             // 
             label16.AutoSize = true;
-            label16.Location = new Point(82, 313);
+            label16.Location = new Point(82, 340);
             label16.Name = "label16";
             label16.Size = new Size(55, 15);
             label16.TabIndex = 14;
@@ -320,7 +323,7 @@
             label15.AutoSize = true;
             label15.BackColor = Color.Black;
             label15.ForeColor = SystemColors.ButtonFace;
-            label15.Location = new Point(6, 479);
+            label15.Location = new Point(6, 506);
             label15.Name = "label15";
             label15.Size = new Size(57, 15);
             label15.TabIndex = 13;
@@ -329,7 +332,7 @@
             // pictureBox2
             // 
             pictureBox2.BackColor = Color.Black;
-            pictureBox2.Location = new Point(6, 331);
+            pictureBox2.Location = new Point(6, 358);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(216, 163);
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -339,7 +342,11 @@
             // 
             // groupBox3
             // 
+            groupBox3.Controls.Add(trackBar3);
+            groupBox3.Controls.Add(AutoKill);
+            groupBox3.Controls.Add(label21);
             groupBox3.Controls.Add(groupBox8);
+            groupBox3.Controls.Add(label20);
             groupBox3.Controls.Add(label5);
             groupBox3.Controls.Add(textBox2);
             groupBox3.Controls.Add(OrgLimit_CB);
@@ -348,10 +355,39 @@
             groupBox3.Controls.Add(button2);
             groupBox3.Location = new Point(6, 136);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(216, 114);
+            groupBox3.Size = new Size(216, 134);
             groupBox3.TabIndex = 10;
             groupBox3.TabStop = false;
             groupBox3.Text = "Organisms Control";
+            // 
+            // trackBar3
+            // 
+            trackBar3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            trackBar3.AutoSize = false;
+            trackBar3.LargeChange = 10;
+            trackBar3.Location = new Point(75, 83);
+            trackBar3.Maximum = 100;
+            trackBar3.Minimum = 10;
+            trackBar3.Name = "trackBar3";
+            trackBar3.Size = new Size(70, 25);
+            trackBar3.SmallChange = 1000;
+            trackBar3.TabIndex = 20;
+            trackBar3.TickFrequency = 0;
+            trackBar3.TickStyle = TickStyle.TopLeft;
+            trackBar3.Value = 100;
+            trackBar3.Scroll += trackBar3_Scroll;
+            // 
+            // AutoKill
+            // 
+            AutoKill.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            AutoKill.AutoSize = true;
+            AutoKill.Location = new Point(77, 109);
+            AutoKill.Name = "AutoKill";
+            AutoKill.Size = new Size(68, 19);
+            AutoKill.TabIndex = 19;
+            AutoKill.Text = "AutoKill";
+            AutoKill.UseVisualStyleBackColor = true;
+            AutoKill.CheckedChanged += AutoKill_CheckedChanged;
             // 
             // groupBox8
             // 
@@ -359,9 +395,9 @@
             groupBox8.Controls.Add(trackBar4);
             groupBox8.Controls.Add(label17);
             groupBox8.Font = new Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point);
-            groupBox8.Location = new Point(150, 10);
+            groupBox8.Location = new Point(145, 10);
             groupBox8.Name = "groupBox8";
-            groupBox8.Size = new Size(60, 98);
+            groupBox8.Size = new Size(65, 118);
             groupBox8.TabIndex = 18;
             groupBox8.TabStop = false;
             groupBox8.Text = "Radiation";
@@ -371,12 +407,12 @@
             trackBar5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar5.AutoSize = false;
             trackBar5.LargeChange = 10;
-            trackBar5.Location = new Point(29, 15);
+            trackBar5.Location = new Point(34, 15);
             trackBar5.Maximum = 200;
             trackBar5.Minimum = 1;
             trackBar5.Name = "trackBar5";
             trackBar5.Orientation = Orientation.Vertical;
-            trackBar5.Size = new Size(25, 77);
+            trackBar5.Size = new Size(25, 97);
             trackBar5.SmallChange = 10;
             trackBar5.TabIndex = 14;
             trackBar5.TickFrequency = 3;
@@ -388,7 +424,7 @@
             // 
             trackBar4.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar4.AutoSize = false;
-            trackBar4.Location = new Point(-111, 13);
+            trackBar4.Location = new Point(-106, 13);
             trackBar4.Maximum = 50;
             trackBar4.Minimum = 1;
             trackBar4.Name = "trackBar4";
@@ -414,7 +450,7 @@
             // 
             label5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label5.AutoSize = true;
-            label5.Location = new Point(45, 19);
+            label5.Location = new Point(91, 19);
             label5.Name = "label5";
             label5.Size = new Size(34, 15);
             label5.TabIndex = 17;
@@ -425,11 +461,11 @@
             textBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             textBox2.AutoCompleteCustomSource.AddRange(new string[] { "10000" });
             textBox2.BorderStyle = BorderStyle.None;
-            textBox2.Location = new Point(6, 19);
+            textBox2.Location = new Point(76, 34);
             textBox2.MaxLength = 4;
             textBox2.Name = "textBox2";
             textBox2.PlaceholderText = "MaxGrass";
-            textBox2.Size = new Size(33, 16);
+            textBox2.Size = new Size(62, 16);
             textBox2.TabIndex = 16;
             textBox2.TabStop = false;
             textBox2.Text = "2000";
@@ -442,7 +478,7 @@
             // 
             OrgLimit_CB.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             OrgLimit_CB.AutoSize = true;
-            OrgLimit_CB.Location = new Point(81, 16);
+            OrgLimit_CB.Location = new Point(6, 109);
             OrgLimit_CB.Name = "OrgLimit_CB";
             OrgLimit_CB.Size = new Size(69, 19);
             OrgLimit_CB.TabIndex = 15;
@@ -454,7 +490,7 @@
             // 
             label7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label7.AutoSize = true;
-            label7.Location = new Point(45, 38);
+            label7.Location = new Point(6, 19);
             label7.Name = "label7";
             label7.Size = new Size(65, 15);
             label7.TabIndex = 12;
@@ -464,7 +500,7 @@
             // 
             label8.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label8.AutoSize = true;
-            label8.Location = new Point(6, 38);
+            label8.Location = new Point(25, 35);
             label8.Name = "label8";
             label8.Size = new Size(19, 15);
             label8.TabIndex = 11;
@@ -473,9 +509,9 @@
             // button2
             // 
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button2.Location = new Point(6, 84);
+            button2.Location = new Point(77, 63);
             button2.Name = "button2";
-            button2.Size = new Size(57, 24);
+            button2.Size = new Size(62, 21);
             button2.TabIndex = 3;
             button2.Text = "Kill Half";
             button2.UseVisualStyleBackColor = true;
@@ -489,7 +525,7 @@
             groupBox2.Controls.Add(label12);
             groupBox2.Controls.Add(checkBox1);
             groupBox2.Controls.Add(trackBar1);
-            groupBox2.Location = new Point(6, 252);
+            groupBox2.Location = new Point(6, 276);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(216, 61);
             groupBox2.TabIndex = 9;
@@ -780,8 +816,6 @@
             // 
             groupBox7.Controls.Add(button10);
             groupBox7.Controls.Add(button9);
-            groupBox7.Controls.Add(label21);
-            groupBox7.Controls.Add(label20);
             groupBox7.Location = new Point(1110, 535);
             groupBox7.Name = "groupBox7";
             groupBox7.Size = new Size(228, 85);
@@ -811,20 +845,20 @@
             // label21
             // 
             label21.AutoSize = true;
-            label21.Location = new Point(6, 34);
+            label21.Location = new Point(30, 74);
             label21.Name = "label21";
-            label21.Size = new Size(44, 15);
+            label21.Size = new Size(13, 15);
             label21.TabIndex = 1;
-            label21.Text = "label21";
+            label21.Text = "0";
             // 
             // label20
             // 
             label20.AutoSize = true;
-            label20.Location = new Point(6, 19);
+            label20.Location = new Point(10, 50);
             label20.Name = "label20";
-            label20.Size = new Size(44, 15);
+            label20.Size = new Size(63, 15);
             label20.TabIndex = 0;
-            label20.Text = "label20";
+            label20.Text = "Egg Count";
             // 
             // panel2
             // 
@@ -875,6 +909,7 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             pictureBox1.MouseClick += pictureBox1_MouseClick;
+            pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
             pictureBox1.MouseWheel += pictureBox1_MouseWheel;
             // 
             // Form1
@@ -906,6 +941,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trackBar3).EndInit();
             groupBox8.ResumeLayout(false);
             groupBox8.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar5).EndInit();
@@ -921,7 +957,6 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             groupBox7.ResumeLayout(false);
-            groupBox7.PerformLayout();
             panel2.ResumeLayout(false);
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
@@ -998,5 +1033,7 @@
         private ProgressBar progressBar1;
         private Button button10;
         private Button button9;
+        private CheckBox AutoKill;
+        private TrackBar trackBar3;
     }
 }
