@@ -21,8 +21,9 @@ namespace MicroLife_Simulator
             public List<Egg> eggListTORemove = new List<Egg>();
             public Dictionary<Point, Egg> eggDictionary = new Dictionary<Point, Egg>();
             //---------------------------------------------------------------------------------------------------
+            public List<Obstacles> obstaclesList = new List<Obstacles>();
             public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
-            public List<Point> obstacles = new List<Point>();
+            //public List<Point> obstacles = new List<Point>();
             public int sunLVL;
             public int radiationLVL;
             public Bitmap? bmpOrganColor;
@@ -41,9 +42,25 @@ namespace MicroLife_Simulator
                 radiationLVL = radiation;
             }
 
-            public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells)
+            public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells, int obstacles, int infection)
             {
                 Point point;
+                for (int i = 0; i < obstacles; i++)
+                {
+                    Point[] p = new Point[2];
+                    p[0] = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    p[1] = new Point(p[0].X + rand.Next(10, 30), p[0].Y + rand.Next(10, 30));
+                    obstaclesList.Add(new Obstacles(p[0], p[1], bmp));
+                }
+                int times = 0;
+                while (times < infection)
+                {
+                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    if (infectionLVL.ContainsKey(point)) { infectionLVL[point] += 500; }
+                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
+                    if (!infectionLVL.ContainsKey(point)) { infectionLVL.Add(point, 2000); }
+                    times++;
+                }
                 while (grassList.Count < grass)
                 {
                     point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
@@ -60,11 +77,6 @@ namespace MicroLife_Simulator
                     cellsList.Add(new Organism(point));
                 }
 
-                for (int i = 0; i < 5000; i++)
-                {
-                    point = new Point(rand.Next(pictureBox1.Width), rand.Next(pictureBox1.Height));
-                    if (!infectionLVL.ContainsKey(point)) { infectionLVL.Add(point, 2000); }
-                }
             }
             public void CreateGrass(Bitmap bmp, Random rand, int grass)
             {
@@ -80,22 +92,14 @@ namespace MicroLife_Simulator
                 }
                 
             }
-            public void CreateOsticles(Bitmap bmp)
-            {
-                for (int i = bmp.Width / 2 - 30; i < bmp.Width / 2 + 30; i++)
-                {
-                    for (int j = 0; j < bmp.Height; j++)
-                    {
-                        obstacles.Add(new Point(i, j));
-                    }
-                }
-            }
             public void Draw(Bitmap bmp)
             {
                 DrawInfection(bmp);
+                foreach (Obstacles obstacles in obstaclesList) { obstacles.Draw(bmp); }
                 foreach (Grass grass in grassList) { grass.Draw(bmp); }
                 foreach (Organism cell in cellsList) { cell.Draw(bmp); }
                 foreach (Egg egg in eggList) { egg.Draw(bmp); }
+                
             }
             List<Point> points = new List<Point>();
             void DrawInfection(Bitmap bmp)

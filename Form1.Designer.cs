@@ -51,10 +51,12 @@
             groupBox3 = new GroupBox();
             trackBar3 = new TrackBar();
             AutoKill = new CheckBox();
+            label21 = new Label();
             groupBox8 = new GroupBox();
             trackBar5 = new TrackBar();
             trackBar4 = new TrackBar();
             label17 = new Label();
+            label20 = new Label();
             label5 = new Label();
             textBox2 = new TextBox();
             OrgLimit_CB = new CheckBox();
@@ -92,13 +94,12 @@
             groupBox7 = new GroupBox();
             button10 = new Button();
             button9 = new Button();
-            label21 = new Label();
-            label20 = new Label();
             panel2 = new Panel();
             panel4 = new Panel();
             button6 = new Button();
             textBox3 = new TextBox();
             pictureBox1 = new PictureBox();
+            checkBox2 = new CheckBox();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -179,6 +180,7 @@
             // GrassBox
             // 
             GrassBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            GrassBox.Controls.Add(checkBox2);
             GrassBox.Controls.Add(button8);
             GrassBox.Controls.Add(groupBox5);
             GrassBox.Controls.Add(groupBox4);
@@ -281,7 +283,7 @@
             trackBar2.TabIndex = 11;
             trackBar2.TickFrequency = 3;
             trackBar2.TickStyle = TickStyle.TopLeft;
-            trackBar2.Value = 10;
+            trackBar2.Value = 3;
             trackBar2.Scroll += trackBar2_Scroll;
             // 
             // label14
@@ -290,9 +292,9 @@
             label14.AutoSize = true;
             label14.Location = new Point(6, 19);
             label14.Name = "label14";
-            label14.Size = new Size(19, 15);
+            label14.Size = new Size(13, 15);
             label14.TabIndex = 13;
-            label14.Text = "30";
+            label14.Text = "3";
             // 
             // groupBox1
             // 
@@ -389,6 +391,15 @@
             AutoKill.UseVisualStyleBackColor = true;
             AutoKill.CheckedChanged += AutoKill_CheckedChanged;
             // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(30, 74);
+            label21.Name = "label21";
+            label21.Size = new Size(13, 15);
+            label21.TabIndex = 1;
+            label21.Text = "0";
+            // 
             // groupBox8
             // 
             groupBox8.Controls.Add(trackBar5);
@@ -445,6 +456,15 @@
             label17.Size = new Size(19, 15);
             label17.TabIndex = 13;
             label17.Text = "10";
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(10, 50);
+            label20.Name = "label20";
+            label20.Size = new Size(63, 15);
+            label20.TabIndex = 0;
+            label20.Text = "Egg Count";
             // 
             // label5
             // 
@@ -842,24 +862,6 @@
             button9.UseVisualStyleBackColor = true;
             button9.Click += button9_Click;
             // 
-            // label21
-            // 
-            label21.AutoSize = true;
-            label21.Location = new Point(30, 74);
-            label21.Name = "label21";
-            label21.Size = new Size(13, 15);
-            label21.TabIndex = 1;
-            label21.Text = "0";
-            // 
-            // label20
-            // 
-            label20.AutoSize = true;
-            label20.Location = new Point(10, 50);
-            label20.Name = "label20";
-            label20.Size = new Size(63, 15);
-            label20.TabIndex = 0;
-            label20.Text = "Egg Count";
-            // 
             // panel2
             // 
             panel2.Controls.Add(panel4);
@@ -912,6 +914,17 @@
             pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
             pictureBox1.MouseWheel += pictureBox1_MouseWheel;
             // 
+            // checkBox2
+            // 
+            checkBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(69, 95);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(81, 19);
+            checkBox2.TabIndex = 20;
+            checkBox2.Text = "Day/Night";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -929,6 +942,7 @@
             Name = "Form1";
             Text = "MicroLife simulator";
             GrassBox.ResumeLayout(false);
+            GrassBox.PerformLayout();
             groupBox5.ResumeLayout(false);
             groupBox5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).EndInit();
@@ -1035,5 +1049,6 @@
         private Button button9;
         private CheckBox AutoKill;
         private TrackBar trackBar3;
+        private CheckBox checkBox2;
     }
 }

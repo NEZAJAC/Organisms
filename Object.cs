@@ -5,6 +5,36 @@ namespace MicroLife_Simulator
 {
     public partial class Form1
     {
+        class Obstacles : Object
+        {
+            Point point1;
+            Point point2;
+            int difX = 0;
+            int difY = 0;
+            List<Point> myPoints = new List<Point>();
+            public Obstacles(Point point1, Point point2, Bitmap bmp)
+            {
+                this.point1 = point1;
+                this.point2 = point2;
+                difX = point2.X - point1.X;
+                difY = point2.Y - point1.Y;
+                pen = new Pen(Color.Brown);
+                for (int i = point1.X; i < point2.X; i++)
+                {
+                    for (int j = point1.Y; j < point2.Y; j++)
+                    {
+                        myPoints.Add(BorderChecker(new Point(i, j), bmp));
+                    }
+                }
+             }
+            public new void Draw(Bitmap bmp)
+            {
+                foreach (var item in myPoints)
+                {
+                    bmp.SetPixel(item.X, item.Y, pen.Color);
+                }   
+            }
+        }
         abstract class Object
         {
             public int food;
@@ -123,6 +153,7 @@ namespace MicroLife_Simulator
         }
         class Egg : Object
         {
+            Controller controller;
             public Guid myGuid;
             public string ID1 = "";
             public string ID2 = "";
@@ -146,7 +177,7 @@ namespace MicroLife_Simulator
                 ID1 = organism.GetID(organism.myGenWords);
                 myGuid = organism.myGuid;
                 //------------------------------------------
-                
+                controller = organism.controller;//доделать
             }
             List<Genome> GenCopyes(List<Genome> genomes)
             {
@@ -184,11 +215,12 @@ namespace MicroLife_Simulator
             public Point lastPoint = new Point();
             public List<Point> ignorePoints = new List<Point>();//-------------------------------------------------свое тело
             public int HungrySignal;//---------------------------------------------------------------------------------гoлод
-            public Dictionary<Point, Color> EyeSignal = new Dictionary<Point, Color>();//------------------------------глаза
+            public List<Point> EyeSignal = new List<Point>();//------------------------------глаза
+            public List<Point> LegSignal = new List<Point>();
             public Dictionary<Point, Color> SenseSignal = new Dictionary<Point, Color>();//--------------------------сенсоры
             public int bodyTemperatureSignal;       //------------------------------------------------------температура тела
             public int WithoutDublicateSignal = 0; //---------------------------------------------------задержка размножения
-            public Point ToLegSignal = new Point();//-----------------------------------------------------точка для движения
+            public Point? ToLegSignal = new Point();//-----------------------------------------------------точка для движения
             public Point ToMouthSignal = new Point();//--------------------------------------------------------цель поедания
 
             List<string> partsNames = new List<string>()
@@ -239,7 +271,7 @@ namespace MicroLife_Simulator
                 myGenWords = GetGenotype(this).Split(new char[] { '|' });
                 parameters.maxFatigue = rand.Next(70,200);
                 fatigue = rand.Next(0, parameters.maxFatigue);
-                parameters.exhaustionLvl = 5;
+                parameters.exhaustionLvl = rand.Next(1,20);
                 myGuid = Guid.NewGuid();
             }
             public Organism(Point pointIN, Organism parent)
@@ -254,7 +286,7 @@ namespace MicroLife_Simulator
                 parameters = parent.parameters;
                 fatigue = rand.Next(0, parameters.maxFatigue);
                 radiation = parent.radiation;
-                genList = GenCopyes(parent.genList);
+                GenCopyes(genList,parent.genList);
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
@@ -272,7 +304,7 @@ namespace MicroLife_Simulator
                 myGenWords = Crossingover(organismX.myGenWords, organismY.myGenWords);
                 myGuid = Guid.NewGuid();
             }
-            public Organism(Point pointIN, OrganismParameters parameter1, List<Genome> genomes1, OrganismParameters parameter2, List<Genome> genomes2)
+            public Organism(Point pointIN, OrganismParameters parameter1, List<Genome> genomes1, OrganismParameters parameter2, List<Genome> genomes2)//-------яйцевое размножение
             {
                 point = pointIN;
                 food = 1500 * genomes1.Count;
@@ -280,25 +312,27 @@ namespace MicroLife_Simulator
                 
                 myGuid = Guid.NewGuid();
                 this.parameters = parameter1;
-                this.genList = GenCopyes(genomes1);
+                GenCopyes(genList,genomes1);
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
                 myGenWords = GetGenotype(this).Split(new char[] { '|' });
                 this.parameters = parameter2;
-                this.genList = GenCopyes(genomes2);
+                genList.Clear();
+                GenCopyes(genList,genomes2);
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
                 string[] myGenWords2 = GetGenotype(this).Split(new char[] { '|' });
                 myGenWords = Crossingover(myGenWords, myGenWords2);
                 myGenWords2 = new string[0];
+                genList.Clear();
                 DecodeGenotype(TranslateGenotype(myGenWords), out _);
                 BodyCreate(genList);
                 maxfood = parameters.maxFood;
                 
             }
-            public Organism(Point pointIN, string genome)
+            public Organism(Point pointIN, string genome)//--------------------------------------------------------------------------------------------------искуственное размножение
             {
                 DecodeGenotype(genome, out myGenWords);
                 point = pointIN;
@@ -487,7 +521,7 @@ namespace MicroLife_Simulator
                     {
                         case 1: { genList.Add(new Genome { part = "Mouth", localplace = points[i], color = color }); bodyTypes.Add(new Mouth()); } break;
                         case 2: { genList.Add(new Genome { part = "Leg", localplace = points[i], color = color }); bodyTypes.Add(new Leg()); } break;
-                        case 3: { genList.Add(new Genome { part = "Eye", localplace = points[i], color = color, image = Image.FromFile("Eye.bmp") }); bodyTypes.Add(new Eye()); } break;
+                        case 3: { genList.Add(new Genome { part = "Eye", localplace = points[i], color = color }); bodyTypes.Add(new Eye()); } break;
                         case 4: { genList.Add(new Genome { part = "Brain", localplace = points[i], color = color }); bodyTypes.Add(new Brain()); } break;
                         case 5: { genList.Add(new Genome { part = "Fats", localplace = points[i], color = color }); bodyTypes.Add(new Fats()); } break;
                         case 6: { genList.Add(new Genome { part = "Genitals", localplace = points[i], color = color }); bodyTypes.Add(new Genitals()); } break;
@@ -515,90 +549,89 @@ namespace MicroLife_Simulator
 
             }
 
-            public List<Genome> GenCopyes(List<Genome> genomes)
+            public List<Genome> GenCopyes(List<Genome> meGens, List<Genome> genomes)
             {
-                List<Genome> copy = new List<Genome>();
                 for (int i = 0; i < genomes.Count; i++)
                 {
-                    copy.Add(new Genome { part = genomes[i].part, localplace = genomes[i].localplace, color = genomes[i].color });
+                    meGens.Add(new Genome { part = genomes[i].part, localplace = genomes[i].localplace, color = genomes[i].color });
                 }
-                return copy;
+                return meGens;
             }
             void GenMutation(List<Genome> genotype)
             {
                 //любое число для сравнения обязано быть меньше 100 иначе при уровне радиации 200 результат никогда не будет положительным
                 //Stage 1 some chenges
-                int chance = rand.Next(0, 311 - radiation);
+                int chance = rand.Next(0, 212 - radiation);
                 //1
                 if (chance == 1)
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = Normalizator(), part = genotype[rnd].part, color = genotype[rnd].color };
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //2
                 if (chance == 2) //цвет
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = genotype[rnd].localplace, part = genotype[rnd].part, color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) };
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //3
                 if (chance == 3)
                 {
                     int rnd = parameters.dublicateDelayMax + rand.Next(-radiation / 10, radiation / 10);
                     parameters.dublicateDelayMax = rnd < 50 ? rnd : 50;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //4
                 if (chance == 4)
                 {
                     int rnd = parameters.dublicateFood + rand.Next(-300, 300);
                     parameters.dublicateFood = rnd < parameters.maxFood && rnd > parameters.maxFood / 10 ? rnd : parameters.dublicateFood;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //5
                 if (chance == 5)
                 {
                     int rnd = parameters.maxage + rand.Next(-300, 300);
                     parameters.maxage = rnd > 0 ? rnd : parameters.maxage;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //6
                 if (chance == 6)
                 {
                     int rnd = parameters.maxFood + rand.Next(-300, 300);
                     parameters.maxFood = rnd > parameters.dublicateFood ? rnd : parameters.maxFood;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //7
                 if (chance == 7)
                 {
                     int rnd = parameters.dublicateFoodPrice + rand.Next(-300, 300);
                     parameters.dublicateFoodPrice = rnd > 0 ? rnd : parameters.dublicateFoodPrice;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //8
                 if (chance == 8)
                 {
                     int rnd = parameters.dublicateAgeMin + rand.Next(-300, 300);
                     parameters.dublicateAgeMin = rnd > 0 ? rnd : parameters.dublicateAgeMin;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //9
                 if (chance == 9)
                 {
                     int rnd = parameters.maxFatigue + rand.Next(-10, 11);
                     parameters.maxFatigue = rnd > 0 ? rnd : parameters.maxFatigue;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //10
                 if (chance == 10)
                 {
                     int rnd = parameters.exhaustionLvl + rand.Next(-1, 2);
                     parameters.exhaustionLvl = rnd > 0 && rnd <= 10 ? rnd : parameters.exhaustionLvl;
                 }
-                chance = rand.Next(0, 311 - radiation);
+                chance = rand.Next(0, 212 - radiation);
                 //11
                 if (chance == 11)
                 {
@@ -613,7 +646,7 @@ namespace MicroLife_Simulator
             void BodyAddRandomPart(List<Genome> genotype)
             {
                 //Stage 2 new parts
-                if (rand.Next(0, 311 - radiation) == 21)
+                if (rand.Next(0, 222 - radiation) == 21)
                 {
                     genotype.Add(new Genome { localplace = Normalizator(), part = partsNames[rand.Next(0, partsNames.Count)], color = genotype[0].color });
                 }
@@ -621,7 +654,7 @@ namespace MicroLife_Simulator
             void BodyChengeRandomPart(List<Genome> genotype)
             {
                 //Stage 2 new parts
-                if (rand.Next(0, 311 - radiation) == 22)
+                if (rand.Next(0, 223 - radiation) == 22)
                 {
                     int place = rand.Next(0, genList.Count);
                     genotype[place] = new Genome { localplace = Normalizator(), part = partsNames[rand.Next(0, partsNames.Count)], color = genotype[place].color };
@@ -762,9 +795,8 @@ namespace MicroLife_Simulator
                 radiation = controller.radiationLVL;
                 lastPoint = point;
                 Cleary(bmp);
-                //TurnRL2();
-                EyeSignal.Clear();
                 SenseSignal.Clear();
+                //LegSignal.Clear();
                 FindIgnorePoints();
                 canDuplicate = Duplicate();
 
@@ -777,6 +809,7 @@ namespace MicroLife_Simulator
                     part.globalplace = point;
                     Cleary(bmp);
                 }
+                
                 point = newPoint != new Point(0, 0) ? newPoint : point; //----------------------------------------------------------фикс появления в углу экрана
                 age++;//старение
                 PoopasAdd();
@@ -800,5 +833,10 @@ namespace MicroLife_Simulator
             }
         }
 
+        class Virus:Object
+        {
+
+        }
     }
+
 }

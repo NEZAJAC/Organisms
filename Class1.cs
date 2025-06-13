@@ -32,8 +32,9 @@ namespace MicroLife_Simulator
             MAXgrass = int.Parse(label24.Text);
             MAXorganis = int.Parse(textBox2.Lines[0]);
             //------------------------
-            controller.CreateLive(bmp, rand, pictureBox1, 100, 100);
-            controller.CreateOsticles(bmp);
+            controller.CreateLive(bmp, rand, pictureBox1, 100, 100, 0, 500);
+            
+            
             controller.comboBox = comboBox1;
             controller.listBox = listBox1;
             controller.bmpOrganColor = bmpOrgansColor;
@@ -214,7 +215,7 @@ namespace MicroLife_Simulator
                     }
                     else if(egg.age >= 3900 && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis)
                     {
-                        label20.Text = egg.myGuid.ToString();
+                        //label20.Text = egg.myGuid.ToString();
                         controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent1, egg.genListParent1));
                         controller.eggListTORemove.Add(egg);
                     }
@@ -245,16 +246,6 @@ namespace MicroLife_Simulator
 			}
 
 		}
-        void TESTobstaclesDraw(Bitmap bmp)
-        {
-            //------------------------------------------------------------------------------------------------рисую тут тестовые заграждения
-            //controller = 
-            foreach (var item in controller.obstacles)
-            {
-                bmp.SetPixel(item.X, item.Y, Color.Aqua);
-            }
-
-        }
         class ZoneType
         {
             Pen pen = new Pen(Color.Red);

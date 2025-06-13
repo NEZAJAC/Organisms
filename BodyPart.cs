@@ -242,59 +242,28 @@ namespace MicroLife_Simulator
         {
             public int brainLessDelay = 0;
             public int brainLessDelayMax = 100;
-
             int randoms;
             string? side;
-
-            enum Tasks { Move, Eat, Duplicate, TemperatureSafe }
-            //мозг решает куда он хочет идти сейчас, дает указ ногам, ноги проверяют доступные места куда могут пойти, если есть совпаения то идут туда
-            //входным параметром может быть стадия голода организма
-            //сигналы от "глаз"
-            //сигналы от "ферамонов"
-            //разработать систему корректировки движия
-            //{Skip}{DO}{Take}{Give}
-            //{ничего не делать, пропуск частью тела своей задачи}
-            //{выполнять свою задачу, если задача требует данных то применяется следущее}
-            //{мозг передает необходимую информацию части тела для выполнения задачи}
-            //{мазг получает информацию от части тела для обработки}
-            //   от органов чувств(глаза, сенсоры) получает словарь точек с цветами(для глаз) или уровень заражения почвы(для сенсоров),
-            //   через Analize разделяется набор точек на группы с явными типами {Еда}{Свой}{Чужой}{Свободный путь}{Заражение}
-            //   части тела (рты, ноги, жабры, гениталии, фильтры, рожки, зацепки) возвращают результат выполнения операции {success}{fault}{half}
-            //   берет свою информацию о потребностях (голод, размножение, температура тела)
-            //   разность действия(результата) и ожидания(результата) дает обратную ошибку,
-            //   которая меняет множитель в нужную сторону (если совпала то в +, если нет то в -) после N числа несовпадений или совпадений,
-            //   где N это жесткость правил. удачная N будет тренеровать сеть лучше
-            //   point.X
-            //Сначала мы выбираем ближайшие объекты. Для глаз ближайшую пищу, для ног ближайший шаг до этой пиши. В целом определяем цель и как до нее дойти
-            //Это не требует работы нейросети?
-
-            //время без размножения(поиск еды, поиск партнера(для половых органов), движение)
-            //сила голода(поиск еды, движение)
-            //отдых, тепло(оставаться без действий)
-            //
-            static int a = 5;
-            static int b = 6;
-            static int c = 6;
-            static int d = 4;
-            double[]? inputs = new double[a];
-            double[]? gradient1 = new double[a * b];
-            double[]? layer1 = new double[b];
-            double[]? gradient2 = new double[b * c];
-            double[]? layer2 = new double[c];
-            double[]? gradient3 = new double[c * d];
-            double[]? output = new double[d];
-            //Сложить все точки из поступающего массива, разделяя отрицательные - отдна сторона и положительные - другая сторона, получив значения определяющие вес приоритетной стороны движения - ВХОДНЫЕ ДАННЫЕ
-            // После всех работ с числами получить сторону в которую организм сделает шаг
-            //
+            
+            
+            Point? moveResult;
             public Brain()
             {
                 name = "Brain";
                 color = Color.Pink;
                 energyCost = 1;
+
             }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
+                partsData.Add("EyeCount     \t" + eyeCount.ToString());
+                partsData.Add("EyeSignals     \t" + eyeSig.ToString());
+                partsData.Add("legCount     \t" + legCount.ToString());
+                partsData.Add("LegSignals     \t" + legSig.ToString());
+
+                partsData.Add("MoveResult     \t" + legSig.ToString());
+                partsData.Add("lessLength     \t" + lessLength.ToString());
                 return "";
             }
 
@@ -320,76 +289,40 @@ namespace MicroLife_Simulator
                 }
                 brainLessDelay++;
             }
-            void NeuroCalculate()
+            int lessLength = 99;
+            int legCount = 0;
+            int eyeCount = 0;
+            Point legSig;
+            Point eyeSig;
+            public void Calculate(Organism body)
             {
-                int n = 0;
-                for (int i = 0; i < inputs.Length; i++)
+                lessLength = 99;
+                for (int i = 0; i < legCount; i++)
                 {
-                    for (int j = 0; j < layer1.Length; j++)
+                    for (int j = 0; j < eyeCount; j++)
                     {
-                        layer1[j] += inputs[i] * gradient1[n];
-                        ++n;
-                    }
-                    layer1[i] += rand.NextDouble();//Bias
-                }
-                n = 0;
-                for (int i = 0; i < layer1.Length; i++)
-                {
-                    for (int j = 0; j < layer2.Length; j++)
-                    {
-                        layer2[j] += layer1[i] * gradient2[n];
-                        ++n;
-                    }
-                    layer2[i] += rand.NextDouble();//Bias
-                }
-                n = 0;
-                for (int i = 0; i < layer2.Length; i++)
-                {
-                    for (int j = 0; j < output.Length; j++)
-                    {
-                        output[j] += layer2[i] * gradient3[n];
-                        ++n;
-                    }
-                    output[i] += rand.NextDouble();//Bias
-                }
-            }
-            void BackError()
-            {
+                        if(Math.Abs(body.LegSignal[i].X - body.EyeSignal[j].X) + Math.Abs(body.LegSignal[i].Y - body.EyeSignal[j].Y) < lessLength)
+                        {
+                            lessLength = Math.Abs(body.LegSignal[i].X - body.EyeSignal[j].X) + Math.Abs(body.LegSignal[i].Y - body.EyeSignal[j].Y);
+                            body.ToLegSignal = body.LegSignal[i];
 
-            }
-            void WriteInputs(Organism body)
-            {
-                //заполнить тут инпуты входными значениями
-            }
-            double[]? WriteNewData(int length)
-            {
-                double[]? inputs = new double[length];
-                for (int i = 0; i < length; i++)
-                {
-                    inputs[i] = rand.NextDouble();
+
+                            legSig = body.LegSignal[i];
+                            eyeSig = body.EyeSignal[j];
+                            moveResult = body.LegSignal[i];
+                        }
+
+                    }
                 }
-                return inputs;
+
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
+                
+                legCount = body.LegSignal.Count;
+                eyeCount = body.EyeSignal.Count;
+                Calculate(body);
                 TurnRL2(body);
-                //останавливаться ли когда кушаешь траву?
-                //останавливаться ли когда очищаешь почву?
-                //хватать ли организм когда (условия)?
-
-
-                //body.EyeSignal
-                //количество входных сигналов равно длине словаря
-                //      / 1 - 1 \
-                //   x  - 2 - 2 - x 
-                //   y  - 3 - 3 - y
-                //      \ 4 - 4 /
-                //тут мы находим результирующие точки, добавляем в массим движения
-                //gradient1 ??= WriteNewData(gradient1.Length);//должно выполняться 1 раз
-                //gradient2 ??= WriteNewData(gradient2.Length);//должно выполняться 1 раз
-                //gradient3 ??= WriteNewData(gradient3.Length);//должно выполняться 1 раз
-                //WriteInputs(body);
-                //NeuroCalculate();
             }
         }
         /// <summary>
@@ -427,18 +360,24 @@ namespace MicroLife_Simulator
             public Point MoveResult(Bitmap bmp, Organism body) //-------------------------------------------Добавить точки игнорирования//Оставить эту фукнцию для движения без органов осязания
             {
                 points.Clear();
+                body.LegSignal.Clear();
                 for (int i = -speedX; i <= speedX; i++)
                 {
                     for (int j = -speedY; j <= speedY; j++)
                     {
                         Point p = BorderChecker(body.point.X + localplace.X + i + rand.Next(-1,1), body.point.Y + localplace.Y + j + rand.Next(-1, 1), bmp);
                         Color color = bmp.GetPixel(p.X, p.Y);
-                        if (color.B == 0 || color.A == 0)
+                        if (!body.ignorePoints.Contains(new Point(p.X, p.Y)))
                         {
-                            points.Add(new Point(localplace.X + i, localplace.Y + j));
+                            if (color.B == 0 && color.A == 0 && color.G == 0)
+                            {
+                                points.Add(new Point(localplace.X + i, localplace.Y + j));
+                                body.LegSignal.Add(new Point(localplace.X + i, localplace.Y + j));
+                            }
                         }
                     }
                 }
+                
                 return points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(0, 0);//-----------------------------------------сюда можно вмешаться органами чувств или мозгом и решить куда идти
             }
 
@@ -449,15 +388,23 @@ namespace MicroLife_Simulator
                 if (body.fatigue > body.parameters.maxFatigue/body.parameters.exhaustionLvl) { body.exhaustion = false; }
                 if (body.move && !body.exhaustion)//---------------------------------------------------------------------------------------------------------------------------вот здесь мы это фиксим, ноги теперь случаются
                 {
-                    moveResult = MoveResult(bmp, body);
-                    //body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);  //------------------------------------ноги решают что пора идти? НЕТ!!
-                    body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);
-                    body.fatigue += body.fatigue > 0 ? -1 : 0;
-
+                    if (body.ToLegSignal == null) 
+                    {
+                        moveResult = MoveResult(bmp, body);
+                        body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);
+                        body.fatigue += body.fatigue > 0 ? -1 : 0;
+                    }
+                    else
+                    if (body.ToLegSignal != null)
+                    {
+                        moveResult = (Point)body.ToLegSignal;
+                        body.newPoint = BorderChecker(body.point.X + moveResult.X, body.point.Y + moveResult.Y, bmp);
+                        body.ToLegSignal = null;
+                        body.fatigue += body.fatigue > 0 ? -1 : 0;
+                    }
                 }
                 else
                 {
-
                     if (body.fatigue != body.parameters.maxFatigue) { body.fatigue++; body.food -= restCost; }
                 }
             }
@@ -552,12 +499,12 @@ namespace MicroLife_Simulator
                     for (int j = -eyeRange; j <= eyeRange; j++)
                     {
                         Point p = BorderChecker(new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j), bmp);
-                        if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.EyeSignal.ContainsKey(p))
+                        if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.EyeSignal.Contains(p))
                         {
                             Color color = bmp.GetPixel(p.X, p.Y);
-                            if (color.G <= greenColor && color.G > 0 || color.A <= redColor && color.A > 0 || color.B <= blueColor && color.B > 0)
+                            if ((color.G != 0) && color.R < 100)//if ((color.G <= greenColor && color.G > 0) || (color.A <= redColor && color.A > 0) || (color.B <= blueColor && color.B > 0))
                             {
-                                body.EyeSignal.Add(p, color);
+                                body.EyeSignal.Add(new Point(localplace.X + i, localplace.Y + j));
                             }
                         }
                     }
@@ -566,6 +513,8 @@ namespace MicroLife_Simulator
 
             public override void Dosomething(Organism body, Bitmap bmp)
             {
+
+                body.EyeSignal.Clear();
                 SenseEye(body, bmp);
             }
         }
@@ -750,7 +699,7 @@ namespace MicroLife_Simulator
                                 if (controller.eggDictionary[point].ID1 == myID)//не стал делать сразу, вместо ID вставить метод сравнения генотипных слов, при этом в яйцо передавать не ID  а слова напрямую
                                 {
                                     controller.eggDictionary[point].parametersParent2 = body.parameters;
-                                    controller.eggDictionary[point].genListParent2 = body.GenCopyes(body.genList);
+                                    body.GenCopyes(controller.eggDictionary[point].genListParent2,body.genList);
                                     controller.eggDictionary[point].ID2 = myID;
                                     controller.eggDictionary[point].age = 0;
                                     fertilizeCount++;
@@ -1129,6 +1078,34 @@ namespace MicroLife_Simulator
             {
                 //брать словарь организмов, искать ближайших и передавать им какие то данные
             }
+        }
+        /// <summary>
+        /// Шип наносит урон тому кто его кусает(сам шип тоже получает урон) (регенерация тканей?)
+        /// </summary>
+        class Spike: BodyPart
+        {
+            public Spike()
+            {
+                name = "Spike";
+                color = Color.LightGray;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                return "";
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
+            }
+        }
+        /// <summary>
+        /// Позволяет ускоряться на короткое время
+        /// </summary>
+        class Tail
+        {
+
         }
         /// <summary>
         /// метаморфизин это особая часть тела, которая не является физическим органом и не выполняющая физических действий, но позволяет организму переходить в другую фазу, позволяя менять расположение частей тела
