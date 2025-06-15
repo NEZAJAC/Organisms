@@ -84,6 +84,7 @@ namespace MicroLife_Simulator
             if (AutoKill.Checked && controller.cellsList.Count >= MAXorganis) { AutoKillProcent(); }
             if (checkBox1.Checked)
             {
+                controller.cellDictionary.Clear();
                 foreach (Organism organism in controller.cellsList)
                 {
                     organism.DoworkPrepare(bmp, controller);//----------------------------------------------------------------------------------------------каждый делает свою работу
@@ -113,16 +114,19 @@ namespace MicroLife_Simulator
                     {
                         controller.cellsListTORemove.Add(organism);
                     }
-                }
-                controller.cellDictionary.Clear();
-                foreach (Organism organism in controller.cellsList)
-                {
+
                     if (!controller.cellDictionary.ContainsKey(organism.point))
                     {
                         controller.cellDictionary.Add(organism.point, organism);
                     }
-
                 }
+                //foreach (Organism organism in controller.cellsList)
+                //{
+                //    if (!controller.cellDictionary.ContainsKey(organism.point))
+                //    {
+                //        controller.cellDictionary.Add(organism.point, organism);
+                //    }
+                //}
                 foreach (var item in controller.cellsListTEMP)
                 {
                     controller.cellsList.Add(item);
@@ -147,6 +151,12 @@ namespace MicroLife_Simulator
         {
             if (checkBox1.Checked)
             {
+                foreach (Grass grass in controller.grassListTEMP)
+                {
+                    controller.grassList.Add(grass);
+                }
+                controller.grassListTEMP.Clear();
+
                 foreach (Grass grass in controller.grassList)
                 {
                     if (grass.GrassUpdate(controller.sunLVL))
@@ -173,25 +183,30 @@ namespace MicroLife_Simulator
                     {
                         controller.grassListTORemove.Add(grass);
                     }
+
+                    if (!controller.grassDictionary.ContainsKey(grass.point))
+                    {
+                        controller.grassDictionary.Add(grass.point, grass);
+                    }
+                    if (grass.food <= 0 || grass.age >= grass.maxage)
+                    {
+                        controller.grassListTORemove.Add(grass);
+                    }
                 }
 
-				foreach (Grass grass in controller.grassListTEMP)
-				{
-					controller.grassList.Add(grass);
-				}
-				controller.grassListTEMP.Clear();
+				
 
-				foreach (Grass grass in controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
-				{
-					if (!controller.grassDictionary.ContainsKey(grass.point))
-					{
-						controller.grassDictionary.Add(grass.point, grass);
-					}
-					if (grass.food <= 0 || grass.age >= grass.maxage)
-					{
-						controller.grassListTORemove.Add(grass);
-					}
-				}
+				//foreach (Grass grass in controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
+				//{
+				//	if (!controller.grassDictionary.ContainsKey(grass.point))
+				//	{
+				//		controller.grassDictionary.Add(grass.point, grass);
+				//	}
+				//	if (grass.food <= 0 || grass.age >= grass.maxage)
+				//	{
+				//		controller.grassListTORemove.Add(grass);
+				//	}
+				//}
 				foreach (Grass grass in controller.grassListTORemove)
 				{
 					grass.Clear(bmp);

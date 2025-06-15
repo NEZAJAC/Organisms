@@ -733,9 +733,9 @@ namespace MicroLife_Simulator
         /// </summary>
         class Filter : BodyPart //позволяет поедать(фильтровать) зараженные органикой территории
         {
-            public int cleanStrength = 30;
+            public int cleanStrength = 50;
             public int cleanRange = 3;
-            public int foodConvert = 20;
+            public int foodConvert = 40;
             public int amountClean;
             List<Point> points = new List<Point>();
             Point target;
@@ -759,7 +759,7 @@ namespace MicroLife_Simulator
                 }
                 return "";
             }
-            void FindInfection(Bitmap bmp)
+            void FindInfection(Bitmap bmp, Organism body)
             {
                 target = new Point(-1, -1);
                 points.Clear();
@@ -767,24 +767,26 @@ namespace MicroLife_Simulator
                 {
                     for (int j = -cleanRange; j <= cleanRange; j++)
                     {
-                        Point p = BorderChecker(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j, bmp);
-                        Color color = bmp.GetPixel(p.X, p.Y);
-                        Point point = color.A != 0 && color.R > 0 && color.G > 0 && color.B == 0 ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0);
-                        points.Add(point);
+
+                        Point pG = BorderChecker(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j, bmp);
+                        //Color color = bmp.GetPixel(p.X, p.Y);//ЗАМЕНИТЬ поиск по цвету на поиск в словаре
+                        //Point point = color.A != 0 && color.R > 0 && color.G > 0 && color.B == 0 ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0);
+                        //points.Add(point);
+                        if (body.controller.infectionLVL.ContainsKey(pG)) { points.Add(pG); }
                     }
                 }
-                for (int i = points.Count - 1; i > -1; i--)
-                {
-                    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
-                }
+                //for (int i = points.Count - 1; i > -1; i--)
+                //{
+                //    if (points[i].X == 0 && points[i].Y == 0) { points.Remove(points[i]); }
+                //}
                 if (points.Count > 0) { target = points[rand.Next(0, points.Count)]; }
             }
             void CleanInfection(Organism body)
             {
-                Point point = new Point(body.point.X + target.X, body.point.Y + target.Y);
-                if (body.controller.infectionLVL.ContainsKey(point))
+                //Point point = new Point(body.point.X + target.X, body.point.Y + target.Y);
+                if (body.controller.infectionLVL.ContainsKey(target))
                 {
-                    body.controller.infectionLVL[point] = body.controller.infectionLVL[point] - cleanStrength >= 0 ? body.controller.infectionLVL[point] - cleanStrength : 0;
+                    body.controller.infectionLVL[target] = body.controller.infectionLVL[target] - cleanStrength >= 0 ? body.controller.infectionLVL[target] - cleanStrength : 0;
                     body.food += foodConvert;
                     amountClean += foodConvert;
                 }
@@ -793,7 +795,7 @@ namespace MicroLife_Simulator
             {
                 if (body.hungry)
                 {
-                    FindInfection(bmp);
+                    FindInfection(bmp,body);
                     CleanInfection(body);
                 }
             }

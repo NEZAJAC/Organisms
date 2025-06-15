@@ -36,6 +36,7 @@
             label1 = new Label();
             GrassLimit_CB = new CheckBox();
             GrassBox = new GroupBox();
+            checkBox2 = new CheckBox();
             button8 = new Button();
             groupBox5 = new GroupBox();
             trackBar7 = new TrackBar();
@@ -99,7 +100,6 @@
             button6 = new Button();
             textBox3 = new TextBox();
             pictureBox1 = new PictureBox();
-            checkBox2 = new CheckBox();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -191,6 +191,18 @@
             GrassBox.TabIndex = 8;
             GrassBox.TabStop = false;
             GrassBox.Text = "Food Control";
+            // 
+            // checkBox2
+            // 
+            checkBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(69, 95);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(81, 19);
+            checkBox2.TabIndex = 20;
+            checkBox2.Text = "Day/Night";
+            checkBox2.UseVisualStyleBackColor = true;
+            checkBox2.Visible = false;
             // 
             // button8
             // 
@@ -850,6 +862,7 @@
             button10.TabIndex = 2;
             button10.Text = "Y";
             button10.UseVisualStyleBackColor = true;
+            button10.Visible = false;
             button10.Click += button10_Click;
             // 
             // button9
@@ -860,6 +873,7 @@
             button9.TabIndex = 2;
             button9.Text = "X";
             button9.UseVisualStyleBackColor = true;
+            button9.Visible = false;
             button9.Click += button9_Click;
             // 
             // panel2
@@ -913,17 +927,6 @@
             pictureBox1.MouseClick += pictureBox1_MouseClick;
             pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
             pictureBox1.MouseWheel += pictureBox1_MouseWheel;
-            // 
-            // checkBox2
-            // 
-            checkBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            checkBox2.AutoSize = true;
-            checkBox2.Location = new Point(69, 95);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(81, 19);
-            checkBox2.TabIndex = 20;
-            checkBox2.Text = "Day/Night";
-            checkBox2.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 

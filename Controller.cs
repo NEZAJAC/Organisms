@@ -101,20 +101,20 @@ namespace MicroLife_Simulator
                 foreach (Egg egg in eggList) { egg.Draw(bmp); }
                 
             }
-            List<Point> points = new List<Point>();
+            List<Point> infectionToClear = new List<Point>();
             void DrawInfection(Bitmap bmp)
             {
-                points.Clear();
+                //points.Clear();
                 foreach (var item in infectionLVL)
                 {
-                    if (item.Value == 0) { bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty); points.Add(item.Key); }
-                    bmp.SetPixel(item.Key.X, item.Key.Y, Color.FromArgb(255, ColorNormalizator(item.Value), ColorNormalizator(item.Value), 0));
+                    if (item.Value == 0) { /*bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty);*/ infectionToClear.Add(item.Key); }
+                    //bmp.SetPixel(item.Key.X, item.Key.Y, Color.FromArgb(255, ColorNormalizator(item.Value), ColorNormalizator(item.Value), 0));//Перестать рисовать каждый такт!!!!!!!!!!!!!!!!
                 }
-                foreach (var item in points)
+                foreach (var item in infectionToClear)
                 {
                     infectionLVL.Remove(item);
                 }
-                points.Clear();
+                infectionToClear.Clear();
             }
             public int ColorNormalizator(int val)
             {

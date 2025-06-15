@@ -477,7 +477,7 @@ namespace MicroLife_Simulator
                     ignorePoints.Add(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y));
                 }
             }
-            Point Normalizator()
+            Point Normalizator()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Почини!! Где то выход из массива!!!
             {
                 //обходим все наши части тела, выбираем случайную, смотрим пустые места вокруг выбранной части заглядывая в геном организма, запоминаем свободную точку случайную, передаем точку дальше
                 
@@ -486,15 +486,19 @@ namespace MicroLife_Simulator
                 {
                     points.Add(item.localplace);
                 }
-                Point pp = points[rand.Next(0, points.Count)];//случайная точка вокруг которой пляшем
+                //Point pp = points[rand.Next(0, points.Count)];//случайная точка вокруг которой пляшем
                 List<Point> p = new List<Point>();
                 for (int x = -1; x <= 1; x++)
                 {
                     for (int y = -1; y <= 1; y++)
                     {
-                        if(x != 0 && y != 0 && !points.Contains(new Point(pp.X + x, pp.Y + y)))
+                        foreach (var item in genList)
                         {
-                            p.Add(new Point(pp.X + x, pp.Y + y));
+                            var pp = item.localplace;
+                            if (x != 0 && y != 0 && !points.Contains(new Point(pp.X + x, pp.Y + y)))
+                            {
+                                p.Add(new Point(pp.X + x, pp.Y + y));
+                            }
                         }
                     }
                 }
