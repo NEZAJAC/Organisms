@@ -3,23 +3,25 @@ namespace MicroLife_Simulator
 
     public partial class Form1 : Form
     {
-        Point p = new Point(0, 0);
+
         public static Point BorderChecker(Point point, Bitmap bmp)
         {
+            int width = bmp.Width;
+            int height = bmp.Height;
             int x = point.X;
             int y = point.Y;
-            int newX = x >= bmp.Width ? x - bmp.Width + 1 : x < 1 ? x + bmp.Width - 1 : x;
-            int newY = y >= bmp.Height ? y - bmp.Height + 1 : y < 1 ? y + bmp.Height - 1 : y;
+            int newX = x >= width ? x - width + 1 : x < 1 ? x + width - 1 : x;
+            int newY = y >= height ? y - height + 1 : y < 1 ? y + height - 1 : y;
             Point newpoint = new Point(newX, newY);
             return newpoint;
         }
 
         public static Point BorderChecker(int xx, int yy, Bitmap bmp)
         {
-            int x = xx;
-            int y = yy;
-            int newX = x >= bmp.Width ? x - bmp.Width + 1 : x < 1 ? x + bmp.Width - 1 : x;
-            int newY = y >= bmp.Height ? y - bmp.Height + 1 : y < 1 ? y + bmp.Height - 1 : y;
+            int width = bmp.Width;
+            int height = bmp.Height;
+            int newX = xx >= width ? xx - width + 1 : xx < 1 ? xx + width - 1 : xx;
+            int newY = yy >= height ? yy - height + 1 : yy < 1 ? yy + height - 1 : yy;
             Point newpoint = new Point(newX, newY);
             return newpoint;
         }
@@ -85,16 +87,16 @@ namespace MicroLife_Simulator
             while (--intToDie > 0)
             {
                 controller.cellsListTORemove.Add(controller.cellsList[rand.Next(0, controller.cellsList.Count)]);
-                
+
             }
             //label20.Text = intToDie.ToString();
         }
         int zoomValue = 1;
         private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (e.Delta > 0 && zoomValue < 10) 
-            { 
-                zoomValue++; 
+            if (e.Delta > 0 && zoomValue < 10)
+            {
+                zoomValue++;
                 pictureBox1.Size += size;
                 int x = -e.X;
                 int y = -e.Y;
@@ -104,11 +106,11 @@ namespace MicroLife_Simulator
                     y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y
                 );
             }
-            else if (e.Delta < 0 && zoomValue > 1) 
+            else if (e.Delta < 0 && zoomValue > 1)
             {
                 zoomValue--;
                 pictureBox1.Size -= size;
-                int x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width  + bmp.Width / 2;
+                int x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width + bmp.Width / 2;
                 int y = -e.Y * bmp.Height * (zoomValue - 1) / pictureBox1.Height + bmp.Height / 2;
 
                 x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
@@ -159,6 +161,7 @@ namespace MicroLife_Simulator
                 controller.grassListTORemove.Add(controller.grassList[i]);
             }
         }
+        Point p = new Point(0, 0);
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
             p = new Point(e.Location.X / zoomValue, e.Location.Y / zoomValue);
@@ -258,16 +261,13 @@ namespace MicroLife_Simulator
         {
             if (controller.selectedObject != null)
             {
-                //controller.selectedObject.TurnRL("X");
+                //controller.selectedObject.
             }
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
-            if (controller.selectedObject != null)
-            {
-                // controller.selectedObject.TurnRL("Y");
-            }
+            
         }
 
         private void trackBar3_Scroll(object sender, EventArgs e)
@@ -278,6 +278,14 @@ namespace MicroLife_Simulator
         private void AutoKill_CheckedChanged(object sender, EventArgs e)
         {
             trackBar3.Enabled = !trackBar3.Enabled;
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            string pass = Directory.GetCurrentDirectory();
+            string rName = Guid.NewGuid().ToString();
+            //saveAnyFormat(bmp);
+            SaveBitmapAsBmp(bmp, pass +"\\"+ rName + ".bmp");
         }
     }
 

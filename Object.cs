@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata;
 
 namespace MicroLife_Simulator
@@ -55,10 +56,10 @@ namespace MicroLife_Simulator
                 this.point = point;
             }
 
-            public Color GetPixelUnder(Bitmap bmp, Point point)
-            {
-                return bmp.GetPixel(point.X, point.Y);
-            }
+            //public Color GetPixelUnder(Bitmap bmp, Point point)
+            //{
+            //    return bmp.GetPixel(point.X, point.Y);
+            //}
             public void Normalize(Bitmap bmp)
             {
                 point = BorderChecker(point.X, point.Y, bmp);
@@ -66,11 +67,11 @@ namespace MicroLife_Simulator
             public void Draw(Bitmap bmp)
             {
                 Normalize(bmp);
-                if (bmp.GetPixel(point.X, point.Y) != pen.Color)
-                {
+                //if (bmp.GetPixel(point.X, point.Y) != pen.Color)
+                //{
                     //pixelunder = GetPixelUnder(bmp, point);
                     bmp.SetPixel(point.X, point.Y, pen.Color);
-                }
+                //}
             }
 
             public void Clear(Bitmap bmp)
@@ -83,6 +84,7 @@ namespace MicroLife_Simulator
         }
         class Grass : Object
         {
+            int updateDelay = 10;
             public int maxage;
             public Grass()
             {
@@ -117,7 +119,15 @@ namespace MicroLife_Simulator
                 Color color = bmp.GetPixel(newpoint.X, newpoint.Y);
                 if (color.G == 0 && color.B == 0 && color.R == 0) { pointt = newpoint; return true; } else pointt = new Point(-1, -1); return false;
             }
-
+            new public void Draw(Bitmap bmp)
+            {
+                if (updateDelay == 0)
+                {
+                    bmp.SetPixel(point.X, point.Y, pen.Color);
+                    updateDelay = 15;
+                }
+                updateDelay--;
+            }
         }
         struct Genome
         {
@@ -153,7 +163,7 @@ namespace MicroLife_Simulator
         }
         class Egg : Object
         {
-            Controller controller;
+            Controller? controller;
             public Guid myGuid;
             public string ID1 = "";
             public string ID2 = "";
@@ -165,7 +175,7 @@ namespace MicroLife_Simulator
             public List<Genome> genListParent2 = new List<Genome>();
             public Egg(Organism organism)
             {
-                point = new Point(organism.point.X + rand.Next(-1,2), organism.point.Y + rand.Next(-1,2));
+                point = new Point(organism.point.X, organism.point.Y);
                 age = 0;
                 incubationTime = organism.parameters.maxage / 5;
                 incubation = 0;
@@ -187,6 +197,10 @@ namespace MicroLife_Simulator
                     copy.Add(new Genome { part = genomes[i].part, localplace = genomes[i].localplace, color = genomes[i].color });
                 }
                 return copy;
+            }
+            new public void Draw(Bitmap bmp)
+            {
+                bmp.SetPixel(point.X, point.Y, pen.Color);
             }
             public void Dosomething()
             {
@@ -477,7 +491,7 @@ namespace MicroLife_Simulator
                     ignorePoints.Add(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y));
                 }
             }
-            Point Normalizator()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Почини!! Где то выход из массива!!!
+            Point Normalizator2()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Почини!! Где то выход из массива!!!
             {
                 //обходим все наши части тела, выбираем случайную, смотрим пустые места вокруг выбранной части заглядывая в геном организма, запоминаем свободную точку случайную, передаем точку дальше
                 
@@ -488,36 +502,81 @@ namespace MicroLife_Simulator
                 }
                 //Point pp = points[rand.Next(0, points.Count)];//случайная точка вокруг которой пляшем
                 List<Point> p = new List<Point>();
-                for (int x = -1; x <= 1; x++)
+                foreach (var item in genList)
                 {
-                    for (int y = -1; y <= 1; y++)
+                    for (int x = -1; x <= 1; x++)
                     {
-                        foreach (var item in genList)
+                        for (int y = -1; y <= 1; y++)
+                        {    
+                           var pp = item.localplace;
+                                if (x != 0 && y != 0 && !points.Contains(new Point(pp.X + x, pp.Y + y)))
+                                {
+                                    p.Add(new Point(pp.X + x, pp.Y + y));
+                                }
+                         }
+                    }
+                }
+                //if(p.Count ==  0) p.Add(new Point());
+                return p[rand.Next(0,p.Count)];
+            }
+
+            Point Normalizator()
+            {
+                List<Point> points = new List<Point>();
+                foreach (var item in genList)
+                {
+                    for (int x = -1; x <= 1; x++)
+                    {
+                        for (int y = -1; y <= 1; y++)
                         {
-                            var pp = item.localplace;
-                            if (x != 0 && y != 0 && !points.Contains(new Point(pp.X + x, pp.Y + y)))
+                            if ((item.localplace.X + x != item.localplace.X && item.localplace.Y + y != item.localplace.Y) && !points.Contains(new Point(item.localplace.X + x, item.localplace.Y + y)))
                             {
-                                p.Add(new Point(pp.X + x, pp.Y + y));
+                                points.Add(new Point(item.localplace.X + x, item.localplace.Y + y));
                             }
                         }
                     }
                 }
-                return p[rand.Next(0,p.Count)];
+                return points[rand.Next(0,points.Count)];
             }
-
-            void GenGeneration()
+            List<Point> PointGen1(List<Point> points)
             {
-                List<Point> points = new List<Point>();
                 int times = rand.Next(2, 5);
+                //int times = 9;
+                for (int x = -1; x <= 1; x++)
+                {
+                    for (int y = -1; y <= 1; y++)
+                    {
+                        if (!points.Contains(new Point(x, y)))
+                        {
+                            points.Add(new Point(x, y));
+                        }
+                    }
+                }
                 while (points.Count != times)
                 {
-                    Point point = new Point(rand.Next(-times / 2, times / 2), rand.Next(-times / 2, times / 2));
+                    points.Remove(points[rand.Next(0,points.Count)]);
+                }
+                return points;
+            }
+            List<Point> PointGen2(List<Point> points)
+            {
+                int times = rand.Next(2, 20);
+                while (points.Count != times)
+                {
+                    Point point = new Point(rand.Next(-points.Count , points.Count +1), rand.Next(-points.Count , points.Count +1));
                     if (!points.Contains(point))
                     {
                         points.Add(point);
                     }
                 }
+                return points;
+            }
 
+            void GenGeneration()
+            {
+                List<Point> points = new List<Point>();
+                PointGen1(points);
+                
                 for (int i = 0; i < points.Count; i++)
                 {
                     Color color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
@@ -773,23 +832,25 @@ namespace MicroLife_Simulator
                 Normalize(bmp);
                 foreach (var item in bodyTypes)//Clean
                 {
-                    Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
-                    p = BorderChecker(p, bmp);
+                    //Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
+                    Point p = BorderChecker(new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
-                }
-                foreach (var item in bodyTypes)//Draw
-                {
-                    Point p = new Point(point.X + item.localplace.X, point.Y + item.localplace.Y);
-                    p = BorderChecker(p, bmp);
+                    p = BorderChecker(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, item.color);
                 }
+                //foreach (var item in bodyTypes)//Draw
+                //{
+                    //Point p = new Point(point.X + item.localplace.X, point.Y + item.localplace.Y);
+                //    Point p = BorderChecker(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y), bmp);
+                //    bmp.SetPixel(p.X, p.Y, item.color);
+                //}
             }
             public void Cleary(Bitmap bmp)
             {
                 foreach (var item in bodyTypes)//Clean
                 {
-                    Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
-                    p = BorderChecker(p, bmp);
+                    //Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
+                    Point p = BorderChecker(new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                 }
             }

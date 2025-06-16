@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 
 namespace MicroLife_Simulator
 {
@@ -184,6 +187,7 @@ namespace MicroLife_Simulator
                         controller.grassListTORemove.Add(grass);
                     }
 
+                    
                     if (!controller.grassDictionary.ContainsKey(grass.point))
                     {
                         controller.grassDictionary.Add(grass.point, grass);
@@ -272,6 +276,56 @@ namespace MicroLife_Simulator
         class Effect//оказывает влияние на клетки находящие в зоне
         {
 
+        }
+
+        void saveAnyFormat(Bitmap bmp1)
+        {
+            Bitmap bmp = (Bitmap)bmp1.Clone();
+            // Создаем диалоговое окно для выбора места сохранения файла
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JPEG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp";
+            saveFileDialog.DefaultExt = "bmp";
+            saveFileDialog.AddExtension = true;
+
+            //if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            //{
+                try
+                {
+                    // Получаем выбранный формат
+                    ImageFormat format = ImageFormat.Jpeg;
+                    switch (Path.GetExtension(saveFileDialog.FileName).ToLower())
+                    {
+                        case ".png":
+                            format = ImageFormat.Png;
+                            break;
+                        case ".bmp":
+                            format = ImageFormat.Bmp;
+                            break;
+                    }
+
+                    // Сохраняем Bitmap
+                    
+                    bmp.Save(saveFileDialog.FileName, format);
+                    MessageBox.Show("Изображение сохранено", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            //}
+        }
+
+        public static void SaveBitmapAsBmp(Bitmap bmp, string filePath)
+        {
+            try
+            {
+                bmp.Save(filePath, ImageFormat.Bmp);
+                MessageBox.Show("Изображение успешно сохранено в BMP.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

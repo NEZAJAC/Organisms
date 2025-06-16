@@ -100,6 +100,7 @@
             button6 = new Button();
             textBox3 = new TextBox();
             pictureBox1 = new PictureBox();
+            button11 = new Button();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -867,13 +868,12 @@
             // 
             // button9
             // 
-            button9.Location = new Point(198, 11);
+            button9.Location = new Point(6, 13);
             button9.Name = "button9";
-            button9.Size = new Size(24, 23);
+            button9.Size = new Size(85, 23);
             button9.TabIndex = 2;
-            button9.Text = "X";
+            button9.Text = "Add part";
             button9.UseVisualStyleBackColor = true;
-            button9.Visible = false;
             button9.Click += button9_Click;
             // 
             // panel2
@@ -928,12 +928,23 @@
             pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
             pictureBox1.MouseWheel += pictureBox1_MouseWheel;
             // 
+            // button11
+            // 
+            button11.Location = new Point(1230, 626);
+            button11.Name = "button11";
+            button11.Size = new Size(102, 23);
+            button11.TabIndex = 16;
+            button11.Text = "Save Image";
+            button11.UseVisualStyleBackColor = true;
+            button11.Click += button11_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(1344, 661);
+            Controls.Add(button11);
             Controls.Add(panel1);
             Controls.Add(panel2);
             Controls.Add(button4);
@@ -1053,5 +1064,6 @@
         private CheckBox AutoKill;
         private TrackBar trackBar3;
         private CheckBox checkBox2;
+        private Button button11;
     }
 }

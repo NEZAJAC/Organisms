@@ -40,6 +40,8 @@ namespace MicroLife_Simulator
             {
                 sunLVL = sun;
                 radiationLVL = radiation;
+                cellDictionary.AsParallel();
+                grassDictionary.AsParallel();
             }
 
             public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells, int obstacles, int infection)
