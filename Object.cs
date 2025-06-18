@@ -304,7 +304,7 @@ namespace MicroLife_Simulator
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
-                //BodyRemoveRandomPart(genList);
+                //BodyRemoveRandomPart(genList);//---------------------------------------------------------------------------------------------понять как убирать органы
                 BodyCreate(genList);
                 myGenWords = GetGenotype(this).Split(new char[] { '|' });
                 myGuid = Guid.NewGuid();
@@ -725,7 +725,7 @@ namespace MicroLife_Simulator
             }
             void BodyRemoveRandomPart(List<Genome> genotype)//доработать тут(проблема что часть тела может быть убрана но к ней будут "прикреплены" другие и образуется дырка)
             {
-                if (rand.Next(0, 311 - radiation) == 23)
+                if (rand.Next(0, 224 - radiation) == 23)
                 {
                     int place = rand.Next(0, genList.Count);
                     genotype.Remove(genotype[place]);

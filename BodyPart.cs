@@ -827,7 +827,7 @@ namespace MicroLife_Simulator
         class MiteHorns : BodyPart
         {
             int amountDrinking = 0;
-            int bloodIntake = 45;
+            int bloodIntake = 25;
             int bloodDrink = 35;
             int biteRange = 3;
             public Organism? target = null;
