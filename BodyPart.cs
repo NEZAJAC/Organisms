@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace MicroLife_Simulator
@@ -10,6 +12,7 @@ namespace MicroLife_Simulator
         /// </summary>
         class BodyPart
         {
+            public string discriptionMySpec = "нет описания";
             public Random rand = new Random();
             public int health = 500;
             public Color color = Color.White;
@@ -26,9 +29,14 @@ namespace MicroLife_Simulator
 
 
             }
+            public virtual string DiscriptionMySpec()
+            {
+                return discriptionMySpec;
+            }
             public virtual string UpdateMyData()
             {
                 partsData.Clear();
+                partsData.Add(DiscriptionMySpec());
                 partsData.Add(color.ToString());
                 partsData.Add("localplace       \t" + localplace.ToString());
                 partsData.Add("energyCost\t" + energyCost.ToString());
@@ -53,7 +61,6 @@ namespace MicroLife_Simulator
 
             public int EatStrength = 25;
             public int eatResult = 0;
-            int transferStrength = 15;
             public Point moveResult = new Point(0, 0);
             public Point eatTarget = new Point(0, 0);
 
@@ -124,7 +131,7 @@ namespace MicroLife_Simulator
             public int EatStrength = 25;
             public int EatRange = 2;
             List<BodyPart> stomaches = new List<BodyPart>();
-
+            
             int alreadyEaten = 0;
             public Point eatTarget = new Point(0, 0);
             //public List<Point> ignorePoints = new List<Point>();
@@ -136,9 +143,14 @@ namespace MicroLife_Simulator
                 color = Color.Red;
                 energyCost = 3;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Рот кушает зеленые растения";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
+                
                 partsData.Add("EatStrength\t" + EatStrength.ToString());
                 partsData.Add("AlreadyEaten    \t" + alreadyEaten.ToString());
                 partsData.Add("EatTarget    \t" + (eatTarget != new Point(-1,-1) ? eatTarget.ToString() : "NoNe"));
@@ -174,6 +186,24 @@ namespace MicroLife_Simulator
                 }
                 targetEat = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(-1, -1);
                 return targetEat != new Point(-1,-1);
+            }
+            public bool EatDictionary(out Point targetEat, Organism body)
+            {
+                points.Clear();
+                for (int i = -EatRange; i <= EatRange; i++)
+                {
+                    for (int j = -EatRange; j <= EatRange; j++)
+                    {
+                        Point p = new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j);
+                        if (body.controller.grassDictionary.ContainsKey(p))
+                        {
+                            points.Add(p);
+                        }
+                        else continue;
+                    }
+                }
+                targetEat = points.Count > 0 ? points[rand.Next(0, points.Count)] : new Point(-1, -1);
+                return targetEat != new Point(-1, -1);
             }
 
             public void ToBody(Organism body)
@@ -225,7 +255,7 @@ namespace MicroLife_Simulator
                 if (body.food <= body.parameters.hungryFoodLVL) { body.hungry = true; }//-----------------------------------------------починить голод, желудок не учитывается наполненным
                 if (body.hungry)
                 {
-                    if (!Eat(out eatTarget, bmp)) { body.move = true; }
+                    if (!EatDictionary(out eatTarget, body)) { body.move = true; }
                     else
                     {
                         body.move = false;
@@ -233,6 +263,90 @@ namespace MicroLife_Simulator
                     }// рот решает что делать организму??? НЕТ!!!//только пока нет мозга
                 }
                 else { body.move = true; }
+            }
+        }
+        /// <summary>
+        /// Позволяет кушать организмы
+        /// </summary>
+        class BloodyMouth : BodyPart
+        {
+            int holdOnRange = 4;
+            int eatDelay = 200;
+            int eatDCurrent = 0;
+            int amountEaten = 0;
+            bool myMove = true;
+            public Organism? target = null;
+            public BloodyMouth()
+            {
+                name = "BloodyMouth";
+                type = "EatOrgan";
+                color = Color.LavenderBlush;
+                energyCost = 4;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Пасть откусывает части организма";
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                partsData.Add("EatDelay         \t" + eatDCurrent.ToString() + "/" +eatDelay.ToString());
+                partsData.Add("AmountEaten         \t" + amountEaten.ToString());
+                if (target != null)
+                {
+                    partsData.Add("Target         \t" + target.point.ToString());
+                    partsData.Add("TargetID       \t" + target.GetID(target.myGenWords).ToString());
+
+                }
+                else
+                {
+                    partsData.Add("Target         \t" + "NoNe");
+                    partsData.Add("TargetID       \t" + "NoNe");
+                }
+                partsData.Add("CatchDistance   \t" + holdOnRange.ToString());
+                partsData.Add("CanMove        \t" + myMove.ToString());
+                return "";
+            }
+            void FindTargets(Organism myOrganism, Bitmap bmp)
+            {
+                for (int i = -holdOnRange; i <= holdOnRange; i++)
+                {
+                    for (int j = -holdOnRange; j <= holdOnRange; j++)
+                    {
+                        Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
+                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
+                        {
+                            target = findTarget;
+                            findTarget = null;
+                            break;
+                        }
+                    }
+                    if (target != null) break;
+                }
+            }
+            void Eat(Organism body, Bitmap bmp)
+            {
+                if (target != null && target.bodyTypes.Count != 0)
+                {
+                    BodyPart part = target.bodyTypes[rand.Next(0, target.bodyTypes.Count)];
+                    target.bodyTypes.Remove(part);
+                    int amount = target.maxfood / (target.bodyTypes.Count + 1);
+                    body.food = body.food + amount <= body.maxfood ? body.food + amount : body.maxfood;
+                    amountEaten += amount;
+                }
+            }
+            bool CheckDistance(Organism body, Organism? target)
+            {
+                if (target == null) return false;
+                return Math.Abs(body.point.X - target.point.X) <= holdOnRange * 2 || Math.Abs(body.point.Y - target.point.Y) <= holdOnRange * 2;
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                if (target == null) { FindTargets(body, bmp); body.move = true; } else if (eatDCurrent >= eatDelay) { Eat(body, bmp); body.move = false; eatDCurrent = 0; };
+                if ((target != null && !CheckDistance(body, target))) { target = null; body.move = true; }
+                eatDCurrent = eatDCurrent < eatDelay ? eatDCurrent + 1 : eatDelay;
+                myMove = body.move;//-------------------------для информации
             }
         }
         /// <summary>
@@ -253,6 +367,10 @@ namespace MicroLife_Simulator
                 color = Color.Pink;
                 energyCost = 1;
 
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Мозг позволяет оценивать обстановку";
             }
             public override string UpdateMyData()
             {
@@ -342,15 +460,22 @@ namespace MicroLife_Simulator
                 color = Color.DarkOrange;
                 energyCost = 1;
             }
-
+            public override string DiscriptionMySpec()
+            {
+                return "Двигает целый организм";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData(); ;
-                partsData.Add("RestCost     \t" + restCost.ToString());
+
                 partsData.Add("---------------------------------");
+                partsData.Add("RestCost     \t" + restCost.ToString());
                 partsData.Add("Speed X      \t" + moveResult.X.ToString());
                 partsData.Add("Speed Y      \t" + moveResult.Y.ToString());
 
+                //partsData.Add("---------------------------------");
+                //partsData.Add("Discription: позволяет организму двигаться");
+                //partsData.Add("---------------------------------");
                 foreach (var item in points)
                 {
                     partsData.Add("Avalible point\t" + item.ToString());
@@ -429,6 +554,10 @@ namespace MicroLife_Simulator
 
                 transferDelay = 3;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Желудок более эффективно перерабатывает пищу";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -481,7 +610,10 @@ namespace MicroLife_Simulator
                 color = Color.White;
                 energyCost = 1;
             }
-
+            public override string DiscriptionMySpec()
+            {
+                return "Глаз работает в паре с мозгом";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -533,6 +665,10 @@ namespace MicroLife_Simulator
                 color = Color.DarkOliveGreen;
                 energyCost = 1;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Сенсоры альтернатива глазу, видят загрязнения";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -579,6 +715,10 @@ namespace MicroLife_Simulator
                 color = Color.LightGray;
                 energyCost = 1;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Жировые запасы организма";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -615,6 +755,10 @@ namespace MicroLife_Simulator
                 color = Color.DeepPink;
                 energyCost = 1;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Жабры организма, позволяют жить в водной среде";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -636,6 +780,10 @@ namespace MicroLife_Simulator
                 name = "Genitals";
                 color = Color.LavenderBlush;
                 energyCost = 1;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Гениталии для полового размножения";
             }
             public override string UpdateMyData()
             {
@@ -669,6 +817,10 @@ namespace MicroLife_Simulator
                 name = "Cloaca";
                 color = Color.LavenderBlush;
                 energyCost = 1;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Клока позволяет откладывать яички и оплодотворять их";
             }
             public override string UpdateMyData()
             {
@@ -735,7 +887,7 @@ namespace MicroLife_Simulator
         {
             public int cleanStrength = 50;
             public int cleanRange = 3;
-            public int foodConvert = 40;
+            public int foodConvert = 25;
             public int amountClean;
             List<Point> points = new List<Point>();
             Point target;
@@ -745,6 +897,10 @@ namespace MicroLife_Simulator
                 type = "EatOrgan";
                 color = Color.DimGray;
                 energyCost = 3;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Фильтры организма позволяют очищать заражение";
             }
             public override string UpdateMyData()
             {
@@ -811,6 +967,10 @@ namespace MicroLife_Simulator
                 color = Color.DimGray;
                 energyCost = 1;
             }
+            public override string DiscriptionMySpec()
+            {
+                return "Аппарат для общения с другими организмами";
+            }
             public override string UpdateMyData()
             {
                 base.UpdateMyData();
@@ -837,6 +997,10 @@ namespace MicroLife_Simulator
                 type = "EatOrgan";
                 color = Color.DimGray;
                 energyCost = 3;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Паразитические клыки высасывают питательные вещества";
             }
             public override string UpdateMyData()
             {
@@ -905,7 +1069,7 @@ namespace MicroLife_Simulator
         /// </summary>
         class Clues : BodyPart
         {
-            int holdOnRange = 4;
+            int holdOnRange = 8;
             bool myMove = true;
             public Organism? target = null;
             public Clues()
@@ -913,6 +1077,10 @@ namespace MicroLife_Simulator
                 name = "Clues";
                 color = Color.LavenderBlush;
                 energyCost = 0;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Зацепки для прикрепления к другим организмам";
             }
             public override string UpdateMyData()
             {
@@ -961,12 +1129,13 @@ namespace MicroLife_Simulator
             bool CheckDistance(Organism body, Organism? target)
             {
                 if (target == null) return false;
-                return Math.Abs(body.point.X - target.point.X) <= holdOnRange * 2 || Math.Abs(body.point.Y - target.point.Y) <= holdOnRange * 2;
+                return Math.Abs(body.point.X - target.point.X) <= holdOnRange || Math.Abs(body.point.Y - target.point.Y) <= holdOnRange;
             }
             public override void Dosomething(Organism body, Bitmap bmp)
             {
-                if (target == null) { FindTargets(body, bmp); body.move = true; } else { Hook(body, bmp); body.move = false; }
-                if ((target != null && !CheckDistance(body, target)) || (target != null && target.food <= 0)) { target = null; }
+                if (target == null) { FindTargets(body, bmp); body.move = true; } 
+                if (target != null) { Hook(body, bmp); body.move = false; }
+                if ((target != null && !CheckDistance(body, target)) || (target != null && target.food <= 300)) { target = null; body.globalTarget = null; body.move = true; }
                 myMove = body.move;
             }
         }
@@ -983,6 +1152,10 @@ namespace MicroLife_Simulator
                 name = "Claws";
                 color = Color.WhiteSmoke;
                 energyCost = 1;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Когти для удержание другого организма";
             }
             public override string UpdateMyData()
             {
@@ -1040,6 +1213,13 @@ namespace MicroLife_Simulator
             }
         }
         /// <summary>
+        /// позволяет склеиваться с себе подобными
+        /// </summary>
+        class Glue
+        {
+
+        }
+        /// <summary>
         /// позволяют получать питание от солнца
         /// </summary>
         class Chlorophylls : BodyPart
@@ -1049,6 +1229,10 @@ namespace MicroLife_Simulator
                 name = "Chlorophylls";
                 color = Color.LightGreen;
                 energyCost = 1;
+            }
+            public override string DiscriptionMySpec()
+            {
+                return "Хлорофилы в организме энергия от света";
             }
             public override string UpdateMyData()
             {
@@ -1105,9 +1289,23 @@ namespace MicroLife_Simulator
         /// <summary>
         /// Позволяет ускоряться на короткое время
         /// </summary>
-        class Tail
+        class Tail : BodyPart
         {
-
+            public Tail()
+            {
+                name = "Tail";
+                color = Color.LightGray;
+                energyCost = 1;
+            }
+            public override string UpdateMyData()
+            {
+                base.UpdateMyData();
+                return "";
+            }
+            public override void Dosomething(Organism body, Bitmap bmp)
+            {
+                //брать словарь организмов, искать ближайших и передавать им какие то данные
+            }
         }
         /// <summary>
         /// метаморфизин это особая часть тела, которая не является физическим органом и не выполняющая физических действий, но позволяет организму переходить в другую фазу, позволяя менять расположение частей тела

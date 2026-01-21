@@ -30,6 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            listBox1 = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
             button1 = new Button();
             checkBox1 = new CheckBox();
@@ -46,6 +47,8 @@
             trackBar2 = new TrackBar();
             label14 = new Label();
             groupBox1 = new GroupBox();
+            label33 = new Label();
+            label32 = new Label();
             label16 = new Label();
             label15 = new Label();
             pictureBox2 = new PictureBox();
@@ -73,7 +76,6 @@
             label11 = new Label();
             label10 = new Label();
             panel1 = new Panel();
-            button3 = new Button();
             groupBox6 = new GroupBox();
             label25 = new Label();
             progressBar1 = new ProgressBar();
@@ -81,7 +83,6 @@
             label2 = new Label();
             label6 = new Label();
             label4 = new Label();
-            listBox1 = new ListBox();
             panel3 = new Panel();
             comboBox1 = new ComboBox();
             pictureBox4 = new PictureBox();
@@ -89,18 +90,26 @@
             pictureBox3 = new PictureBox();
             label19 = new Label();
             label18 = new Label();
+            button6 = new Button();
             button7 = new Button();
             button5 = new Button();
+            panel4 = new Panel();
+            textBox3 = new TextBox();
             button4 = new Button();
             groupBox7 = new GroupBox();
-            button10 = new Button();
-            button9 = new Button();
-            panel2 = new Panel();
-            panel4 = new Panel();
-            button6 = new Button();
-            textBox3 = new TextBox();
-            pictureBox1 = new PictureBox();
+            checkBox4 = new CheckBox();
+            checkBox3 = new CheckBox();
+            label26 = new Label();
             button11 = new Button();
+            label27 = new Label();
+            label28 = new Label();
+            label29 = new Label();
+            button3 = new Button();
+            pictureBox1 = new PictureBox();
+            label30 = new Label();
+            panel2 = new Panel();
+            label31 = new Label();
+            label34 = new Label();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -121,11 +130,26 @@
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
-            groupBox7.SuspendLayout();
-            panel2.SuspendLayout();
             panel4.SuspendLayout();
+            groupBox7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            panel2.SuspendLayout();
             SuspendLayout();
+            // 
+            // listBox1
+            // 
+            listBox1.BackColor = Color.Gray;
+            listBox1.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point);
+            listBox1.FormattingEnabled = true;
+            listBox1.HorizontalExtent = 300;
+            listBox1.HorizontalScrollbar = true;
+            listBox1.ImeMode = ImeMode.On;
+            listBox1.Items.AddRange(new object[] { "" });
+            listBox1.Location = new Point(0, 329);
+            listBox1.Margin = new Padding(0);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new Size(239, 290);
+            listBox1.TabIndex = 17;
             // 
             // timer1
             // 
@@ -287,8 +311,8 @@
             // 
             trackBar2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             trackBar2.AutoSize = false;
+            trackBar2.LargeChange = 1;
             trackBar2.Location = new Point(28, 13);
-            trackBar2.Maximum = 30;
             trackBar2.Minimum = -1;
             trackBar2.Name = "trackBar2";
             trackBar2.Orientation = Orientation.Vertical;
@@ -312,6 +336,8 @@
             // groupBox1
             // 
             groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(label33);
+            groupBox1.Controls.Add(label32);
             groupBox1.Controls.Add(label16);
             groupBox1.Controls.Add(label15);
             groupBox1.Controls.Add(pictureBox2);
@@ -323,6 +349,24 @@
             groupBox1.Size = new Size(228, 527);
             groupBox1.TabIndex = 9;
             groupBox1.TabStop = false;
+            // 
+            // label33
+            // 
+            label33.AutoSize = true;
+            label33.Location = new Point(121, 504);
+            label33.Name = "label33";
+            label33.Size = new Size(44, 15);
+            label33.TabIndex = 16;
+            label33.Text = "label33";
+            // 
+            // label32
+            // 
+            label32.AutoSize = true;
+            label32.Location = new Point(71, 504);
+            label32.Name = "label32";
+            label32.Size = new Size(44, 15);
+            label32.TabIndex = 15;
+            label32.Text = "label32";
             // 
             // label16
             // 
@@ -353,7 +397,6 @@
             pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox2.TabIndex = 12;
             pictureBox2.TabStop = false;
-            pictureBox2.MouseMove += pictureBox2_MouseMoveAndDown;
             // 
             // groupBox3
             // 
@@ -640,24 +683,14 @@
             // 
             // panel1
             // 
-            panel1.Controls.Add(button3);
             panel1.Controls.Add(groupBox6);
+            panel1.Controls.Add(button6);
             panel1.Controls.Add(button7);
             panel1.Controls.Add(button5);
-            panel1.Location = new Point(855, 2);
+            panel1.Location = new Point(861, -1);
             panel1.Name = "panel1";
             panel1.Size = new Size(249, 658);
             panel1.TabIndex = 1;
-            // 
-            // button3
-            // 
-            button3.Location = new Point(14, 624);
-            button3.Name = "button3";
-            button3.Size = new Size(45, 23);
-            button3.TabIndex = 0;
-            button3.Text = "Close";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
             // 
             // groupBox6
             // 
@@ -673,9 +706,9 @@
             groupBox6.Controls.Add(label18);
             groupBox6.Controls.Add(label11);
             groupBox6.Controls.Add(label10);
-            groupBox6.Location = new Point(14, 0);
+            groupBox6.Location = new Point(6, 3);
             groupBox6.Name = "groupBox6";
-            groupBox6.Size = new Size(228, 618);
+            groupBox6.Size = new Size(239, 618);
             groupBox6.TabIndex = 1;
             groupBox6.TabStop = false;
             groupBox6.Text = "Organism Status";
@@ -734,18 +767,6 @@
             label4.Size = new Size(78, 15);
             label4.TabIndex = 18;
             label4.Text = "CanDublicate";
-            // 
-            // listBox1
-            // 
-            listBox1.BackColor = Color.Gray;
-            listBox1.FormattingEnabled = true;
-            listBox1.ImeMode = ImeMode.On;
-            listBox1.ItemHeight = 15;
-            listBox1.Items.AddRange(new object[] { "" });
-            listBox1.Location = new Point(0, 329);
-            listBox1.Name = "listBox1";
-            listBox1.Size = new Size(228, 289);
-            listBox1.TabIndex = 17;
             // 
             // panel3
             // 
@@ -815,6 +836,17 @@
             label18.TabIndex = 12;
             label18.Text = "Age";
             // 
+            // button6
+            // 
+            button6.Location = new Point(69, 624);
+            button6.Name = "button6";
+            button6.Size = new Size(84, 23);
+            button6.TabIndex = 1;
+            button6.Text = "Close";
+            button6.UseVisualStyleBackColor = true;
+            button6.Visible = false;
+            button6.Click += button6_Click;
+            // 
             // button7
             // 
             button7.Location = new Point(159, 624);
@@ -835,6 +867,25 @@
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
             // 
+            // panel4
+            // 
+            panel4.Controls.Add(textBox3);
+            panel4.Location = new Point(624, -1);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(237, 658);
+            panel4.TabIndex = 1;
+            panel4.Visible = false;
+            // 
+            // textBox3
+            // 
+            textBox3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            textBox3.BackColor = Color.White;
+            textBox3.Location = new Point(3, 10);
+            textBox3.Multiline = true;
+            textBox3.Name = "textBox3";
+            textBox3.Size = new Size(225, 609);
+            textBox3.TabIndex = 0;
+            // 
             // button4
             // 
             button4.Location = new Point(1110, 626);
@@ -847,86 +898,48 @@
             // 
             // groupBox7
             // 
-            groupBox7.Controls.Add(button10);
-            groupBox7.Controls.Add(button9);
+            groupBox7.Controls.Add(checkBox4);
+            groupBox7.Controls.Add(checkBox3);
             groupBox7.Location = new Point(1110, 535);
             groupBox7.Name = "groupBox7";
             groupBox7.Size = new Size(228, 85);
             groupBox7.TabIndex = 15;
             groupBox7.TabStop = false;
             // 
-            // button10
+            // checkBox4
             // 
-            button10.Location = new Point(198, 34);
-            button10.Name = "button10";
-            button10.Size = new Size(24, 23);
-            button10.TabIndex = 2;
-            button10.Text = "Y";
-            button10.UseVisualStyleBackColor = true;
-            button10.Visible = false;
-            button10.Click += button10_Click;
+            checkBox4.AutoSize = true;
+            checkBox4.Checked = true;
+            checkBox4.CheckState = CheckState.Checked;
+            checkBox4.Location = new Point(6, 47);
+            checkBox4.Name = "checkBox4";
+            checkBox4.Size = new Size(104, 19);
+            checkBox4.TabIndex = 1;
+            checkBox4.Text = "Draw Pollution";
+            checkBox4.UseVisualStyleBackColor = true;
+            checkBox4.Visible = false;
             // 
-            // button9
+            // checkBox3
             // 
-            button9.Location = new Point(6, 13);
-            button9.Name = "button9";
-            button9.Size = new Size(85, 23);
-            button9.TabIndex = 2;
-            button9.Text = "Add part";
-            button9.UseVisualStyleBackColor = true;
-            button9.Click += button9_Click;
+            checkBox3.AutoSize = true;
+            checkBox3.Checked = true;
+            checkBox3.CheckState = CheckState.Checked;
+            checkBox3.Location = new Point(6, 22);
+            checkBox3.Name = "checkBox3";
+            checkBox3.Size = new Size(83, 19);
+            checkBox3.TabIndex = 0;
+            checkBox3.Text = "Draw Food";
+            checkBox3.UseVisualStyleBackColor = true;
+            checkBox3.Visible = false;
             // 
-            // panel2
+            // label26
             // 
-            panel2.Controls.Add(panel4);
-            panel2.Controls.Add(pictureBox1);
-            panel2.Location = new Point(12, 12);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(1078, 631);
-            panel2.TabIndex = 1;
-            // 
-            // panel4
-            // 
-            panel4.Controls.Add(button6);
-            panel4.Controls.Add(textBox3);
-            panel4.Location = new Point(609, -10);
-            panel4.Name = "panel4";
-            panel4.Size = new Size(237, 641);
-            panel4.TabIndex = 1;
-            panel4.Visible = false;
-            // 
-            // button6
-            // 
-            button6.Location = new Point(3, 615);
-            button6.Name = "button6";
-            button6.Size = new Size(45, 23);
-            button6.TabIndex = 1;
-            button6.Text = "Close";
-            button6.UseVisualStyleBackColor = true;
-            button6.Click += button6_Click;
-            // 
-            // textBox3
-            // 
-            textBox3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBox3.Location = new Point(3, 10);
-            textBox3.Multiline = true;
-            textBox3.Name = "textBox3";
-            textBox3.Size = new Size(225, 599);
-            textBox3.TabIndex = 0;
-            // 
-            // pictureBox1
-            // 
-            pictureBox1.Anchor = AnchorStyles.None;
-            pictureBox1.BackColor = Color.Black;
-            pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1078, 631);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
-            pictureBox1.MouseClick += pictureBox1_MouseClick;
-            pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
-            pictureBox1.MouseWheel += pictureBox1_MouseWheel;
+            label26.AutoSize = true;
+            label26.Location = new Point(38, 645);
+            label26.Name = "label26";
+            label26.Size = new Size(44, 15);
+            label26.TabIndex = 3;
+            label26.Text = "label26";
             // 
             // button11
             // 
@@ -938,15 +951,112 @@
             button11.UseVisualStyleBackColor = true;
             button11.Click += button11_Click;
             // 
+            // label27
+            // 
+            label27.AutoSize = true;
+            label27.Location = new Point(111, 645);
+            label27.Name = "label27";
+            label27.Size = new Size(44, 15);
+            label27.TabIndex = 17;
+            label27.Text = "label27";
+            // 
+            // label28
+            // 
+            label28.AutoSize = true;
+            label28.Location = new Point(15, 645);
+            label28.Name = "label28";
+            label28.Size = new Size(17, 15);
+            label28.TabIndex = 18;
+            label28.Text = "X:";
+            // 
+            // label29
+            // 
+            label29.AutoSize = true;
+            label29.Location = new Point(88, 645);
+            label29.Name = "label29";
+            label29.Size = new Size(17, 15);
+            label29.TabIndex = 19;
+            label29.Text = "Y:";
+            // 
+            // button3
+            // 
+            button3.Location = new Point(1110, 626);
+            button3.Name = "button3";
+            button3.Size = new Size(102, 23);
+            button3.TabIndex = 0;
+            button3.Text = "Close";
+            button3.UseVisualStyleBackColor = true;
+            button3.Visible = false;
+            button3.Click += button3_Click;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Anchor = AnchorStyles.None;
+            pictureBox1.BackColor = Color.Black;
+            pictureBox1.Location = new Point(0, 0);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(1094, 627);
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.TabIndex = 0;
+            pictureBox1.TabStop = false;
+            pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
+            // 
+            // label30
+            // 
+            label30.AutoSize = true;
+            label30.Location = new Point(173, 642);
+            label30.Name = "label30";
+            label30.Size = new Size(44, 15);
+            label30.TabIndex = 20;
+            label30.Text = "label30";
+            // 
+            // panel2
+            // 
+            panel2.BackColor = Color.Transparent;
+            panel2.Controls.Add(pictureBox1);
+            panel2.Enabled = false;
+            panel2.ImeMode = ImeMode.Disable;
+            panel2.Location = new Point(12, 12);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(1092, 627);
+            panel2.TabIndex = 21;
+            // 
+            // label31
+            // 
+            label31.AutoSize = true;
+            label31.Location = new Point(270, 642);
+            label31.Name = "label31";
+            label31.Size = new Size(44, 15);
+            label31.TabIndex = 22;
+            label31.Text = "label31";
+            // 
+            // label34
+            // 
+            label34.AutoSize = true;
+            label34.Location = new Point(361, 642);
+            label34.Name = "label34";
+            label34.Size = new Size(44, 15);
+            label34.TabIndex = 23;
+            label34.Text = "label34";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(1344, 661);
-            Controls.Add(button11);
+            Controls.Add(label34);
+            Controls.Add(label31);
             Controls.Add(panel1);
+            Controls.Add(panel4);
             Controls.Add(panel2);
+            Controls.Add(label30);
+            Controls.Add(button3);
+            Controls.Add(label29);
+            Controls.Add(label28);
+            Controls.Add(label27);
+            Controls.Add(label26);
+            Controls.Add(button11);
             Controls.Add(button4);
             Controls.Add(groupBox7);
             Controls.Add(groupBox1);
@@ -955,6 +1065,11 @@
             MaximizeBox = false;
             Name = "Form1";
             Text = "MicroLife simulator";
+            MouseClick += Form1_MouseClick;
+            MouseDown += Form1_MouseDown;
+            MouseMove += Form1_MouseMove;
+            MouseUp += Form1_MouseUp;
+            MouseWheel += Form1_Scroll;
             GrassBox.ResumeLayout(false);
             GrassBox.PerformLayout();
             groupBox5.ResumeLayout(false);
@@ -984,12 +1099,14 @@
             panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
-            groupBox7.ResumeLayout(false);
-            panel2.ResumeLayout(false);
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
+            groupBox7.ResumeLayout(false);
+            groupBox7.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            panel2.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
 
@@ -1020,7 +1137,6 @@
         private Label label13;
         private Label label15;
         private Panel panel1;
-        private Button button3;
         private Button button4;
         private GroupBox groupBox6;
         private PictureBox pictureBox3;
@@ -1032,20 +1148,15 @@
         private TrackBar trackBar5;
         private Label label19;
         private Label label18;
-        private Panel panel2;
-        public PictureBox pictureBox1;
         private Panel panel3;
         private PictureBox pictureBox4;
         private ComboBox comboBox1;
-        private ListBox listBox1;
         private Label label20;
         private Label label4;
         private Label label6;
         private Label label9;
         private Button button5;
-        private Panel panel4;
         private Button button6;
-        private TextBox textBox3;
         private Button button7;
         private Label label21;
         private Label label22;
@@ -1059,11 +1170,26 @@
         private Label label2;
         private Label label25;
         private ProgressBar progressBar1;
-        private Button button10;
-        private Button button9;
         private CheckBox AutoKill;
         private TrackBar trackBar3;
         private CheckBox checkBox2;
         private Button button11;
+        private Label label26;
+        private Label label27;
+        private Label label28;
+        private Label label29;
+        public ListBox listBox1;
+        public CheckBox checkBox4;
+        public CheckBox checkBox3;
+        private Panel panel4;
+        private TextBox textBox3;
+        private Button button3;
+        public PictureBox pictureBox1;
+        private Label label30;
+        private Panel panel2;
+        private Label label31;
+        private Label label33;
+        private Label label32;
+        private Label label34;
     }
 }

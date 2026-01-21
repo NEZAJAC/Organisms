@@ -3,6 +3,11 @@ namespace MicroLife_Simulator
 
     public partial class Form1 : Form
     {
+        static public int zoomValue = 1;
+        int x = 0;
+        int y = 0;
+        Point bmpPosition = new Point();
+        Point p = new Point(0, 0);
 
         public static Point BorderChecker(Point point, Bitmap bmp)
         {
@@ -83,61 +88,39 @@ namespace MicroLife_Simulator
         private void AutoKillProcent()
         {
             //trackBar3.Maximum = 100;
-            int intToDie = MAXorganis - trackBar3.Value * MAXorganis / trackBar3.Maximum;
-            while (--intToDie > 0)
+            if (controller.cellsList.Count >= MAXorganis)
             {
-                controller.cellsListTORemove.Add(controller.cellsList[rand.Next(0, controller.cellsList.Count)]);
+                int intToDie = MAXorganis - trackBar3.Value * MAXorganis / trackBar3.Maximum;
+                while (--intToDie > 0)
+                {
+                    controller.cellsListTORemove.Add(controller.cellsList[rand.Next(0, controller.cellsList.Count)]);
 
+                }
             }
             //label20.Text = intToDie.ToString();
         }
-        int zoomValue = 1;
-        private void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
-        {
-            if (e.Delta > 0 && zoomValue < 10)
-            {
-                zoomValue++;
-                pictureBox1.Size += size;
-                int x = -e.X;
-                int y = -e.Y;
-                pictureBox1.Location = new Point
-                (
-                    x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x,
-                    y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y
-                );
-            }
-            else if (e.Delta < 0 && zoomValue > 1)
-            {
-                zoomValue--;
-                pictureBox1.Size -= size;
-                int x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width + bmp.Width / 2;
-                int y = -e.Y * bmp.Height * (zoomValue - 1) / pictureBox1.Height + bmp.Height / 2;
-
-                x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
-                y = y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y;
-
-                pictureBox1.Location = new Point(x, y);
-            }
-
-            //label20.Text = "@" + pictureBox1.Location.X.ToString();
-            //label21.Text = "@" + pictureBox1.Location.Y.ToString();
-            label15.Text = "x" + zoomValue.ToString() + "  Zoom";
-        }
+        
+        
+        
         private void pictureBox1_MouseMoveAndDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
+            //label26.Text = e.X.ToString();
+            //label27.Text = e.Y.ToString();
 
-                int x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width + bmp.Width / 2 + e.Location.X;
-                int y = -e.Y * bmp.Height * (zoomValue - 1) / pictureBox1.Height + bmp.Height / 2 + e.Location.Y;
+            //if (!dragOn)
+            //{
 
-                x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
-                y = y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y;
+            //    x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width + bmp.Width / 2 + e.Location.X;
+            //    y = -e.Y * bmp.Height * (zoomValue - 1) / pictureBox1.Height + bmp.Height / 2 + e.Location.Y;
 
-                //label20.Text = e.X.ToString() + " " + bmp.Width.ToString();
-                //label21.Text = e.Y.ToString() + " " + bmp.Height.ToString();
-                //pictureBox1.Location = new Point(x, y);
-            }
+            //    x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
+            //    y = y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y;
+
+            //    //label20.Text = e.X.ToString() + " " + bmp.Width.ToString();
+            //    //label21.Text = e.Y.ToString() + " " + bmp.Height.ToString();
+            //    //pictureBox1.Location = new Point(x, y);
+            //}
+
         }
         private void pictureBox2_MouseMoveAndDown(object sender, MouseEventArgs e)
         {
@@ -161,27 +144,20 @@ namespace MicroLife_Simulator
                 controller.grassListTORemove.Add(controller.grassList[i]);
             }
         }
-        Point p = new Point(0, 0);
-        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
-        {
-            p = new Point(e.Location.X / zoomValue, e.Location.Y / zoomValue);
-            controller.SelectTarget(p);
-            if (panel1.Visible)
-            {
-                controller.ListBoxUpdate(controller.selectedObject);
-                controller.ComboBoxUpdate(controller.selectedObject);
-                controller.DrawOrganColor(controller.bmpOrganColor);
-            }
-            //label20.Text = bmp.GetPixel(p.X, p.Y).ToString();
-            //label21.Text = p.ToString();
-        }
+        
         private void button3_Click(object sender, EventArgs e)
         {
+            button6.Hide();
+            panel4.Hide();
             panel1.Hide();
+            button3.Hide();
+            button4.Show();
         }
         private void button4_Click(object sender, EventArgs e)
         {
             panel1.Show();
+            button4.Hide();
+            button3.Show();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -210,11 +186,15 @@ namespace MicroLife_Simulator
                 textBox3.Text += "\r\nOrganism ID:  ";
                 textBox3.Text += controller.selectedObject.GetID(controller.selectedObject.myGenWords);
             }
-            panel4.Visible = true;
+            panel4.Show();
+            button4.Hide();
+            button6.Show();
         }
         private void button6_Click(object sender, EventArgs e)
         {
-            panel4.Visible = false;
+            panel4.Hide();
+            button4.Show();
+            button6.Hide();
         }
         private void button7_Click(object sender, EventArgs e)
         {
@@ -267,17 +247,17 @@ namespace MicroLife_Simulator
 
         private void button10_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void trackBar3_Scroll(object sender, EventArgs e)
         {
-
+            //управляет процентом автокила
         }
 
         private void AutoKill_CheckedChanged(object sender, EventArgs e)
         {
-            trackBar3.Enabled = !trackBar3.Enabled;
+            //trackBar3.Enabled = !trackBar3.Enabled;
         }
 
         private void button11_Click(object sender, EventArgs e)
@@ -285,7 +265,90 @@ namespace MicroLife_Simulator
             string pass = Directory.GetCurrentDirectory();
             string rName = Guid.NewGuid().ToString();
             //saveAnyFormat(bmp);
-            SaveBitmapAsBmp(bmp, pass +"\\"+ rName + ".bmp");
+            SaveBitmapAsBmp(bmp, pass + "\\" + rName + ".bmp");
+        }
+        bool dragOn = false;
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            dragOn = true;
+            x = e.X;
+            y = e.Y;
+
+        }
+
+        private void Form1_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragOn = false;
+        }
+        
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            label26.Text = e.X.ToString();
+            label27.Text = e.Y.ToString();
+
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+
+                bmpPosition.X += -(x - e.X);
+                bmpPosition.Y += -(y - e.Y);
+                pictureBox1.Location = bmpPosition;
+                x = e.X;
+                y = e.Y;
+            }
+            label30.Text = pictureBox1.Location.ToString();
+        }
+        
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                p = new Point((e.Location.X - pictureBox1.Location.X - panel2.Location.X) / zoomValue, (e.Location.Y - pictureBox1.Location.Y - panel2.Location.Y) / zoomValue);
+                controller.SelectTarget(p);
+                if (pictureBox3.Visible)
+                {
+                    controller.ListBoxUpdate(controller.selectedObject);
+                    controller.ComboBoxUpdate(controller.selectedObject);
+                    controller.DrawOrganColor(controller.bmpOrganColor);
+                    controller.DrawObservePicture(controller.bmpOrganColor);
+                }
+                //label20.Text = bmp.GetPixel(p.X, p.Y).ToString();
+                //label21.Text = p.ToString();
+                label31.Text = p.ToString();
+            }
+        }
+
+        private void Form1_Scroll(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0 && zoomValue < 10)
+            {
+                zoomValue++;
+                pictureBox1.Size += size;
+                int x = -e.X;
+                int y = -e.Y;
+                pictureBox1.Location = new Point
+                (
+                    x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x,
+                    y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y
+                );
+                label34.Text = pictureBox1.Location.ToString();
+            }
+            else if (e.Delta < 0 && zoomValue > 1)
+            {
+                zoomValue--;
+                pictureBox1.Size -= size;
+                int x = -e.X * bmp.Width * (zoomValue - 1) / pictureBox1.Width + bmp.Width / 2;
+                int y = -e.Y * bmp.Height * (zoomValue - 1) / pictureBox1.Height + bmp.Height / 2;
+
+                x = x < -bmp.Width * (zoomValue - 1) ? -bmp.Width * (zoomValue - 1) : x > 0 ? 0 : x;
+                y = y < -bmp.Height * (zoomValue - 1) ? -bmp.Height * (zoomValue - 1) : y > 0 ? 0 : y;
+
+                pictureBox1.Location = new Point(x, y);
+            }
+            label32.Text = bmp.Width.ToString();
+            label33.Text = bmp.Height.ToString();
+            //label20.Text = "@" + pictureBox1.Location.X.ToString();
+            //label21.Text = "@" + pictureBox1.Location.Y.ToString();
+            label15.Text = "x" + zoomValue.ToString() + "  Zoom";
         }
     }
 

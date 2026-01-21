@@ -94,10 +94,10 @@ namespace MicroLife_Simulator
             {
 
                 maxfood = 100;
-                food = rand.Next(maxfood / 10);
+                food = rand.Next(maxfood);
                 maxfood = rand.Next(500, 1000);
                 maxage = 1000;
-                age = rand.Next(50, 1000);
+                age = rand.Next(50, maxage);
                 pen.Color = Color.Green;
                 point = pointIN;
 
@@ -117,7 +117,7 @@ namespace MicroLife_Simulator
                 int y = point.Y + rand.Next(-20, 21);
                 Point newpoint = BorderChecker(x, y, bmp);
                 Color color = bmp.GetPixel(newpoint.X, newpoint.Y);
-                if (color.G == 0 && color.B == 0 && color.R == 0) { pointt = newpoint; return true; } else pointt = new Point(-1, -1); return false;
+                if (color.G == 0 && color.B == 0 && color.R == 0 && food >= maxfood) { pointt = newpoint; return true; } else pointt = new Point(-1, -1); return false;
             }
             new public void Draw(Bitmap bmp)
             {
@@ -255,7 +255,8 @@ namespace MicroLife_Simulator
                 "Claws",
                 "Chlorophylls",
                 "Keratin",
-                "Cloaca"
+                "Cloaca",
+                "BloodyMouth"
             };
             public string[]? myGenWords;
             public OrganismParameters parameters;
@@ -301,10 +302,16 @@ namespace MicroLife_Simulator
                 fatigue = rand.Next(0, parameters.maxFatigue);
                 radiation = parent.radiation;
                 GenCopyes(genList,parent.genList);
+                if(genList.Count == 0)
+                {
+                    food = 0;
+                    age = parameters.maxage;
+                    return;
+                }
                 GenMutation(genList);
                 BodyAddRandomPart(genList);
                 BodyChengeRandomPart(genList);
-                //BodyRemoveRandomPart(genList);//---------------------------------------------------------------------------------------------понять как убирать органы
+                //BodyRemoveRandomPart(genList);//---------------------------------------------------------------------------------------------понять как убирать правильно  органы
                 BodyCreate(genList);
                 myGenWords = GetGenotype(this).Split(new char[] { '|' });
                 myGuid = Guid.NewGuid();
@@ -580,7 +587,7 @@ namespace MicroLife_Simulator
                 for (int i = 0; i < points.Count; i++)
                 {
                     Color color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256));
-                    switch (rand.Next(1, 14))
+                    switch (rand.Next(1, 15))
                     {
                         case 1: { genList.Add(new Genome { part = "Mouth", localplace = points[i], color = color }); bodyTypes.Add(new Mouth()); } break;
                         case 2: { genList.Add(new Genome { part = "Leg", localplace = points[i], color = color }); bodyTypes.Add(new Leg()); } break;
@@ -595,6 +602,7 @@ namespace MicroLife_Simulator
                         case 11: { genList.Add(new Genome { part = "Claws", localplace = points[i], color = color }); bodyTypes.Add(new Claws()); } break;
                         case 12: { genList.Add(new Genome { part = "Sensors", localplace = points[i], color = color }); bodyTypes.Add(new Sensors()); } break;
                         case 13: { genList.Add(new Genome { part = "Cloaca", localplace = points[i], color = color }); bodyTypes.Add(new Cloaca()); } break;
+                        case 14: { genList.Add(new Genome { part = "BloodyMouth", localplace = points[i], color = color }); bodyTypes.Add(new BloodyMouth()); } break;
 
                     }
                     bodyTypes[bodyTypes.Count - 1].localplace = genList[genList.Count - 1].localplace;
@@ -624,77 +632,78 @@ namespace MicroLife_Simulator
             {
                 //любое число для сравнения обязано быть меньше 100 иначе при уровне радиации 200 результат никогда не будет положительным
                 //Stage 1 some chenges
-                int chance = rand.Next(0, 212 - radiation);
+                int radiationMax = 216;
+                int chance = rand.Next(0, radiationMax - radiation);
                 //1
                 if (chance == 1)
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = Normalizator(), part = genotype[rnd].part, color = genotype[rnd].color };
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //2
                 if (chance == 2) //цвет
                 {
                     int rnd = rand.Next(0, genotype.Count);
                     genotype[rnd] = new Genome { localplace = genotype[rnd].localplace, part = genotype[rnd].part, color = Color.FromArgb(rand.Next(0, 256), rand.Next(0, 256), rand.Next(0, 256)) };
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //3
                 if (chance == 3)
                 {
                     int rnd = parameters.dublicateDelayMax + rand.Next(-radiation / 10, radiation / 10);
                     parameters.dublicateDelayMax = rnd < 50 ? rnd : 50;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //4
                 if (chance == 4)
                 {
                     int rnd = parameters.dublicateFood + rand.Next(-300, 300);
                     parameters.dublicateFood = rnd < parameters.maxFood && rnd > parameters.maxFood / 10 ? rnd : parameters.dublicateFood;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //5
                 if (chance == 5)
                 {
                     int rnd = parameters.maxage + rand.Next(-300, 300);
                     parameters.maxage = rnd > 0 ? rnd : parameters.maxage;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //6
                 if (chance == 6)
                 {
                     int rnd = parameters.maxFood + rand.Next(-300, 300);
                     parameters.maxFood = rnd > parameters.dublicateFood ? rnd : parameters.maxFood;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //7
                 if (chance == 7)
                 {
                     int rnd = parameters.dublicateFoodPrice + rand.Next(-300, 300);
                     parameters.dublicateFoodPrice = rnd > 0 ? rnd : parameters.dublicateFoodPrice;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //8
                 if (chance == 8)
                 {
                     int rnd = parameters.dublicateAgeMin + rand.Next(-300, 300);
                     parameters.dublicateAgeMin = rnd > 0 ? rnd : parameters.dublicateAgeMin;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //9
                 if (chance == 9)
                 {
                     int rnd = parameters.maxFatigue + rand.Next(-10, 11);
                     parameters.maxFatigue = rnd > 0 ? rnd : parameters.maxFatigue;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //10
                 if (chance == 10)
                 {
                     int rnd = parameters.exhaustionLvl + rand.Next(-1, 2);
                     parameters.exhaustionLvl = rnd > 0 && rnd <= 10 ? rnd : parameters.exhaustionLvl;
                 }
-                chance = rand.Next(0, 212 - radiation);
+                chance = rand.Next(0, radiationMax - radiation);
                 //11
                 if (chance == 11)
                 {
@@ -815,7 +824,12 @@ namespace MicroLife_Simulator
                             globalplace = point,
                             color = genList[i].color
                         },
-                        
+                        "BloodyMouth" => new BloodyMouth
+                        {
+                            localplace = genList[i].localplace,
+                            globalplace = point,
+                            color = genList[i].color
+                        },
                         _ => new Fats
                         {
                             localplace = genList[i].localplace,
@@ -832,24 +846,16 @@ namespace MicroLife_Simulator
                 Normalize(bmp);
                 foreach (var item in bodyTypes)//Clean
                 {
-                    //Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
                     Point p = BorderChecker(new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                     p = BorderChecker(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, item.color);
                 }
-                //foreach (var item in bodyTypes)//Draw
-                //{
-                    //Point p = new Point(point.X + item.localplace.X, point.Y + item.localplace.Y);
-                //    Point p = BorderChecker(new Point(point.X + item.localplace.X, point.Y + item.localplace.Y), bmp);
-                //    bmp.SetPixel(p.X, p.Y, item.color);
-                //}
             }
             public void Cleary(Bitmap bmp)
             {
                 foreach (var item in bodyTypes)//Clean
                 {
-                    //Point p = new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y);
                     Point p = BorderChecker(new Point(lastPoint.X + item.localplace.X, lastPoint.Y + item.localplace.Y), bmp);
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                 }
@@ -878,9 +884,9 @@ namespace MicroLife_Simulator
                 point = newPoint != new Point(0, 0) ? newPoint : point; //----------------------------------------------------------фикс появления в углу экрана
                 age++;//старение
                 PoopasAdd();
-
+                if (bodyTypes.Count < 2) { controller.cellsListTORemove.Add(this); };
             }
-            void PoopasAdd()
+            void PoopasAdd()//------------------------------------------------------------------------------------------------------какахи или заражение, не дают в том месте расти траве
             {
                 if (pooopas >= 1000)
                 {

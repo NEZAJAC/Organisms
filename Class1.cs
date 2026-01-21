@@ -10,10 +10,11 @@ namespace MicroLife_Simulator
         int MAXgrass = 10000;
         int MAXorganis = 100;
         Random rand = new Random();
-        Bitmap? bmp;
+        public Bitmap? bmp;
+        public Bitmap? bmpGrass;
         Bitmap? bmpObservePicture;
         Bitmap? bmpOrgansColor;
-        Controller controller = new Controller(15, 10);
+        Controller controller = new Controller(10, 10);
         Stopwatch sw = Stopwatch.StartNew();
         Size size;
         public Form1()
@@ -25,8 +26,8 @@ namespace MicroLife_Simulator
         {
             size = pictureBox1.Size;
             panel1.AutoScroll = true;
-            //pictureBox1.Size = size*3;
             bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            bmpGrass = new Bitmap(pictureBox1.Height, pictureBox1.Width);
             bmpObservePicture = new Bitmap(pictureBox3.Width, pictureBox3.Height);
             bmpOrgansColor = new Bitmap(pictureBox4.Width, pictureBox4.Height);
             pictureBox3.Size *= 8;//------------------------------------------------------------------------ увеличиваю картинку что бы видеть организм лучше
@@ -36,7 +37,6 @@ namespace MicroLife_Simulator
             MAXorganis = int.Parse(textBox2.Lines[0]);
             //------------------------
             controller.CreateLive(bmp, rand, pictureBox1, 100, 100, 0, 500);
-            
             
             controller.comboBox = comboBox1;
             controller.listBox = listBox1;
@@ -51,7 +51,22 @@ namespace MicroLife_Simulator
             //------------------------------
             panel1.Hide();
         }
-
+        //Сделать таймер времени эмуляции
+        //сделать кнопку выборки всех существ с одним генотипом/ подсчет этих особей/кнопка для удаления всех существ этого генотипа
+        //Систему автоматического сохранения генома и автоматическую загрузку
+        //Добавить возможность именовать комбинации генов при сохранении
+        //Добавить краткие описания органоидов ✔
+        //Расширение карты(до 9 пнг)
+        //Переработать автокил
+        //движение карты с помощью мыши тыкая по карте а не по миникарте
+        //проработать зону игнорирования возможного перемещения для ноги, подготовка к препятствиям
+        //добавить кнопку рестарт
+        //динамическая смена дня ночи по галочке
+        //-------------------------------Из сложного
+        //обобщить поиск организма, убрав его из органов, в органах использовать уже готовые результаты поиска, поиск основывать на имеющихся органов нуждающихся в поиске проверяя их условия.
+        //переписать рисовальщик убрав возможность рисовать у всех организмов. Организмы добавляют цвет и положение пикселя, рисовальщик рисует все сразу
+        //пофиксить генерацию организмов, что бы было без дыр, все органы должны стоять рядом. Возможно нужно переработать поиск возможных мест.
+        //СОХРАНЕНИЕ ЭМУЛЯЦИИ В ТЕКСТОВЫЙ ФАЙЛ(БУДЕТ МНОГО) ДЛЯ ДАЛЬНЕЙШЕГО ПРОДОЛЖЕНИЯ И ПЕРЕДАЧИ 
         private void timer1_Tick(object sender, EventArgs e)
         {
             label13.Text = sw.ElapsedMilliseconds.ToString();
@@ -59,14 +74,16 @@ namespace MicroLife_Simulator
             label13.ForeColor = Color.FromArgb(255, power, 255 - power, 0);
             sw.Restart();
             sw.Start();
+            if (checkBox1.Checked)
+            {
+                ControllerGrassWork();
+                ControllerCellWork();
+                ControllerEggWork();
 
-            UpdateTargetInfo();
+                UpdateTargetInfo();
+            }
 
-            ControllerGrassWork();
-            ControllerCellWork();
-            ControllerEggWork();
-
-			controller.Draw(bmp);
+            controller.Draw(bmp);
             pictureBox1.Image = bmp;
             pictureBox2.Image = bmp;//----------------------------------------Minimap
             //TESTobstaclesDraw(bmp);
@@ -85,8 +102,7 @@ namespace MicroLife_Simulator
         private void ControllerCellWork()
         {
             if (AutoKill.Checked && controller.cellsList.Count >= MAXorganis) { AutoKillProcent(); }
-            if (checkBox1.Checked)
-            {
+            
                 controller.cellDictionary.Clear();
                 foreach (Organism organism in controller.cellsList)
                 {
@@ -148,10 +164,11 @@ namespace MicroLife_Simulator
                 }
 
                 
-            }
+            
         }
         private void ControllerGrassWork()
         {
+
             if (checkBox1.Checked)
             {
                 foreach (Grass grass in controller.grassListTEMP)
@@ -169,6 +186,7 @@ namespace MicroLife_Simulator
                             if (grass.Duplicate(bmp, out Point grPoint))
                             {
                                 controller.grassListTEMP.Add(new Grass(grPoint));
+                                grass.food = grass.food / 2;
                                 grass.maxfood += 50;
                             }
                         }

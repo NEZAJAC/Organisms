@@ -33,9 +33,12 @@ namespace MicroLife_Simulator
             int grassCurrent = 1;
             int cellCurrent = 1;
             //-------------------------------------------------------------
-            
             ZoneType? activeType;
             //-------------------------------------------------------------
+            List<Point> infectionToClear = new List<Point>();
+            public Organism? selectedObject = null;
+            int frameSize = 7;
+            List<Point> coloredPoints = new List<Point>();
             public Controller(int sun, int radiation)
             {
                 sunLVL = sun;
@@ -43,7 +46,6 @@ namespace MicroLife_Simulator
                 cellDictionary.AsParallel();
                 grassDictionary.AsParallel();
             }
-
             public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells, int obstacles, int infection)
             {
                 Point point;
@@ -92,25 +94,42 @@ namespace MicroLife_Simulator
                         grassList.Add(new Grass(point));
                     }
                 }
-                
+
             }
             public void Draw(Bitmap bmp)
             {
+                //if (checkBox4.Checked) DrawInfection(bmp);
+                //if (checkBox3.Checked) DrawFoodGrass(bmp);
                 DrawInfection(bmp);
+                DrawFoodGrass(bmp);
                 foreach (Obstacles obstacles in obstaclesList) { obstacles.Draw(bmp); }
-                foreach (Grass grass in grassList) { grass.Draw(bmp); }
+
                 foreach (Organism cell in cellsList) { cell.Draw(bmp); }
                 foreach (Egg egg in eggList) { egg.Draw(bmp); }
-                
+                DrawRectangleOnOrganism(bmp);
+                DrawCursorOnTheField(bmp);
+
+
             }
-            List<Point> infectionToClear = new List<Point>();
+            void DrawCursorOnTheField(Bitmap bmp)
+            {
+
+            }
+            void DrawRectangleOnOrganism(Bitmap bmp)
+            {
+
+            }
+            void DrawFoodGrass(Bitmap bmp)
+            {
+                foreach (Grass grass in grassList) { grass.Draw(bmp); }
+            }
             void DrawInfection(Bitmap bmp)
             {
                 //points.Clear();
                 foreach (var item in infectionLVL)
                 {
-                    if (item.Value == 0) { /*bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty);*/ infectionToClear.Add(item.Key); }
-                    //bmp.SetPixel(item.Key.X, item.Key.Y, Color.FromArgb(255, ColorNormalizator(item.Value), ColorNormalizator(item.Value), 0));//Перестать рисовать каждый такт!!!!!!!!!!!!!!!!
+                    if (item.Value == 0) { bmp.SetPixel(item.Key.X, item.Key.Y, Color.Empty); infectionToClear.Add(item.Key); }
+                    bmp.SetPixel(item.Key.X, item.Key.Y, Color.FromArgb(255, ColorNormalizator(item.Value), ColorNormalizator(item.Value), 0));//Перестать рисовать каждый такт!!!!!!!!!!!!!!!!
                 }
                 foreach (var item in infectionToClear)
                 {
@@ -157,7 +176,7 @@ namespace MicroLife_Simulator
                         for (int j = 0; j < bmp.Height; j++)
                         {
                             bmp.SetPixel(i, j, selectedObject.bodyTypes[comboBox.SelectedIndex].color);
-                            
+
                         }
                     }
 
@@ -176,7 +195,6 @@ namespace MicroLife_Simulator
 
             }
             //----------------------------------------------------------------------------------выбор организма по щелчку ЛКМ-----------доделать перевыбор на одном месте
-            public Organism? selectedObject = null;
             public void SelectTarget(Point selectedPoint)
             {
                 for (int i = -3; i < 4; i++)
@@ -184,14 +202,14 @@ namespace MicroLife_Simulator
                     for (int j = -3; j < 4; j++)
                     {
                         Point p = new Point(selectedPoint.X + i, selectedPoint.Y + j);
-                        if (cellDictionary.ContainsKey(p) && (selectedObject != cellDictionary[p]) )
+                        if (cellDictionary.ContainsKey(p) && (selectedObject != cellDictionary[p]))
                         {
                             selectedObject = cellDictionary[p];
                             selectedPoint = new Point(p.X, p.Y);
                             break;
                         }
                         else { selectedObject = null; }
-                        
+
                     }
                     if (selectedObject != null) { break; }
                 }
@@ -202,10 +220,7 @@ namespace MicroLife_Simulator
                 }
                 ComboBoxUpdate(selectedObject);
             }
-            
             //--------------------------------------------------------------------------отрисовка рамки вокруг организма
-            int frameSize = 7;
-            List<Point> coloredPoints = new List<Point>();
             public void DrawSelectedTargetFrame(Bitmap bmp)
             {
                 foreach (var item in coloredPoints)
@@ -226,6 +241,30 @@ namespace MicroLife_Simulator
                                     bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
                                     coloredPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+            //-------------------------------------------------------------------------рисует положение "камеры" на миникарте(сделать)
+            List<Point> cameraOnMinimapPoints = new List<Point>();
+            public void DrawCameraOnMinimap(Bitmap bmp)
+            {
+                foreach (var item in cameraOnMinimapPoints)
+                {
+                    bmp.SetPixel(item.X, item.Y, Color.Empty);
+                }
+                cameraOnMinimapPoints.Clear();
+                for (int x = -frameSize; x <= frameSize; x++)
+                {
+                    for (int y = -frameSize; y <= frameSize; y++)
+                    {
+                        if ((x == -frameSize || x == frameSize) || (y == -frameSize || y == frameSize))
+                        {
+                            if ((selectedObject.point.X + x > 1) && (selectedObject.point.X + x < bmp.Width) && (selectedObject.point.Y + y > 1) && (selectedObject.point.Y + y < bmp.Height))
+                            {
+                                bmp.SetPixel(selectedObject.point.X + x, selectedObject.point.Y + y, Color.White);
+                                cameraOnMinimapPoints.Add(new Point(selectedObject.point.X + x, selectedObject.point.Y + y));
                             }
                         }
                     }
