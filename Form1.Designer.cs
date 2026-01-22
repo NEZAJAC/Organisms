@@ -99,17 +99,12 @@
             groupBox7 = new GroupBox();
             checkBox4 = new CheckBox();
             checkBox3 = new CheckBox();
-            label26 = new Label();
             button11 = new Button();
             label27 = new Label();
-            label28 = new Label();
-            label29 = new Label();
             button3 = new Button();
             pictureBox1 = new PictureBox();
-            label30 = new Label();
             panel2 = new Panel();
-            label31 = new Label();
-            label34 = new Label();
+            label26 = new Label();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -932,15 +927,6 @@
             checkBox3.UseVisualStyleBackColor = true;
             checkBox3.Visible = false;
             // 
-            // label26
-            // 
-            label26.AutoSize = true;
-            label26.Location = new Point(38, 645);
-            label26.Name = "label26";
-            label26.Size = new Size(44, 15);
-            label26.TabIndex = 3;
-            label26.Text = "label26";
-            // 
             // button11
             // 
             button11.Location = new Point(1230, 626);
@@ -954,29 +940,11 @@
             // label27
             // 
             label27.AutoSize = true;
-            label27.Location = new Point(111, 645);
+            label27.Location = new Point(12, 642);
             label27.Name = "label27";
             label27.Size = new Size(44, 15);
             label27.TabIndex = 17;
             label27.Text = "label27";
-            // 
-            // label28
-            // 
-            label28.AutoSize = true;
-            label28.Location = new Point(15, 645);
-            label28.Name = "label28";
-            label28.Size = new Size(17, 15);
-            label28.TabIndex = 18;
-            label28.Text = "X:";
-            // 
-            // label29
-            // 
-            label29.AutoSize = true;
-            label29.Location = new Point(88, 645);
-            label29.Name = "label29";
-            label29.Size = new Size(17, 15);
-            label29.TabIndex = 19;
-            label29.Text = "Y:";
             // 
             // button3
             // 
@@ -1001,15 +969,6 @@
             pictureBox1.TabStop = false;
             pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
             // 
-            // label30
-            // 
-            label30.AutoSize = true;
-            label30.Location = new Point(173, 642);
-            label30.Name = "label30";
-            label30.Size = new Size(44, 15);
-            label30.TabIndex = 20;
-            label30.Text = "label30";
-            // 
             // panel2
             // 
             panel2.BackColor = Color.Transparent;
@@ -1021,23 +980,14 @@
             panel2.Size = new Size(1092, 627);
             panel2.TabIndex = 21;
             // 
-            // label31
+            // label26
             // 
-            label31.AutoSize = true;
-            label31.Location = new Point(270, 642);
-            label31.Name = "label31";
-            label31.Size = new Size(44, 15);
-            label31.TabIndex = 22;
-            label31.Text = "label31";
-            // 
-            // label34
-            // 
-            label34.AutoSize = true;
-            label34.Location = new Point(361, 642);
-            label34.Name = "label34";
-            label34.Size = new Size(44, 15);
-            label34.TabIndex = 23;
-            label34.Text = "label34";
+            label26.AutoSize = true;
+            label26.Location = new Point(109, 642);
+            label26.Name = "label26";
+            label26.Size = new Size(44, 15);
+            label26.TabIndex = 22;
+            label26.Text = "label26";
             // 
             // Form1
             // 
@@ -1045,17 +995,12 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(1344, 661);
-            Controls.Add(label34);
-            Controls.Add(label31);
+            Controls.Add(label26);
             Controls.Add(panel1);
             Controls.Add(panel4);
             Controls.Add(panel2);
-            Controls.Add(label30);
             Controls.Add(button3);
-            Controls.Add(label29);
-            Controls.Add(label28);
             Controls.Add(label27);
-            Controls.Add(label26);
             Controls.Add(button11);
             Controls.Add(button4);
             Controls.Add(groupBox7);
@@ -1068,7 +1013,6 @@
             MouseClick += Form1_MouseClick;
             MouseDown += Form1_MouseDown;
             MouseMove += Form1_MouseMove;
-            MouseUp += Form1_MouseUp;
             MouseWheel += Form1_Scroll;
             GrassBox.ResumeLayout(false);
             GrassBox.PerformLayout();
@@ -1174,10 +1118,7 @@
         private TrackBar trackBar3;
         private CheckBox checkBox2;
         private Button button11;
-        private Label label26;
         private Label label27;
-        private Label label28;
-        private Label label29;
         public ListBox listBox1;
         public CheckBox checkBox4;
         public CheckBox checkBox3;
@@ -1185,11 +1126,9 @@
         private TextBox textBox3;
         private Button button3;
         public PictureBox pictureBox1;
-        private Label label30;
         private Panel panel2;
-        private Label label31;
         private Label label33;
         private Label label32;
-        private Label label34;
+        private Label label26;
     }
 }

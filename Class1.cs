@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
@@ -20,6 +21,8 @@ namespace MicroLife_Simulator
         public Form1()
         {
             InitializeComponent();
+            //this.DoubleBuffered = true;
+            //this.Paint += new PaintEventHandler(Form1_Paint);
             NewStart();
         }
         void NewStart()
@@ -58,7 +61,7 @@ namespace MicroLife_Simulator
         //Добавить краткие описания органоидов ✔
         //Расширение карты(до 9 пнг)
         //Переработать автокил
-        //движение карты с помощью мыши тыкая по карте а не по миникарте
+        //движение карты с помощью мыши тыкая по карте а не по миникарте ✔
         //проработать зону игнорирования возможного перемещения для ноги, подготовка к препятствиям
         //добавить кнопку рестарт
         //динамическая смена дня ночи по галочке
