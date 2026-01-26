@@ -154,7 +154,7 @@ namespace MicroLife_Simulator
                         }
                     }
                 }
-                if (selectedObject != null)
+                if (selectedObject != null && comboBox.Visible)
                 {
                     foreach (var item in selectedObject.bodyTypes)
                     {
@@ -169,7 +169,7 @@ namespace MicroLife_Simulator
             //----------------------------------------------------------------------------------цвет органа организма в информационной таблице
             public void DrawOrganColor(Bitmap? bmp)
             {
-                if (selectedObject != null)
+                if (selectedObject != null && comboBox.Visible)
                 {
                     for (int i = 0; i < bmp.Width; i++)
                     {
@@ -205,6 +205,10 @@ namespace MicroLife_Simulator
                         if (cellDictionary.ContainsKey(p) && (selectedObject != cellDictionary[p]))
                         {
                             selectedObject = cellDictionary[p];
+                            foreach (var item in selectedObject.bodyTypes)
+                            {
+                                comboBox.Items.Add(item);
+                            }
                             selectedPoint = new Point(p.X, p.Y);
                             break;
                         }
@@ -269,7 +273,7 @@ namespace MicroLife_Simulator
                         }
                     }
                 }
-            }
+            }//---------------------------НЕ СДЕЛАНО
             //------------------------------------------------------------------------обновление информации по организму
             public void ComboBoxUpdate(Organism? selected)
             {
@@ -291,11 +295,12 @@ namespace MicroLife_Simulator
                 listBox.Items.Clear();
                 if (selected != null)
                 {
-                    selected.bodyTypes[comboBox.SelectedIndex].UpdateMyData();
+                    
                     foreach (string item in selected.bodyTypes[comboBox.SelectedIndex].partsData)
                     {
                         listBox.Items.Add(item);
                     }
+                    selected.bodyTypes[comboBox.SelectedIndex].UpdateMyData();
 
                 }
                 else { listBox.Items.Clear(); }

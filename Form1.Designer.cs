@@ -90,13 +90,18 @@
             pictureBox3 = new PictureBox();
             label19 = new Label();
             label18 = new Label();
-            button6 = new Button();
             button7 = new Button();
             button5 = new Button();
+            button6 = new Button();
             panel4 = new Panel();
             textBox3 = new TextBox();
             button4 = new Button();
             groupBox7 = new GroupBox();
+            button9 = new Button();
+            label31 = new Label();
+            label30 = new Label();
+            label29 = new Label();
+            label28 = new Label();
             checkBox4 = new CheckBox();
             checkBox3 = new CheckBox();
             button11 = new Button();
@@ -105,6 +110,7 @@
             pictureBox1 = new PictureBox();
             panel2 = new Panel();
             label26 = new Label();
+            label34 = new Label();
             GrassBox.SuspendLayout();
             groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)trackBar7).BeginInit();
@@ -652,7 +658,6 @@
             trackBar1.RightToLeft = RightToLeft.Yes;
             trackBar1.RightToLeftLayout = true;
             trackBar1.Size = new Size(90, 22);
-            trackBar1.SmallChange = 5;
             trackBar1.TabIndex = 2;
             trackBar1.TickFrequency = 30;
             trackBar1.Value = 1000;
@@ -679,9 +684,9 @@
             // panel1
             // 
             panel1.Controls.Add(groupBox6);
-            panel1.Controls.Add(button6);
             panel1.Controls.Add(button7);
             panel1.Controls.Add(button5);
+            panel1.Controls.Add(button6);
             panel1.Location = new Point(861, -1);
             panel1.Name = "panel1";
             panel1.Size = new Size(249, 658);
@@ -779,6 +784,7 @@
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.FormattingEnabled = true;
             comboBox1.Location = new Point(124, 181);
+            comboBox1.MaxDropDownItems = 15;
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(89, 23);
             comboBox1.TabIndex = 15;
@@ -831,20 +837,9 @@
             label18.TabIndex = 12;
             label18.Text = "Age";
             // 
-            // button6
-            // 
-            button6.Location = new Point(69, 624);
-            button6.Name = "button6";
-            button6.Size = new Size(84, 23);
-            button6.TabIndex = 1;
-            button6.Text = "Close";
-            button6.UseVisualStyleBackColor = true;
-            button6.Visible = false;
-            button6.Click += button6_Click;
-            // 
             // button7
             // 
-            button7.Location = new Point(159, 624);
+            button7.Location = new Point(145, 625);
             button7.Name = "button7";
             button7.Size = new Size(83, 23);
             button7.TabIndex = 21;
@@ -854,13 +849,24 @@
             // 
             // button5
             // 
-            button5.Location = new Point(69, 624);
+            button5.Location = new Point(17, 625);
             button5.Name = "button5";
             button5.Size = new Size(84, 23);
             button5.TabIndex = 20;
             button5.Text = "CopyGenome";
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
+            // 
+            // button6
+            // 
+            button6.Location = new Point(18, 625);
+            button6.Name = "button6";
+            button6.Size = new Size(84, 23);
+            button6.TabIndex = 1;
+            button6.Text = "Close";
+            button6.UseVisualStyleBackColor = true;
+            button6.Visible = false;
+            button6.Click += button6_Click;
             // 
             // panel4
             // 
@@ -893,6 +899,11 @@
             // 
             // groupBox7
             // 
+            groupBox7.Controls.Add(button9);
+            groupBox7.Controls.Add(label31);
+            groupBox7.Controls.Add(label30);
+            groupBox7.Controls.Add(label29);
+            groupBox7.Controls.Add(label28);
             groupBox7.Controls.Add(checkBox4);
             groupBox7.Controls.Add(checkBox3);
             groupBox7.Location = new Point(1110, 535);
@@ -900,6 +911,54 @@
             groupBox7.Size = new Size(228, 85);
             groupBox7.TabIndex = 15;
             groupBox7.TabStop = false;
+            // 
+            // button9
+            // 
+            button9.Location = new Point(117, 62);
+            button9.Name = "button9";
+            button9.Size = new Size(109, 20);
+            button9.TabIndex = 6;
+            button9.Text = "DelSelectedOrgan";
+            button9.TextAlign = ContentAlignment.TopCenter;
+            button9.UseVisualStyleBackColor = true;
+            button9.Click += button9_Click_1;
+            // 
+            // label31
+            // 
+            label31.AutoSize = true;
+            label31.Location = new Point(6, 49);
+            label31.Name = "label31";
+            label31.Size = new Size(123, 15);
+            label31.TabIndex = 5;
+            label31.Text = "СКМ - сброс камеры";
+            // 
+            // label30
+            // 
+            label30.AutoSize = true;
+            label30.Location = new Point(6, 34);
+            label30.Name = "label30";
+            label30.Size = new Size(145, 15);
+            label30.TabIndex = 4;
+            label30.Text = "ПКМ - движение камеры";
+            // 
+            // label29
+            // 
+            label29.AutoSize = true;
+            label29.Location = new Point(6, 19);
+            label29.Name = "label29";
+            label29.Size = new Size(142, 15);
+            label29.TabIndex = 3;
+            label29.Text = "ЛКМ - выбор организма";
+            // 
+            // label28
+            // 
+            label28.AutoSize = true;
+            label28.ForeColor = Color.Brown;
+            label28.Location = new Point(24, 3);
+            label28.Name = "label28";
+            label28.Size = new Size(177, 15);
+            label28.TabIndex = 2;
+            label28.Text = "Камера работает не корректно";
             // 
             // checkBox4
             // 
@@ -964,7 +1023,7 @@
             pictureBox1.Location = new Point(0, 0);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(1094, 627);
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             pictureBox1.MouseMove += pictureBox1_MouseMoveAndDown;
@@ -989,12 +1048,22 @@
             label26.TabIndex = 22;
             label26.Text = "label26";
             // 
+            // label34
+            // 
+            label34.AutoSize = true;
+            label34.Location = new Point(256, 642);
+            label34.Name = "label34";
+            label34.Size = new Size(44, 15);
+            label34.TabIndex = 23;
+            label34.Text = "label34";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gray;
             ClientSize = new Size(1344, 661);
+            Controls.Add(label34);
             Controls.Add(label26);
             Controls.Add(panel1);
             Controls.Add(panel4);
@@ -1130,5 +1199,11 @@
         private Label label33;
         private Label label32;
         private Label label26;
+        private Label label31;
+        private Label label30;
+        private Label label29;
+        private Label label28;
+        private Label label34;
+        private Button button9;
     }
 }

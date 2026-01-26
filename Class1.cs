@@ -40,7 +40,7 @@ namespace MicroLife_Simulator
             MAXorganis = int.Parse(textBox2.Lines[0]);
             //------------------------
             controller.CreateLive(bmp, rand, pictureBox1, 100, 100, 0, 500);
-            
+
             controller.comboBox = comboBox1;
             controller.listBox = listBox1;
             controller.bmpOrganColor = bmpOrgansColor;
@@ -82,9 +82,10 @@ namespace MicroLife_Simulator
                 ControllerGrassWork();
                 ControllerCellWork();
                 ControllerEggWork();
-
                 UpdateTargetInfo();
             }
+
+
 
             controller.Draw(bmp);
             pictureBox1.Image = bmp;
@@ -93,81 +94,92 @@ namespace MicroLife_Simulator
 
             controller.grassListTORemove.Clear();
             controller.cellsListTORemove.Clear();
-			controller.eggListTORemove.Clear();
+            controller.eggListTORemove.Clear();
 
-			label1.Text = controller.grassList.Count.ToString();
+            label1.Text = controller.grassList.Count.ToString();
             label8.Text = controller.cellsList.Count.ToString();
-			label21.Text = controller.eggList.Count.ToString();
+            label21.Text = controller.eggList.Count.ToString();
 
-			controller.DrawSelectedTargetFrame(bmp);
+            controller.DrawSelectedTargetFrame(bmp);
             sw.Stop();
+        }
+        private void ManualOrganDeleteCellWorkUpdate(Organism organism)
+        {
+            if (organism.bodyTypes.Count < 1)
+            {
+                controller.selectedObject = null;
+                UpdateTargetInfo();
+                organism.Cleary(bmp);
+                controller.cellsList.Remove(organism);
+            }
+            
         }
         private void ControllerCellWork()
         {
             if (AutoKill.Checked && controller.cellsList.Count >= MAXorganis) { AutoKillProcent(); }
-            
-                controller.cellDictionary.Clear();
-                foreach (Organism organism in controller.cellsList)
+
+            controller.cellDictionary.Clear();
+            foreach (Organism organism in controller.cellsList)
+            {
+                organism.DoworkPrepare(bmp, controller);//----------------------------------------------------------------------------------------------каждый делает свою работу
+
+                if (organism.food >= organism.parameters.dublicateFood && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis && organism.canDuplicate)
                 {
-                    organism.DoworkPrepare(bmp, controller);//----------------------------------------------------------------------------------------------каждый делает свою работу
-
-                    if (organism.food >= organism.parameters.dublicateFood && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis && organism.canDuplicate)
-                    {
-                        //organism.food -= organism.parameters.dublicateFoodPrice;
-                        controller.cellsListTEMP.Add(new Organism(organism.point, organism));
-                        organism.WithoutDublicateSignal = 0;
-                        organism.canDuplicate = false;
-                        organism.parameters.dublicateDelay = 0;
-                    }
-                    else
-                    if (organism.food >= organism.parameters.dublicateFood && OrgLimit_CB.Checked && organism.canDuplicate)
-                    {
-                        //organism.food -= organism.parameters.dublicateFoodPrice;
-                        controller.cellsListTEMP.Add(new Organism(organism.point, organism));
-                        organism.WithoutDublicateSignal = 0;
-                        organism.canDuplicate = false;
-                        organism.parameters.dublicateDelay = 0;
-                    }
-                    else
-                    {
-                        organism.WithoutDublicateSignal++;
-                    }
-                    if (organism.food <= 0 || organism.age >= organism.parameters.maxage)
-                    {
-                        controller.cellsListTORemove.Add(organism);
-                    }
-
-                    if (!controller.cellDictionary.ContainsKey(organism.point))
-                    {
-                        controller.cellDictionary.Add(organism.point, organism);
-                    }
+                    //organism.food -= organism.parameters.dublicateFoodPrice;
+                    controller.cellsListTEMP.Add(new Organism(organism.point, organism));
+                    organism.WithoutDublicateSignal = 0;
+                    organism.canDuplicate = false;
+                    organism.parameters.dublicateDelay = 0;
                 }
-                //foreach (Organism organism in controller.cellsList)
-                //{
-                //    if (!controller.cellDictionary.ContainsKey(organism.point))
-                //    {
-                //        controller.cellDictionary.Add(organism.point, organism);
-                //    }
-                //}
-                foreach (var item in controller.cellsListTEMP)
+                else
+                if (organism.food >= organism.parameters.dublicateFood && OrgLimit_CB.Checked && organism.canDuplicate)
                 {
-                    controller.cellsList.Add(item);
+                    //organism.food -= organism.parameters.dublicateFoodPrice;
+                    controller.cellsListTEMP.Add(new Organism(organism.point, organism));
+                    organism.WithoutDublicateSignal = 0;
+                    organism.canDuplicate = false;
+                    organism.parameters.dublicateDelay = 0;
                 }
-                controller.cellsListTEMP.Clear();
-
-                foreach (var item in controller.cellsListTORemove)
+                else
                 {
-                    if (controller.selectedObject == item)
-                    {
-                        controller.selectedObject = null;
-                    }
-                    item.Cleary(bmp);
-                    if (controller.infectionLVL.ContainsKey(item.point)) { controller.infectionLVL[item.point] += 500 * item.bodyTypes.Count + item.food / 500; } else { controller.infectionLVL.Add(item.point, 500 * item.bodyTypes.Count + item.food / 500); }
-                    controller.cellsList.Remove(item);
+                    organism.WithoutDublicateSignal++;
+                }
+                if (organism.food <= 0 || organism.age >= organism.parameters.maxage || organism.bodyTypes.Count < 2)
+                {
+                    controller.cellsListTORemove.Add(organism);
                 }
 
-                
-            
+                if (!controller.cellDictionary.ContainsKey(organism.point))
+                {
+                    controller.cellDictionary.Add(organism.point, organism);
+                }
+            }
+            //foreach (Organism organism in controller.cellsList)
+            //{
+            //    if (!controller.cellDictionary.ContainsKey(organism.point))
+            //    {
+            //        controller.cellDictionary.Add(organism.point, organism);
+            //    }
+            //}
+            foreach (var item in controller.cellsListTEMP)
+            {
+                controller.cellsList.Add(item);
+            }
+            controller.cellsListTEMP.Clear();
+
+            foreach (var item in controller.cellsListTORemove)
+            {
+                if (controller.selectedObject == item)
+                {
+                    controller.selectedObject = null;
+                }
+                item.Cleary(bmp);
+                if (controller.infectionLVL.ContainsKey(item.point)) { controller.infectionLVL[item.point] += 500 * item.bodyTypes.Count + item.food / 500; } else { controller.infectionLVL.Add(item.point, 500 * item.bodyTypes.Count + item.food / 500); }
+                controller.cellsList.Remove(item);
+            }
+
+
+
         }
         private void ControllerGrassWork()
         {
@@ -208,7 +220,7 @@ namespace MicroLife_Simulator
                         controller.grassListTORemove.Add(grass);
                     }
 
-                    
+
                     if (!controller.grassDictionary.ContainsKey(grass.point))
                     {
                         controller.grassDictionary.Add(grass.point, grass);
@@ -219,27 +231,27 @@ namespace MicroLife_Simulator
                     }
                 }
 
-				
 
-				//foreach (Grass grass in controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
-				//{
-				//	if (!controller.grassDictionary.ContainsKey(grass.point))
-				//	{
-				//		controller.grassDictionary.Add(grass.point, grass);
-				//	}
-				//	if (grass.food <= 0 || grass.age >= grass.maxage)
-				//	{
-				//		controller.grassListTORemove.Add(grass);
-				//	}
-				//}
-				foreach (Grass grass in controller.grassListTORemove)
-				{
-					grass.Clear(bmp);
-					controller.grassList.Remove(grass);
-					controller.grassDictionary.Remove(grass.point);
-				}
-			}
-            
+
+                //foreach (Grass grass in controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
+                //{
+                //	if (!controller.grassDictionary.ContainsKey(grass.point))
+                //	{
+                //		controller.grassDictionary.Add(grass.point, grass);
+                //	}
+                //	if (grass.food <= 0 || grass.age >= grass.maxage)
+                //	{
+                //		controller.grassListTORemove.Add(grass);
+                //	}
+                //}
+                foreach (Grass grass in controller.grassListTORemove)
+                {
+                    grass.Clear(bmp);
+                    controller.grassList.Remove(grass);
+                    controller.grassDictionary.Remove(grass.point);
+                }
+            }
+
         }
         private void ControllerEggWork()
         {
@@ -253,7 +265,7 @@ namespace MicroLife_Simulator
                         controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent2, egg.genListParent2));
                         controller.eggListTORemove.Add(egg);
                     }
-                    else if(egg.age >= 3900 && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis)
+                    else if (egg.age >= 3900 && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis)
                     {
                         //label20.Text = egg.myGuid.ToString();
                         controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent1, egg.genListParent1));
@@ -265,27 +277,27 @@ namespace MicroLife_Simulator
                     }
                 }
                 foreach (var egg in controller.eggListTEMP)
-				{
-					controller.eggList.Add(egg);
-				}
-				controller.eggListTEMP.Clear();
+                {
+                    controller.eggList.Add(egg);
+                }
+                controller.eggListTEMP.Clear();
                 foreach (var item in controller.eggListTORemove)
                 {
                     item.Clear(bmp);
-                    controller.eggList.Remove(item);    
+                    controller.eggList.Remove(item);
                 }
                 controller.eggDictionary.Clear();
-				foreach (var egg in controller.eggList)
-				{
-					if (!controller.eggDictionary.ContainsKey(egg.point))
-					{
-						controller.eggDictionary.Add(egg.point, egg);
-					}
+                foreach (var egg in controller.eggList)
+                {
+                    if (!controller.eggDictionary.ContainsKey(egg.point))
+                    {
+                        controller.eggDictionary.Add(egg.point, egg);
+                    }
 
-				}
-			}
+                }
+            }
 
-		}
+        }
         class ZoneType
         {
             Pen pen = new Pen(Color.Red);
@@ -310,29 +322,29 @@ namespace MicroLife_Simulator
 
             //if (saveFileDialog.ShowDialog() == DialogResult.OK)
             //{
-                try
+            try
+            {
+                // Получаем выбранный формат
+                ImageFormat format = ImageFormat.Jpeg;
+                switch (Path.GetExtension(saveFileDialog.FileName).ToLower())
                 {
-                    // Получаем выбранный формат
-                    ImageFormat format = ImageFormat.Jpeg;
-                    switch (Path.GetExtension(saveFileDialog.FileName).ToLower())
-                    {
-                        case ".png":
-                            format = ImageFormat.Png;
-                            break;
-                        case ".bmp":
-                            format = ImageFormat.Bmp;
-                            break;
-                    }
+                    case ".png":
+                        format = ImageFormat.Png;
+                        break;
+                    case ".bmp":
+                        format = ImageFormat.Bmp;
+                        break;
+                }
 
-                    // Сохраняем Bitmap
-                    
-                    bmp.Save(saveFileDialog.FileName, format);
-                    MessageBox.Show("Изображение сохранено", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка сохранения: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                // Сохраняем Bitmap
+
+                bmp.Save(saveFileDialog.FileName, format);
+                MessageBox.Show("Изображение сохранено", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             //}
         }
 

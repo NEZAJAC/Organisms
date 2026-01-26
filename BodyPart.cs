@@ -331,6 +331,7 @@ namespace MicroLife_Simulator
                 {
                     BodyPart part = target.bodyTypes[rand.Next(0, target.bodyTypes.Count)];
                     target.bodyTypes.Remove(part);
+
                     int amount = target.maxfood / (target.bodyTypes.Count + 1);
                     body.food = body.food + amount <= body.maxfood ? body.food + amount : body.maxfood;
                     amountEaten += amount;

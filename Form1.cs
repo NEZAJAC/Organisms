@@ -148,6 +148,7 @@ namespace MicroLife_Simulator
         private void button3_Click(object sender, EventArgs e)
         {
             button6.Hide();
+            button5.Show();
             panel4.Hide();
             panel1.Hide();
             button3.Hide();
@@ -158,14 +159,11 @@ namespace MicroLife_Simulator
             panel1.Show();
             button4.Hide();
             button3.Show();
+            UpdateTargetInfo();
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // comboBox1.SelectedItem.ToString();
-            controller.DrawOrganColor(controller.bmpOrganColor);
-            controller.ListBoxUpdate(controller.selectedObject);
-            //controller.ComboBoxUpdate(controller.selectedObject);
-            //controller.DrawOrganColor(controller.bmpOrganColor);
+            UpdateTargetInfo();
         }
 
         private void GrassLimit_CB_CheckedChanged(object sender, EventArgs e)
@@ -187,13 +185,13 @@ namespace MicroLife_Simulator
                 textBox3.Text += controller.selectedObject.GetID(controller.selectedObject.myGenWords);
             }
             panel4.Show();
-            button4.Hide();
+            button5.Hide();
             button6.Show();
         }
         private void button6_Click(object sender, EventArgs e)
         {
             panel4.Hide();
-            button4.Show();
+            button5.Show();
             button6.Hide();
         }
         private void button7_Click(object sender, EventArgs e)
@@ -215,14 +213,13 @@ namespace MicroLife_Simulator
         public void UpdateTargetInfo()
         {
 
-            if (panel1.Visible && bmpObservePicture != null)
+            if (panel1.Visible)
             {
 
                 controller.ListBoxUpdate(controller.selectedObject);
                 controller.DrawOrganColor(controller.bmpOrganColor);
                 controller.DrawObservePicture(bmpObservePicture);
-                pictureBox3.Image = bmpObservePicture;
-                if (controller.selectedObject != null)
+                if (controller.selectedObject != null && controller.selectedObject.bodyTypes.Count == comboBox1.Items.Count)
                 {
                     label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.parameters.maxage;
                     label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
@@ -234,6 +231,7 @@ namespace MicroLife_Simulator
                     pictureBox4.Image = bmpOrgansColor;
                 }
                 else { label10.Text = "NoNe"; label11.Text = "NoNe"; label6.Text = "NoNe"; label3.Text = "NoNe"; ; progressBar1.Value = 0; progressBar1.Maximum = 100; }
+                pictureBox3.Image = bmpObservePicture;
             }
         }
 
@@ -284,9 +282,19 @@ namespace MicroLife_Simulator
 
                 bmpPosition.X += -(x - e.X);
                 bmpPosition.Y += -(y - e.Y);
+                bmpPosition.X = bmpPosition.X < 0 ? bmpPosition.X : 0;
+                bmpPosition.Y = bmpPosition.Y < 0 ? bmpPosition.Y : 0;
+                bmpPosition.X = bmpPosition.X > -pictureBox1.Width * (zoomValue - 1) + pictureBox1.Width / 2 * (zoomValue - 1) ? bmpPosition.X : -pictureBox1.Width * (zoomValue - 1) + pictureBox1.Width / 2 * (zoomValue - 1);
                 pictureBox1.Location = bmpPosition;
+                x = -(x - e.X);
+                y = -(y - e.Y);
+                //всегда меньше нуля
+                //всегда меньше picturebox1.size.
+
                 x = e.X;
                 y = e.Y;
+                label26.Text = pictureBox1.Location.ToString();
+
             }
         }
 
@@ -296,17 +304,11 @@ namespace MicroLife_Simulator
             {
                 p = new Point((e.Location.X - pictureBox1.Location.X - panel2.Location.X) / zoomValue, (e.Location.Y - pictureBox1.Location.Y - panel2.Location.Y) / zoomValue);
                 controller.SelectTarget(p);
-                if (pictureBox3.Visible)
-                {
-                    controller.ListBoxUpdate(controller.selectedObject);
-                    controller.ComboBoxUpdate(controller.selectedObject);
-                    controller.DrawOrganColor(controller.bmpOrganColor);
-                    controller.DrawObservePicture(controller.bmpOrganColor);
-                }
+                UpdateTargetInfo();
             }
             if (e.Button == System.Windows.Forms.MouseButtons.Middle)
             {
-                pictureBox1.Location = new Point(0,0);
+                pictureBox1.Location = new Point(0, 0);
                 pictureBox1.Size = size;
                 zoomValue = 1;
                 label15.Text = "x" + zoomValue.ToString() + "  Zoom";
@@ -334,25 +336,30 @@ namespace MicroLife_Simulator
                       pictureBox1.Location.X + e.X,
                       pictureBox1.Location.Y + e.Y
                     );
-                
+
             }
-            else if (zoomValue == 1) pictureBox1.Location = new Point(0,0);
+            else if (zoomValue == 1) pictureBox1.Location = new Point(0, 0);
             label15.Text = "x" + zoomValue.ToString() + "  Zoom";
-            label26.Text = pictureBox1.Location.ToString();
+            label34.Text = pictureBox1.Size.ToString();
+        }
+
+        private void button9_Click_1(object sender, EventArgs e)
+        {
+            if (controller.selectedObject != null)
+            {
+                bmp.SetPixel(controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.X, controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.Y, Color.Empty);
+                pictureBox1.Image = bmp;
+                controller.selectedObject.bodyTypes.Remove(controller.selectedObject.bodyTypes[comboBox1.SelectedIndex]);
+                ManualOrganDeleteCellWorkUpdate(controller.selectedObject);
+                controller.ComboBoxUpdate(controller.selectedObject);
+            }
+            pictureBox1.Image = bmp;
+            pictureBox2.Image = bmp;
         }
 
         //private void Form1_Paint(object sender, PaintEventArgs e)
         //{
-        //    Graphics g = e.Graphics;
-        //    Pen redPen = new Pen(Color.Red, 2); // Перо красного цвета толщиной 2
-        //    // Рисуем линию
-        //    g.DrawLine(redPen, 50, 50, 200, 150);
 
-        //    // Рисуем прямоугольник
-        //    g.DrawRectangle(redPen, 250, 50, 100, 70);
-
-        //    // Не забываем освободить ресурсы
-        //    redPen.Dispose();
         //}
     }
 
