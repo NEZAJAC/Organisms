@@ -163,7 +163,6 @@ namespace MicroLife_Simulator
         }
         class Egg : Object
         {
-            Controller? controller;
             public Guid myGuid;
             public string ID1 = "";
             public string ID2 = "";
@@ -186,8 +185,6 @@ namespace MicroLife_Simulator
                 //------------------------------------------
                 ID1 = organism.GetID(organism.myGenWords);
                 myGuid = organism.myGuid;
-                //------------------------------------------
-                controller = organism.controller;//доделать
             }
             List<Genome> GenCopyes(List<Genome> genomes)
             {
@@ -213,8 +210,6 @@ namespace MicroLife_Simulator
         }
         class Organism : Object
         {
-            public Controller? controller = null;
-
             public Guid myGuid;
             public int radiation = 10;
             public int pooopas = 0;
@@ -860,10 +855,9 @@ namespace MicroLife_Simulator
                     bmp.SetPixel(p.X, p.Y, Color.Empty);
                 }
             }
-            public void DoworkPrepare(Bitmap bmp, Controller controllerIN)
+            public void DoworkPrepare(Bitmap bmp)
             {
-                controller ??= controllerIN;
-                radiation = controller.radiationLVL;
+                radiation = Controller.radiationLVL;
                 lastPoint = point;
                 Cleary(bmp);
                 SenseSignal.Clear();
@@ -884,7 +878,7 @@ namespace MicroLife_Simulator
                 point = newPoint != new Point(0, 0) ? newPoint : point; //----------------------------------------------------------фикс появления в углу экрана
                 age++;//старение
                 PoopasAdd();
-                if (bodyTypes.Count < 2) { controller.cellsListTORemove.Add(this); };
+                if (bodyTypes.Count < 2) { Controller.cellsListTORemove.Add(this); };
             }
             void PoopasAdd()//------------------------------------------------------------------------------------------------------какахи или заражение, не дают в том месте расти траве
             {
@@ -893,7 +887,7 @@ namespace MicroLife_Simulator
                     pooopasGlobal += pooopas;
                     pooopas -= 1000;
                     
-                    if (!controller.infectionLVL.ContainsKey(point)) { controller.infectionLVL.Add(point, 500); } else { controller.infectionLVL[point] += 500; }
+                    if (!Controller.infectionLVL.ContainsKey(point)) { Controller.infectionLVL.Add(point, 500); } else { Controller.infectionLVL[point] += 500; }
                 }
             }
 

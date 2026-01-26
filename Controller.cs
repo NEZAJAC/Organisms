@@ -4,50 +4,46 @@ namespace MicroLife_Simulator
 {
     public partial class Form1
     {
-        class Controller
+        static class Controller
         {
-            public List<Grass> grassList = new List<Grass>();
-            public List<Grass> grassListTEMP = new List<Grass>();
-            public List<Grass> grassListTORemove = new List<Grass>();
-            public Dictionary<Point, Grass> grassDictionary = new Dictionary<Point, Grass>();
+            static public List<Grass> grassList = new List<Grass>();
+            static public List<Grass> grassListTEMP = new List<Grass>();
+            static public List<Grass> grassListTORemove = new List<Grass>();
+            static public Dictionary<Point, Grass> grassDictionary = new Dictionary<Point, Grass>();
             //---------------------------------------------------------------------------------------------------
-            public List<Organism> cellsList = new List<Organism>();
-            public List<Organism> cellsListTEMP = new List<Organism>();
-            public List<Organism> cellsListTORemove = new List<Organism>();
-            public Dictionary<Point, Organism> cellDictionary = new Dictionary<Point, Organism>();
+            static public List<Organism> cellsList = new List<Organism>();
+            static public List<Organism> cellsListTEMP = new List<Organism>();
+            static public List<Organism> cellsListTORemove = new List<Organism>();
+            static public Dictionary<Point, Organism> cellDictionary = new Dictionary<Point, Organism>();
             //---------------------------------------------------------------------------------------------------
-            public List<Egg> eggList = new List<Egg>();
-            public List<Egg> eggListTEMP = new List<Egg>();
-            public List<Egg> eggListTORemove = new List<Egg>();
-            public Dictionary<Point, Egg> eggDictionary = new Dictionary<Point, Egg>();
+            static public List<Egg> eggList = new List<Egg>();
+            static public List<Egg> eggListTEMP = new List<Egg>();
+            static public List<Egg> eggListTORemove = new List<Egg>();
+            static public Dictionary<Point, Egg> eggDictionary = new Dictionary<Point, Egg>();
             //---------------------------------------------------------------------------------------------------
-            public List<Obstacles> obstaclesList = new List<Obstacles>();
-            public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
+            static public List<Obstacles> obstaclesList = new List<Obstacles>();
+            static public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
             //public List<Point> obstacles = new List<Point>();
-            public int sunLVL;
-            public int radiationLVL;
-            public Bitmap? bmpOrganColor;
-            public ComboBox? comboBox;
-            public ListBox? listBox;
+            static public int sunLVL;
+            static public int radiationLVL;
+            static public Bitmap? bmpOrganColor;
+            static public ComboBox? comboBox;
+            static public ListBox? listBox;
             //------------------------------Drawing
-            int grassCurrent = 1;
-            int cellCurrent = 1;
+            static int grassCurrent = 1;
+            static int cellCurrent = 1;
             //-------------------------------------------------------------
-            ZoneType? activeType;
+            static ZoneType? activeType;
             //-------------------------------------------------------------
-            List<Point> infectionToClear = new List<Point>();
-            public Organism? selectedObject = null;
-            int frameSize = 7;
-            List<Point> coloredPoints = new List<Point>();
-            public Controller(int sun, int radiation)
+            static List<Point> infectionToClear = new List<Point>();
+            static public Organism? selectedObject = null;
+            static int frameSize = 7;
+            static List<Point> coloredPoints = new List<Point>();
+
+            static public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells, int obstacles, int infection, int sun, int radiation)
             {
                 sunLVL = sun;
                 radiationLVL = radiation;
-                cellDictionary.AsParallel();
-                grassDictionary.AsParallel();
-            }
-            public void CreateLive(Bitmap bmp, Random rand, PictureBox pictureBox1, int grass, int cells, int obstacles, int infection)
-            {
                 Point point;
                 for (int i = 0; i < obstacles; i++)
                 {
@@ -82,7 +78,7 @@ namespace MicroLife_Simulator
                 }
 
             }
-            public void CreateGrass(Bitmap bmp, Random rand, int grass)
+            static public void CreateGrass(Bitmap bmp, Random rand, int grass)
             {
                 Point point;
                 for (int i = 0; i < grass; i++)
@@ -96,7 +92,7 @@ namespace MicroLife_Simulator
                 }
 
             }
-            public void Draw(Bitmap bmp)
+            static public void Draw(Bitmap bmp)
             {
                 //if (checkBox4.Checked) DrawInfection(bmp);
                 //if (checkBox3.Checked) DrawFoodGrass(bmp);
@@ -111,19 +107,19 @@ namespace MicroLife_Simulator
 
 
             }
-            void DrawCursorOnTheField(Bitmap bmp)
+            static void DrawCursorOnTheField(Bitmap bmp)
             {
 
             }
-            void DrawRectangleOnOrganism(Bitmap bmp)
+            static void DrawRectangleOnOrganism(Bitmap bmp)
             {
 
             }
-            void DrawFoodGrass(Bitmap bmp)
+            static void DrawFoodGrass(Bitmap bmp)
             {
                 foreach (Grass grass in grassList) { grass.Draw(bmp); }
             }
-            void DrawInfection(Bitmap bmp)
+            static void DrawInfection(Bitmap bmp)
             {
                 //points.Clear();
                 foreach (var item in infectionLVL)
@@ -137,12 +133,12 @@ namespace MicroLife_Simulator
                 }
                 infectionToClear.Clear();
             }
-            public int ColorNormalizator(int val)
+            static public int ColorNormalizator(int val)
             {
                 return val < 65025 ? val / 255 : 255;
             }
             //-----------------------------------------------------------------------------------отрисовка организма в обзорной картинке
-            public void DrawObservePicture(Bitmap bmp)
+            static public void DrawObservePicture(Bitmap bmp)
             {
                 {
                     Point point = new Point(bmp.Width / 2, bmp.Height / 2);
@@ -167,7 +163,7 @@ namespace MicroLife_Simulator
                 }
             }
             //----------------------------------------------------------------------------------цвет органа организма в информационной таблице
-            public void DrawOrganColor(Bitmap? bmp)
+            static public void DrawOrganColor(Bitmap? bmp)
             {
                 if (selectedObject != null && comboBox.Visible)
                 {
@@ -195,7 +191,7 @@ namespace MicroLife_Simulator
 
             }
             //----------------------------------------------------------------------------------выбор организма по щелчку ЛКМ-----------доделать перевыбор на одном месте
-            public void SelectTarget(Point selectedPoint)
+            static public void SelectTarget(Point selectedPoint)
             {
                 for (int i = -3; i < 4; i++)
                 {
@@ -225,7 +221,7 @@ namespace MicroLife_Simulator
                 ComboBoxUpdate(selectedObject);
             }
             //--------------------------------------------------------------------------отрисовка рамки вокруг организма
-            public void DrawSelectedTargetFrame(Bitmap bmp)
+            static public void DrawSelectedTargetFrame(Bitmap bmp)
             {
                 foreach (var item in coloredPoints)
                 {
@@ -251,8 +247,8 @@ namespace MicroLife_Simulator
                 }
             }
             //-------------------------------------------------------------------------рисует положение "камеры" на миникарте(сделать)
-            List<Point> cameraOnMinimapPoints = new List<Point>();
-            public void DrawCameraOnMinimap(Bitmap bmp)
+            static List<Point> cameraOnMinimapPoints = new List<Point>();
+            static public void DrawCameraOnMinimap(Bitmap bmp)
             {
                 foreach (var item in cameraOnMinimapPoints)
                 {
@@ -275,7 +271,7 @@ namespace MicroLife_Simulator
                 }
             }//---------------------------НЕ СДЕЛАНО
             //------------------------------------------------------------------------обновление информации по организму
-            public void ComboBoxUpdate(Organism? selected)
+            static public void ComboBoxUpdate(Organism? selected)
             {
 
                 comboBox.Items.Clear();
@@ -290,7 +286,7 @@ namespace MicroLife_Simulator
                 }
                 DrawOrganColor(bmpOrganColor);
             }
-            public void ListBoxUpdate(Organism? selected)
+            static public void ListBoxUpdate(Organism? selected)
             {
                 listBox.Items.Clear();
                 if (selected != null)
@@ -306,11 +302,11 @@ namespace MicroLife_Simulator
                 else { listBox.Items.Clear(); }
             }
             //---------------------------------------------------------------------------
-            public void CreateZones_auto()//случаная местность
+            static public void CreateZones_auto()//случаная местность
             {
 
             }
-            public void CreateZones_manual(Point mousePoint, ZoneType activeType)//ручное создание зоны
+            static public void CreateZones_manual(Point mousePoint, ZoneType activeType)//ручное создание зоны
             {
                 //создавать зону типа activeType в точке курсора mousePoint
             }

@@ -43,17 +43,17 @@ namespace MicroLife_Simulator
         {
             if ((trackBar2.Value != 0))
             {
-                controller.sunLVL = trackBar2.Value;
+                Controller.sunLVL = trackBar2.Value;
             }
-            label14.Text = controller.sunLVL.ToString();
+            label14.Text = Controller.sunLVL.ToString();
         }
         private void trackBar5_Scroll(object sender, EventArgs e)
         {
             if ((trackBar5.Value != 0))
             {
-                controller.radiationLVL = trackBar5.Value;
+                Controller.radiationLVL = trackBar5.Value;
             }
-            label17.Text = controller.radiationLVL.ToString();
+            label17.Text = Controller.radiationLVL.ToString();
         }
 
 
@@ -79,21 +79,21 @@ namespace MicroLife_Simulator
         private void KillHalf()
         {
             Boolean boo = false;
-            foreach (var item in controller.cellsList)
+            foreach (var item in Controller.cellsList)
             {
-                if (boo) { controller.cellsListTORemove.Add(item); }
+                if (boo) { Controller.cellsListTORemove.Add(item); }
                 boo = !boo;
             }
         }
         private void AutoKillProcent()
         {
             //trackBar3.Maximum = 100;
-            if (controller.cellsList.Count >= MAXorganis)
+            if (Controller.cellsList.Count >= MAXorganis)
             {
                 int intToDie = MAXorganis - trackBar3.Value * MAXorganis / trackBar3.Maximum;
                 while (--intToDie > 0)
                 {
-                    controller.cellsListTORemove.Add(controller.cellsList[rand.Next(0, controller.cellsList.Count)]);
+                    Controller.cellsListTORemove.Add(Controller.cellsList[rand.Next(0, Controller.cellsList.Count)]);
 
                 }
             }
@@ -139,9 +139,9 @@ namespace MicroLife_Simulator
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < controller.grassList.Count / 10; i++)
+            for (int i = 0; i < Controller.grassList.Count / 10; i++)
             {
-                controller.grassListTORemove.Add(controller.grassList[i]);
+                Controller.grassListTORemove.Add(Controller.grassList[i]);
             }
         }
 
@@ -176,13 +176,13 @@ namespace MicroLife_Simulator
         }
         private void button5_Click(object sender, EventArgs e)
         {
-            if (controller.selectedObject != null)
+            if (Controller.selectedObject != null)
             {
-                textBox3.Text = controller.selectedObject.GetGenotype(controller.selectedObject);
+                textBox3.Text = Controller.selectedObject.GetGenotype(Controller.selectedObject);
                 textBox3.Text += "\r\n";
                 textBox3.Text += "\r";
                 textBox3.Text += "\r\nOrganism ID:  ";
-                textBox3.Text += controller.selectedObject.GetID(controller.selectedObject.myGenWords);
+                textBox3.Text += Controller.selectedObject.GetID(Controller.selectedObject.myGenWords);
             }
             panel4.Show();
             button5.Hide();
@@ -197,7 +197,7 @@ namespace MicroLife_Simulator
         private void button7_Click(object sender, EventArgs e)
         {
             var pp = p == new Point(0, 0) ? new Point(bmp.Width / 2, bmp.Height / 2) : p;
-            controller.cellsList.Add(new Organism(pp, textBox3.Text));
+            Controller.cellsList.Add(new Organism(pp, textBox3.Text));
         }
 
         private void trackBar7_Scroll(object sender, EventArgs e)
@@ -208,7 +208,7 @@ namespace MicroLife_Simulator
 
         private void button8_Click(object sender, EventArgs e)
         {
-            controller.CreateGrass(bmp, rand, 100);
+            Controller.CreateGrass(bmp, rand, 100);
         }
         public void UpdateTargetInfo()
         {
@@ -216,18 +216,18 @@ namespace MicroLife_Simulator
             if (panel1.Visible)
             {
 
-                controller.ListBoxUpdate(controller.selectedObject);
-                controller.DrawOrganColor(controller.bmpOrganColor);
-                controller.DrawObservePicture(bmpObservePicture);
-                if (controller.selectedObject != null && controller.selectedObject.bodyTypes.Count == comboBox1.Items.Count)
+                Controller.ListBoxUpdate(Controller.selectedObject);
+                Controller.DrawOrganColor(Controller.bmpOrganColor);
+                Controller.DrawObservePicture(bmpObservePicture);
+                if (Controller.selectedObject != null && Controller.selectedObject.bodyTypes.Count == comboBox1.Items.Count)
                 {
-                    label11.Text = controller.selectedObject.age.ToString() + "/" + controller.selectedObject.parameters.maxage;
-                    label10.Text = controller.selectedObject.food.ToString() + "/" + controller.selectedObject.maxfood.ToString();
-                    label6.Text = controller.selectedObject.canDuplicate.ToString();
-                    label3.Text = controller.selectedObject.hungry.ToString();
-                    label9.Text = controller.selectedObject.point.ToString();
-                    progressBar1.Maximum = controller.selectedObject.parameters.maxFatigue;
-                    progressBar1.Value = controller.selectedObject.fatigue;
+                    label11.Text = Controller.selectedObject.age.ToString() + "/" + Controller.selectedObject.parameters.maxage;
+                    label10.Text = Controller.selectedObject.food.ToString() + "/" + Controller.selectedObject.maxfood.ToString();
+                    label6.Text = Controller.selectedObject.canDuplicate.ToString();
+                    label3.Text = Controller.selectedObject.hungry.ToString();
+                    label9.Text = Controller.selectedObject.point.ToString();
+                    progressBar1.Maximum = Controller.selectedObject.parameters.maxFatigue;
+                    progressBar1.Value = Controller.selectedObject.fatigue;
                     pictureBox4.Image = bmpOrgansColor;
                 }
                 else { label10.Text = "NoNe"; label11.Text = "NoNe"; label6.Text = "NoNe"; label3.Text = "NoNe"; ; progressBar1.Value = 0; progressBar1.Maximum = 100; }
@@ -237,9 +237,9 @@ namespace MicroLife_Simulator
 
         private void button9_Click(object sender, EventArgs e)
         {
-            if (controller.selectedObject != null)
+            if (Controller.selectedObject != null)
             {
-                //controller.selectedObject.
+                //Controller.selectedObject.
             }
         }
 
@@ -303,7 +303,7 @@ namespace MicroLife_Simulator
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 p = new Point((e.Location.X - pictureBox1.Location.X - panel2.Location.X) / zoomValue, (e.Location.Y - pictureBox1.Location.Y - panel2.Location.Y) / zoomValue);
-                controller.SelectTarget(p);
+                Controller.SelectTarget(p);
                 UpdateTargetInfo();
             }
             if (e.Button == System.Windows.Forms.MouseButtons.Middle)
@@ -345,13 +345,13 @@ namespace MicroLife_Simulator
 
         private void button9_Click_1(object sender, EventArgs e)
         {
-            if (controller.selectedObject != null)
+            if (Controller.selectedObject != null)
             {
-                bmp.SetPixel(controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.X, controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.Y, Color.Empty);
+                bmp.SetPixel(Controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.X, Controller.selectedObject.bodyTypes[comboBox1.SelectedIndex].globalplace.Y, Color.Empty);
                 pictureBox1.Image = bmp;
-                controller.selectedObject.bodyTypes.Remove(controller.selectedObject.bodyTypes[comboBox1.SelectedIndex]);
-                ManualOrganDeleteCellWorkUpdate(controller.selectedObject);
-                controller.ComboBoxUpdate(controller.selectedObject);
+                Controller.selectedObject.bodyTypes.Remove(Controller.selectedObject.bodyTypes[comboBox1.SelectedIndex]);
+                ManualOrganDeleteCellWorkUpdate(Controller.selectedObject);
+                Controller.ComboBoxUpdate(Controller.selectedObject);
             }
             pictureBox1.Image = bmp;
             pictureBox2.Image = bmp;

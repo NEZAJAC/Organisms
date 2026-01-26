@@ -15,7 +15,8 @@ namespace MicroLife_Simulator
         public Bitmap? bmpGrass;
         Bitmap? bmpObservePicture;
         Bitmap? bmpOrgansColor;
-        Controller controller = new Controller(10, 10);
+        //Controller Controller = new Controller(10, 10);
+        
         Stopwatch sw = Stopwatch.StartNew();
         Size size;
         public Form1()
@@ -39,18 +40,18 @@ namespace MicroLife_Simulator
             MAXgrass = int.Parse(label24.Text);
             MAXorganis = int.Parse(textBox2.Lines[0]);
             //------------------------
-            controller.CreateLive(bmp, rand, pictureBox1, 100, 100, 0, 500);
+            Controller.CreateLive(bmp, rand, pictureBox1, 100, 100, 0, 500, 10, 10);
 
-            controller.comboBox = comboBox1;
-            controller.listBox = listBox1;
-            controller.bmpOrganColor = bmpOrgansColor;
+            Controller.comboBox = comboBox1;
+            Controller.listBox = listBox1;
+            Controller.bmpOrganColor = bmpOrgansColor;
             //------------------------------
             trackBar1.Value = 1;
             timer1.Interval = trackBar1.Value;
             label12.Text = timer1.Interval.ToString();
             //------------------------------
-            trackBar2.Value = controller.sunLVL;
-            label14.Text = controller.sunLVL.ToString();
+            trackBar2.Value = Controller.sunLVL;
+            label14.Text = Controller.sunLVL.ToString();
             //------------------------------
             panel1.Hide();
         }
@@ -87,46 +88,48 @@ namespace MicroLife_Simulator
 
 
 
-            controller.Draw(bmp);
+            Controller.Draw(bmp);
+            Controller.DrawSelectedTargetFrame(bmp);
+
             pictureBox1.Image = bmp;
             pictureBox2.Image = bmp;//----------------------------------------Minimap
             //TESTobstaclesDraw(bmp);
 
-            controller.grassListTORemove.Clear();
-            controller.cellsListTORemove.Clear();
-            controller.eggListTORemove.Clear();
+            Controller.grassListTORemove.Clear();
+            Controller.cellsListTORemove.Clear();
+            Controller.eggListTORemove.Clear();
 
-            label1.Text = controller.grassList.Count.ToString();
-            label8.Text = controller.cellsList.Count.ToString();
-            label21.Text = controller.eggList.Count.ToString();
+            label1.Text = Controller.grassList.Count.ToString();
+            label8.Text = Controller.cellsList.Count.ToString();
+            label21.Text = Controller.eggList.Count.ToString();
 
-            controller.DrawSelectedTargetFrame(bmp);
+            
             sw.Stop();
         }
         private void ManualOrganDeleteCellWorkUpdate(Organism organism)
         {
             if (organism.bodyTypes.Count < 1)
             {
-                controller.selectedObject = null;
+                Controller.selectedObject = null;
                 UpdateTargetInfo();
                 organism.Cleary(bmp);
-                controller.cellsList.Remove(organism);
+                Controller.cellsList.Remove(organism);
             }
             
         }
         private void ControllerCellWork()
         {
-            if (AutoKill.Checked && controller.cellsList.Count >= MAXorganis) { AutoKillProcent(); }
+            if (AutoKill.Checked && Controller.cellsList.Count >= MAXorganis) { AutoKillProcent(); }
 
-            controller.cellDictionary.Clear();
-            foreach (Organism organism in controller.cellsList)
+            Controller.cellDictionary.Clear();
+            foreach (Organism organism in Controller.cellsList)
             {
-                organism.DoworkPrepare(bmp, controller);//----------------------------------------------------------------------------------------------каждый делает свою работу
+                organism.DoworkPrepare(bmp);//----------------------------------------------------------------------------------------------каждый делает свою работу
 
-                if (organism.food >= organism.parameters.dublicateFood && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis && organism.canDuplicate)
+                if (organism.food >= organism.parameters.dublicateFood && !OrgLimit_CB.Checked && Controller.cellsList.Count + Controller.cellsListTEMP.Count < MAXorganis && organism.canDuplicate)
                 {
                     //organism.food -= organism.parameters.dublicateFoodPrice;
-                    controller.cellsListTEMP.Add(new Organism(organism.point, organism));
+                    Controller.cellsListTEMP.Add(new Organism(organism.point, organism));
                     organism.WithoutDublicateSignal = 0;
                     organism.canDuplicate = false;
                     organism.parameters.dublicateDelay = 0;
@@ -135,7 +138,7 @@ namespace MicroLife_Simulator
                 if (organism.food >= organism.parameters.dublicateFood && OrgLimit_CB.Checked && organism.canDuplicate)
                 {
                     //organism.food -= organism.parameters.dublicateFoodPrice;
-                    controller.cellsListTEMP.Add(new Organism(organism.point, organism));
+                    Controller.cellsListTEMP.Add(new Organism(organism.point, organism));
                     organism.WithoutDublicateSignal = 0;
                     organism.canDuplicate = false;
                     organism.parameters.dublicateDelay = 0;
@@ -146,36 +149,36 @@ namespace MicroLife_Simulator
                 }
                 if (organism.food <= 0 || organism.age >= organism.parameters.maxage || organism.bodyTypes.Count < 2)
                 {
-                    controller.cellsListTORemove.Add(organism);
+                    Controller.cellsListTORemove.Add(organism);
                 }
 
-                if (!controller.cellDictionary.ContainsKey(organism.point))
+                if (!Controller.cellDictionary.ContainsKey(organism.point))
                 {
-                    controller.cellDictionary.Add(organism.point, organism);
+                    Controller.cellDictionary.Add(organism.point, organism);
                 }
             }
-            //foreach (Organism organism in controller.cellsList)
+            //foreach (Organism organism in Controller.cellsList)
             //{
-            //    if (!controller.cellDictionary.ContainsKey(organism.point))
+            //    if (!Controller.cellDictionary.ContainsKey(organism.point))
             //    {
-            //        controller.cellDictionary.Add(organism.point, organism);
+            //        Controller.cellDictionary.Add(organism.point, organism);
             //    }
             //}
-            foreach (var item in controller.cellsListTEMP)
+            foreach (var item in Controller.cellsListTEMP)
             {
-                controller.cellsList.Add(item);
+                Controller.cellsList.Add(item);
             }
-            controller.cellsListTEMP.Clear();
+            Controller.cellsListTEMP.Clear();
 
-            foreach (var item in controller.cellsListTORemove)
+            foreach (var item in Controller.cellsListTORemove)
             {
-                if (controller.selectedObject == item)
+                if (Controller.selectedObject == item)
                 {
-                    controller.selectedObject = null;
+                    Controller.selectedObject = null;
                 }
                 item.Cleary(bmp);
-                if (controller.infectionLVL.ContainsKey(item.point)) { controller.infectionLVL[item.point] += 500 * item.bodyTypes.Count + item.food / 500; } else { controller.infectionLVL.Add(item.point, 500 * item.bodyTypes.Count + item.food / 500); }
-                controller.cellsList.Remove(item);
+                if (Controller.infectionLVL.ContainsKey(item.point)) { Controller.infectionLVL[item.point] += 500 * item.bodyTypes.Count + item.food / 500; } else { Controller.infectionLVL.Add(item.point, 500 * item.bodyTypes.Count + item.food / 500); }
+                Controller.cellsList.Remove(item);
             }
 
 
@@ -186,21 +189,21 @@ namespace MicroLife_Simulator
 
             if (checkBox1.Checked)
             {
-                foreach (Grass grass in controller.grassListTEMP)
+                foreach (Grass grass in Controller.grassListTEMP)
                 {
-                    controller.grassList.Add(grass);
+                    Controller.grassList.Add(grass);
                 }
-                controller.grassListTEMP.Clear();
+                Controller.grassListTEMP.Clear();
 
-                foreach (Grass grass in controller.grassList)
+                foreach (Grass grass in Controller.grassList)
                 {
-                    if (grass.GrassUpdate(controller.sunLVL))
+                    if (grass.GrassUpdate(Controller.sunLVL))
                     {
-                        if (controller.grassList.Count + controller.grassListTEMP.Count < MAXgrass && !GrassLimit_CB.Checked)
+                        if (Controller.grassList.Count + Controller.grassListTEMP.Count < MAXgrass && !GrassLimit_CB.Checked)
                         {
                             if (grass.Duplicate(bmp, out Point grPoint))
                             {
-                                controller.grassListTEMP.Add(new Grass(grPoint));
+                                Controller.grassListTEMP.Add(new Grass(grPoint));
                                 grass.food = grass.food / 2;
                                 grass.maxfood += 50;
                             }
@@ -210,45 +213,45 @@ namespace MicroLife_Simulator
                         {
                             if (grass.Duplicate(bmp, out Point grPoint))
                             {
-                                controller.grassListTEMP.Add(new Grass(grPoint));
+                                Controller.grassListTEMP.Add(new Grass(grPoint));
                                 grass.maxfood += 50;
                             }
                         }
                     }
-                    if (grass.food <= controller.sunLVL)
+                    if (grass.food <= Controller.sunLVL)
                     {
-                        controller.grassListTORemove.Add(grass);
+                        Controller.grassListTORemove.Add(grass);
                     }
 
 
-                    if (!controller.grassDictionary.ContainsKey(grass.point))
+                    if (!Controller.grassDictionary.ContainsKey(grass.point))
                     {
-                        controller.grassDictionary.Add(grass.point, grass);
+                        Controller.grassDictionary.Add(grass.point, grass);
                     }
                     if (grass.food <= 0 || grass.age >= grass.maxage)
                     {
-                        controller.grassListTORemove.Add(grass);
+                        Controller.grassListTORemove.Add(grass);
                     }
                 }
 
 
 
-                //foreach (Grass grass in controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
+                //foreach (Grass grass in Controller.grassList)//---------------------------------------------------------вот тут разбить на чанки
                 //{
-                //	if (!controller.grassDictionary.ContainsKey(grass.point))
+                //	if (!Controller.grassDictionary.ContainsKey(grass.point))
                 //	{
-                //		controller.grassDictionary.Add(grass.point, grass);
+                //		Controller.grassDictionary.Add(grass.point, grass);
                 //	}
                 //	if (grass.food <= 0 || grass.age >= grass.maxage)
                 //	{
-                //		controller.grassListTORemove.Add(grass);
+                //		Controller.grassListTORemove.Add(grass);
                 //	}
                 //}
-                foreach (Grass grass in controller.grassListTORemove)
+                foreach (Grass grass in Controller.grassListTORemove)
                 {
                     grass.Clear(bmp);
-                    controller.grassList.Remove(grass);
-                    controller.grassDictionary.Remove(grass.point);
+                    Controller.grassList.Remove(grass);
+                    Controller.grassDictionary.Remove(grass.point);
                 }
             }
 
@@ -257,41 +260,41 @@ namespace MicroLife_Simulator
         {
             if (checkBox1.Checked)
             {
-                foreach (Egg egg in controller.eggList)
+                foreach (Egg egg in Controller.eggList)
                 {
                     egg.Dosomething();//----------------------------------------------------------------------------------------------каждый делает свою работу
-                    if (egg.incubation >= egg.incubationTime && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis)
+                    if (egg.incubation >= egg.incubationTime && !OrgLimit_CB.Checked && Controller.cellsList.Count + Controller.cellsListTEMP.Count < MAXorganis)
                     {
-                        controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent2, egg.genListParent2));
-                        controller.eggListTORemove.Add(egg);
+                        Controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent2, egg.genListParent2));
+                        Controller.eggListTORemove.Add(egg);
                     }
-                    else if (egg.age >= 3900 && !OrgLimit_CB.Checked && controller.cellsList.Count + controller.cellsListTEMP.Count < MAXorganis)
+                    else if (egg.age >= 3900 && !OrgLimit_CB.Checked && Controller.cellsList.Count + Controller.cellsListTEMP.Count < MAXorganis)
                     {
                         //label20.Text = egg.myGuid.ToString();
-                        controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent1, egg.genListParent1));
-                        controller.eggListTORemove.Add(egg);
+                        Controller.cellsListTEMP.Add(new Organism(egg.point, egg.parametersParent1, egg.genListParent1, egg.parametersParent1, egg.genListParent1));
+                        Controller.eggListTORemove.Add(egg);
                     }
-                    if (egg.age >= 4000 || controller.eggList.Count - controller.eggListTORemove.Count >= 500)
+                    if (egg.age >= 4000 || Controller.eggList.Count - Controller.eggListTORemove.Count >= 500)
                     {
-                        controller.eggListTORemove.Add(egg);
+                        Controller.eggListTORemove.Add(egg);
                     }
                 }
-                foreach (var egg in controller.eggListTEMP)
+                foreach (var egg in Controller.eggListTEMP)
                 {
-                    controller.eggList.Add(egg);
+                    Controller.eggList.Add(egg);
                 }
-                controller.eggListTEMP.Clear();
-                foreach (var item in controller.eggListTORemove)
+                Controller.eggListTEMP.Clear();
+                foreach (var item in Controller.eggListTORemove)
                 {
                     item.Clear(bmp);
-                    controller.eggList.Remove(item);
+                    Controller.eggList.Remove(item);
                 }
-                controller.eggDictionary.Clear();
-                foreach (var egg in controller.eggList)
+                Controller.eggDictionary.Clear();
+                foreach (var egg in Controller.eggList)
                 {
-                    if (!controller.eggDictionary.ContainsKey(egg.point))
+                    if (!Controller.eggDictionary.ContainsKey(egg.point))
                     {
-                        controller.eggDictionary.Add(egg.point, egg);
+                        Controller.eggDictionary.Add(egg.point, egg);
                     }
 
                 }

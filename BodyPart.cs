@@ -120,7 +120,7 @@ namespace MicroLife_Simulator
 
                 //body.point = BorderChecker(body.point.X + this.moveResult.X, body.point.Y + this.moveResult.Y, bmp);//двигает тело
                 //body.ToMouthSignal = this.eatTarget.X != -1 && this.eatTarget.Y != -1 ? this.eatTarget : new Point(-1, -1);
-                //body.EatTarget(body.controller.grassDictionary, this.EatStrength);
+                //body.EatTarget(Controller.grassDictionary, this.EatStrength);
             }
         }
         /// <summary>
@@ -195,7 +195,7 @@ namespace MicroLife_Simulator
                     for (int j = -EatRange; j <= EatRange; j++)
                     {
                         Point p = new Point(globalplace.X + localplace.X + i, globalplace.Y + localplace.Y + j);
-                        if (body.controller.grassDictionary.ContainsKey(p))
+                        if (Controller.grassDictionary.ContainsKey(p))
                         {
                             points.Add(p);
                         }
@@ -209,19 +209,19 @@ namespace MicroLife_Simulator
             public void ToBody(Organism body)
             {
 
-                if (body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+                if (Controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
                 {
                     //------------------------------------------------------Доработать математику
-                    int difference = body.controller.grassDictionary[eatTarget].food - EatStrength;
-                    int amount = difference <= 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;
-                    body.controller.grassDictionary[eatTarget].food -= amount;
+                    int difference = Controller.grassDictionary[eatTarget].food - EatStrength;
+                    int amount = difference <= 0 ? Controller.grassDictionary[eatTarget].food : EatStrength;
+                    Controller.grassDictionary[eatTarget].food -= amount;
                     body.food += amount;
                     alreadyEaten += amount;
                 }
             }
             public void ToStomach(Organism body)
             {
-                if (body.controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
+                if (Controller.grassDictionary.ContainsKey(eatTarget) && body.food < body.maxfood)
                 {
                     foreach (var item in body.bodyTypes)
                     {
@@ -232,8 +232,8 @@ namespace MicroLife_Simulator
                     }
                     if (stomaches.Count > 0)
                     {
-                        int amount = body.controller.grassDictionary[eatTarget].food - EatStrength < 0 ? body.controller.grassDictionary[eatTarget].food : EatStrength;
-                        body.controller.grassDictionary[eatTarget].food -= amount;
+                        int amount = Controller.grassDictionary[eatTarget].food - EatStrength < 0 ? Controller.grassDictionary[eatTarget].food : EatStrength;
+                        Controller.grassDictionary[eatTarget].food -= amount;
                         alreadyEaten += amount;
                         int pieceOfFood = amount / stomaches.Count;
                         foreach (Stomach stomach in stomaches)
@@ -314,7 +314,7 @@ namespace MicroLife_Simulator
                     for (int j = -holdOnRange; j <= holdOnRange; j++)
                     {
                         Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
-                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        Organism? findTarget = Controller.cellDictionary.ContainsKey(p) ? Controller.cellDictionary[p] : null;
                         if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
                         {
                             target = findTarget;
@@ -687,7 +687,7 @@ namespace MicroLife_Simulator
                         if (!body.ignorePoints.Contains(new Point(p.X, p.Y)) && !body.SenseSignal.ContainsKey(p))
                         {
                             Color color = bmp.GetPixel(p.X, p.Y);
-                            if (body.controller.infectionLVL.ContainsKey(p))
+                            if (Controller.infectionLVL.ContainsKey(p))
                             {
                                 body.SenseSignal.Add(p, color);
                                 targets = body.SenseSignal.Count;
@@ -812,7 +812,7 @@ namespace MicroLife_Simulator
             string? myID = null;
             public int fertilizeCount = 0;
             public int LayeredEggsCount = 0;
-            Controller? controller;
+            //Controller? Controller;
             public Cloaca()
             {
                 name = "Cloaca";
@@ -834,7 +834,7 @@ namespace MicroLife_Simulator
             }
             void LayEgg(Organism body)
             {
-                body.controller.eggListTEMP.Add(new Egg(body));
+                Controller.eggListTEMP.Add(new Egg(body));
             }
             void FindEgg(Organism body,Bitmap bmp)
             {
@@ -845,16 +845,16 @@ namespace MicroLife_Simulator
                     for (int j = -2; j <= 3; j++)
                     {
                         point = new Point(body.point.X + localplace.X + i, body.point.Y + localplace.Y + j);
-                        if (controller.eggDictionary.ContainsKey(point) )
+                        if (Controller.eggDictionary.ContainsKey(point) )
                         {
-                            if (controller.eggDictionary[point].ID2 == "" && controller.eggDictionary[point].myGuid != body.myGuid)
+                            if (Controller.eggDictionary[point].ID2 == "" && Controller.eggDictionary[point].myGuid != body.myGuid)
                             {
-                                if (controller.eggDictionary[point].ID1 == myID)//не стал делать сразу, вместо ID вставить метод сравнения генотипных слов, при этом в яйцо передавать не ID  а слова напрямую
+                                if (Controller.eggDictionary[point].ID1 == myID)//не стал делать сразу, вместо ID вставить метод сравнения генотипных слов, при этом в яйцо передавать не ID  а слова напрямую
                                 {
-                                    controller.eggDictionary[point].parametersParent2 = body.parameters;
-                                    body.GenCopyes(controller.eggDictionary[point].genListParent2,body.genList);
-                                    controller.eggDictionary[point].ID2 = myID;
-                                    controller.eggDictionary[point].age = 0;
+                                    Controller.eggDictionary[point].parametersParent2 = body.parameters;
+                                    body.GenCopyes(Controller.eggDictionary[point].genListParent2,body.genList);
+                                    Controller.eggDictionary[point].ID2 = myID;
+                                    Controller.eggDictionary[point].age = 0;
                                     fertilizeCount++;
                                 }
                             }
@@ -866,7 +866,7 @@ namespace MicroLife_Simulator
             {
 
                 myID ??= body.GetID(body.myGenWords);
-                controller ??= body.controller;
+                //Controller ??= Controller;
 
                 body.canDuplicate = false;
                 if ( body.food >=  body.parameters.dublicateFood )
@@ -929,7 +929,7 @@ namespace MicroLife_Simulator
                         //Color color = bmp.GetPixel(p.X, p.Y);//ЗАМЕНИТЬ поиск по цвету на поиск в словаре
                         //Point point = color.A != 0 && color.R > 0 && color.G > 0 && color.B == 0 ? new Point(localplace.X + i, localplace.Y + j) : new Point(0, 0);
                         //points.Add(point);
-                        if (body.controller.infectionLVL.ContainsKey(pG)) { points.Add(pG); }
+                        if (Controller.infectionLVL.ContainsKey(pG)) { points.Add(pG); }
                     }
                 }
                 //for (int i = points.Count - 1; i > -1; i--)
@@ -941,9 +941,9 @@ namespace MicroLife_Simulator
             void CleanInfection(Organism body)
             {
                 //Point point = new Point(body.point.X + target.X, body.point.Y + target.Y);
-                if (body.controller.infectionLVL.ContainsKey(target))
+                if (Controller.infectionLVL.ContainsKey(target))
                 {
-                    body.controller.infectionLVL[target] = body.controller.infectionLVL[target] - cleanStrength >= 0 ? body.controller.infectionLVL[target] - cleanStrength : 0;
+                    Controller.infectionLVL[target] = Controller.infectionLVL[target] - cleanStrength >= 0 ? Controller.infectionLVL[target] - cleanStrength : 0;
                     body.food += foodConvert;
                     amountClean += foodConvert;
                 }
@@ -1028,10 +1028,10 @@ namespace MicroLife_Simulator
                     for (int j = -biteRange; j <= biteRange; j++)
                     {
                         Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
-                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        Organism? findTarget = Controller.cellDictionary.ContainsKey(p) ? Controller.cellDictionary[p] : null;
                         if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
                         {
-                            target = myOrganism.controller.cellDictionary[p];
+                            target = Controller.cellDictionary[p];
                             break;
                         }
                     }
@@ -1110,7 +1110,7 @@ namespace MicroLife_Simulator
                     for (int j = -holdOnRange; j <= holdOnRange; j++)
                     {
                         Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
-                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        Organism? findTarget = Controller.cellDictionary.ContainsKey(p) ? Controller.cellDictionary[p] : null;
                         if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
                         {
                             target = findTarget;
@@ -1184,7 +1184,7 @@ namespace MicroLife_Simulator
                     for (int j = -holdOnRange; j <= holdOnRange; j++)
                     {
                         Point p = BorderChecker(new Point(myOrganism.point.X + localplace.X + i, myOrganism.point.Y + localplace.Y + j), bmp);
-                        Organism? findTarget = myOrganism.controller.cellDictionary.ContainsKey(p) ? myOrganism.controller.cellDictionary[p] : null;
+                        Organism? findTarget = Controller.cellDictionary.ContainsKey(p) ? Controller.cellDictionary[p] : null;
                         if (findTarget != null && !myOrganism.GetIDdiff(myOrganism.myGenWords, findTarget.myGenWords))
                         {
                             target = findTarget;
