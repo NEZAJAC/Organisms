@@ -24,6 +24,8 @@ namespace MicroLife_Simulator
             static public List<Obstacles> obstaclesList = new List<Obstacles>();
             static public Dictionary<Point, int> infectionLVL = new Dictionary<Point, int>();
             //public List<Point> obstacles = new List<Point>();
+            static public List<int> attackMarkerTime = new List<int>();
+            static public List<Point> attackPoint = new List<Point>();
             static public int sunLVL;
             static public int radiationLVL;
             static public Bitmap? bmpOrganColor;
@@ -104,8 +106,6 @@ namespace MicroLife_Simulator
                 foreach (Egg egg in eggList) { egg.Draw(bmp); }
                 DrawRectangleOnOrganism(bmp);
                 DrawCursorOnTheField(bmp);
-
-
             }
             static void DrawCursorOnTheField(Bitmap bmp)
             {

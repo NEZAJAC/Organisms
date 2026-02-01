@@ -31,6 +31,16 @@ namespace MicroLife_Simulator
             return newpoint;
         }
 
+        public static Point BorderChecker(int xx, int yy, int widthIN, int heightIN)
+        {
+            int width = widthIN;
+            int height = heightIN;
+            int newX = xx >= width ? xx - width + 1 : xx < 1 ? xx + width - 1 : xx;
+            int newY = yy >= height ? yy - height + 1 : yy < 1 ? yy + height - 1 : yy;
+            Point newpoint = new Point(newX, newY);
+            return newpoint;
+        }
+
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             if ((trackBar1.Value != 0))
@@ -169,10 +179,12 @@ namespace MicroLife_Simulator
         private void GrassLimit_CB_CheckedChanged(object sender, EventArgs e)
         {
             trackBar7.Enabled = !trackBar7.Enabled;
+            label35.Visible = !label35.Visible;
         }
         private void OrgLimit_CB_CheckedChanged(object sender, EventArgs e)
         {
             textBox2.Enabled = !textBox2.Enabled;
+            checkBox5.Enabled = !checkBox5.Enabled;
         }
         private void button5_Click(object sender, EventArgs e)
         {
@@ -218,7 +230,7 @@ namespace MicroLife_Simulator
 
                 Controller.ListBoxUpdate(Controller.selectedObject);
                 Controller.DrawOrganColor(Controller.bmpOrganColor);
-                Controller.DrawObservePicture(bmpObservePicture);
+                Controller.DrawObservePicture(bmpOrganismPreview);
                 if (Controller.selectedObject != null && Controller.selectedObject.bodyTypes.Count == comboBox1.Items.Count)
                 {
                     label11.Text = Controller.selectedObject.age.ToString() + "/" + Controller.selectedObject.parameters.maxage;
@@ -231,7 +243,7 @@ namespace MicroLife_Simulator
                     pictureBox4.Image = bmpOrgansColor;
                 }
                 else { label10.Text = "NoNe"; label11.Text = "NoNe"; label6.Text = "NoNe"; label3.Text = "NoNe"; ; progressBar1.Value = 0; progressBar1.Maximum = 100; }
-                pictureBox3.Image = bmpObservePicture;
+                pictureBoxOrganismPrevew.Image = bmpOrganismPreview;
             }
         }
 
@@ -355,6 +367,12 @@ namespace MicroLife_Simulator
             }
             pictureBox1.Image = bmp;
             pictureBox2.Image = bmp;
+        }
+
+        private void checkBox5_CheckedChanged(object sender, EventArgs e)
+        {
+            OrgLimit_CB.Enabled = !OrgLimit_CB.Enabled;
+            textBox2.Enabled = !textBox2.Enabled;
         }
 
         //private void Form1_Paint(object sender, PaintEventArgs e)
